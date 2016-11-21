@@ -21,6 +21,7 @@ A_weight = A_weight(~deadEndNodes,~deadEndNodes);
 G = LoadMeG(true);
 GData = G.GeneExpData.(energyOrDensity);
 numGenes = size(GData,2);
+geneEntrezIDs = [G.GeneStruct.gene_entrez_id];
 
 %-------------------------------------------------------------------------------
 % Compute all edge measures
@@ -61,21 +62,44 @@ end
 %-------------------------------------------------------------------------------
 % Get scores relative to what would be expected from distance
 dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
-[geneEntrez,ia,ib] = intersect(dScores.geneEntrez,[G.GeneStruct.gene_entrez_id]);
-gScoresCorrected = gScore(ib) - dScores.geneDistanceScores(ia);
+[geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
+gScoresCorrected = bsxfun(@minus,gScore(ib,:)dScores.geneDistanceScores(ia));
 
 %-------------------------------------------------------------------------------
 % Save quickly to .mat file:
-save('gScore.mat','gScore','gScoresCorrected','geneEntrez','edgeMeasureNames')
+save('gScore.mat','gScore','gScoresCorrected','geneEntrezIDs',...
+                                'geneEntrezMatched','edgeMeasureNames');
+fprintf(1,'Saved data to gScore.mat\n');
 
 %-------------------------------------------------------------------------------
 % Save each result to a separate ErmineJ file:
-doCorrected = true;
-for i = 1:length(edgeMeasureNames)
-    fileName = sprintf('%s',edgeMeasureNames{i});
-    if doCorrected
-        fileName = [fileName,'_corrected'];
-        writeErmineJFile(fileName,gScore(:,i),geneEntrez,edgeMeasureNames{i});
+% Save corrected and uncorrected versions of each:
+doAbs = false;
+for j = 1:2
+    if j==1
+        doCorrected = false;
+    else
+        doCorrected = true;
+    end
+
+    for i = 1:length(edgeMeasureNames)
+        fileName = sprintf('%s',edgeMeasureNames{i});
+        if doCorrected
+            % Use distance-corrected scores:
+            gScore_i = gScoresCorrected(:,i);
+            entrezWrite = geneEntrezMatched;
+            fileName = [fileName,'_corrected'];
+        else
+            % Use raw gene scores:
+            gScore_i = gScore(:,i);
+            entrezWrite = geneEntrezIDs;
+        end
+
+        % Take absolute values:
+        if doAbs
+            gScore_i = abs(gScore_i);
+        end
+        writeErmineJFile(fileName,gScore_i,entrezWrite,edgeMeasureNames{i});
     end
 end
 
