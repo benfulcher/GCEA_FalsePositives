@@ -3,13 +3,11 @@
 %-------------------------------------------------------------------------------
 % Set parameters:
 pThreshold = 0.05; % for connectivity data
+whatCorr = 'Spearman'; % what correlation metric
 
 %-------------------------------------------------------------------------------
-% Load connectivity data:
+% Load connectivity data and process adjacency matrix
 C = load('Mouse_Connectivity_Data.mat'); % C stands for connectome data
-
-%-------------------------------------------------------------------------------
-% Get the adjacency matrix and process it:
 A_weight = GiveMeAdj(C,'zero','ipsi',0,pThreshold);
 A_bin = (A_weight > 0);
 % Filter out dead-end nodes:
@@ -19,49 +17,53 @@ A_bin = A_bin(~deadEndNodes,~deadEndNodes);
 A_weight = A_weight(~deadEndNodes,~deadEndNodes);
 
 %-------------------------------------------------------------------------------
-% Load the GCC scores from file
-load('GCC_A_p005_deadEnd.mat','ggCorr_A_p005','theGeneStruct');
-numGenes = size(ggCorr_A_p005,1);
+% Get gene expression data:
+G = LoadMeG();
+GData = G.GeneExpData.(energyOrDensity);
+numGenes = size(GData,2);
 
-%-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 % Compute all edge measures
 edgeMeasures = GiveMeAllEdgeMeasures(A_bin,A_weight);
-numStats = length(fieldnames(edgeMeasures));
+edgeMeasureNames = fieldnames(edgeMeasures);
+numStats = length(edgeMeasureNames);
 
 %-------------------------------------------------------------------------------
-% Ok, so now we can run stats on the corrected ggBlockscorr (GCC scores)
+% Ok, so now we can find correlations to GCC scores
 gScore = zeros(numGenes,numStats);
-scoreNames = fieldnames(edgeMeasures);
 q = zeros(sum(A_bin(:)),numStats);
-for i = 1:numStats
-    if ismember(scoreNames{i},{'edgeBet','G','signalTraffic'})
-        fprintf(1,'Doing a log10 transform for %s\n',scoreNames{i});
-        q(:,i) = log10(edgeMeasures.(scoreNames{i})(A_bin));
-    else
-        q(:,i) = edgeMeasures.(scoreNames{i})(A_bin);
-    end
-end
+% Not necessary for Spearman:
+% for i = 1:numStats
+%     if ismember(edgeMeasureNames{i},{'edgeBet','G','signalTraffic'})
+%         fprintf(1,'Doing a log10 transform for %s\n',edgeMeasureNames{i});
+%         q(:,i) = log10(edgeMeasures.(edgeMeasureNames{i})(A_bin));
+%     else
+%         q(:,i) = edgeMeasures.(edgeMeasureNames{i})(A_bin);
+%     end
+% end
 for i = 1:numGenes
-    GCC_i = ggCorr_A_p005(i,:)';
-    % Keep only good values
-    goodData = ~isnan(GCC_i);
-    GCC_i = GCC_i(goodData);
+    g = GData(:,i);
+    GCC = g*g';
+    GCC_A = GCC(A_bin); % vector of GCC scores at connections
     for j = 1:numStats
-        gScore(i,j) = corr(q(goodData,j),GCC_i); % log10 edge betweenness
+        gScore(i,j) = corr(q(:,j),GCC_A,'type',whatCorr,'rows','pairwise');
+    end
+    % Print some info to screen for the user:
+    if i==1 || mod(i,numGenes/10)==0
+        fprintf(1,'%u/%u\n',i,numGenes);
     end
 end
 
 %-------------------------------------------------------------------------------
 % Save quickly to .mat file:
 entrezIDs = [theGeneStruct.filtered.gene_entrez_id];
-save('gScore.mat','gScore','entrezIDs','scoreNames')
+save('gScore.mat','gScore','entrezIDs','edgeMeasureNames')
 
 %-------------------------------------------------------------------------------
 % Save each result to a separate ErmineJ file:
-for i = 1:length(scoreNames)
-    fileName = sprintf('%s',scoreNames{i});
-    writeErmineJFile(fileName,gScore(:,i),entrezIDs,scoreNames{i});
+for i = 1:length(edgeMeasureNames)
+    fileName = sprintf('%s',edgeMeasureNames{i});
+    writeErmineJFile(fileName,gScore(:,i),entrezIDs,edgeMeasureNames{i});
 end
 
 % end

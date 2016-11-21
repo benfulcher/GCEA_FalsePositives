@@ -1,39 +1,16 @@
-function Make_GCC_Corrected(removeDeadEnd)
+function MakeGCC()
 %-------------------------------------------------------------------------------
-% Quick function to try to extract a smaller file containing corrected GCC scores
-% (which can maybe be run locally)
+% Quick function to try to extract a smaller file containing GCC scores
+% for all genes, only at connections
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Set Parameters:
-whatGeneData = 'norm'; % 'norm', 'raw', 'zscore'
-EnergyOrDensity = 'energy'; % 'energy', 'density'
-theCorrection = 'distance'; % 'intraInter','divII','distance','none','cortex','intralinear'
-theFitType = 'expFitAll'; %,'exp_1_0', 'expFitAll', 'linear','decayEta','exp_1_0','expFitLinked'
-baselineLinks = 'all'; % 'all', 'connected' (do the Ghat correction for what set of links?)
+whatGeneData = 'raw'; % 'norm', 'raw', 'zscore'
+energyOrDensity = 'energy'; % 'energy', 'density'
 
 %-------------------------------------------------------------------------------
-% Load the GCC scores from file
-extraText = sprintf('_%s_%s',whatGeneData,EnergyOrDensity);
-fprintf(1,'Loading in ggBlocks and Ghats data for this %s/%s analysis... ',...
-                            whatGeneData,EnergyOrDensity);
-load(['ggBlocks',extraText,'.mat'],'ggBlocks_raw','theGeneStruct'); % this is 5.7GB :-/
-numGenes = size(ggBlocks_raw,1);
-load(['Ghats',extraText,'.mat'],'Ghat')
-fprintf(1,' Done.\n');
-
-%-------------------------------------------------------------------------------
-% Apply a global correction to all GCC scores:
-fprintf(1,'Correcting raw ggBlocks on the basis of %s/%s/%s...',...
-                            theCorrection,theFitType,baselineLinks);
-ggBlockscorr = zeros(size(ggBlocks_raw));
-Gcorrection = Ghat.(theCorrection).(theFitType).(baselineLinks);
-for i = 1:numGenes
-    rawData = squeeze(ggBlocks_raw(i,:,:));
-    ggBlockscorr(i,:,:) = rawData - Gcorrection;
-end
-fprintf(1,'Done!!!\n');
-clear('Ghat','ggBlocks_raw');
+% Load in gene data
 
 %-------------------------------------------------------------------------------
 % Get the elements where links of binary A at 0.05 exist:
@@ -64,7 +41,7 @@ else
     fileName = 'GCC_A_p005.mat';
 end
 
-save(fileName,'ggCorr_A_p005','theGeneStruct','whatGeneData','EnergyOrDensity',...
+save(fileName,'ggCorr_A_p005','theGeneStruct','whatGeneData','energyOrDensity',...
                 'theCorrection','theFitType','baselineLinks','removeDeadEnd');
 
 end
