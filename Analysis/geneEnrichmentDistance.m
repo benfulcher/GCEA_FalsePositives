@@ -11,7 +11,7 @@
 whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
 energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
-normalizeHow = 'mixedSigmoid';
+normalizeHow = 'raw'; % 'mixedSigmoid', 'zscore'
 thresholdGoodGene = 0.2; % threshold of valid coexpression values at which a gene is kept
 
 %-------------------------------------------------------------------------------
@@ -26,10 +26,10 @@ G = LoadMeG();
 GData.raw = G.GeneExpData.(energyOrDensity);
 numGenes = size(GData.raw,2);
 % Normalize expression levels across brain regions for each gene:
-GData.z = BF_NormalizeMatrix(GData.raw,normalizeHow);
+% GData.z = BF_NormalizeMatrix(GData.raw,normalizeHow);
 % z-score across genes for each brain region:
-GData.zz = BF_NormalizeMatrix(GData.z','zscore')';
-fprintf(1,'Gene data normalized.\n');
+% GData.zz = BF_NormalizeMatrix(GData.z','zscore')';
+% fprintf(1,'Gene data normalized.\n');
 
 %-------------------------------------------------------------------------------
 % Pairwise Euclidean distance data:
@@ -43,7 +43,7 @@ d_upper = d(triu(true(size(d)),1));
 fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
 for i = 1:numGenes
     % This gene's correlation pattern across regions:
-    g = GData.zz(:,i);
+    g = GData.raw(:,i);
     % Correlation with itself (assuming normal distribution of expression):
     ggBlock = g*g';
     % Convert to vector of upper diagonal
@@ -84,7 +84,15 @@ end
 %-------------------------------------------------------------------------------
 f = figure('color','w');
 histogram(geneScoresWrite)
-xlabel('Correlation between distance and coexpression')
+xlabel(sprintf('%s correlation between distance and coexpression',whatCorr))
+
+%-------------------------------------------------------------------------------
+% Save result to .mat file
+%-------------------------------------------------------------------------------
+fileNameMat = sprintf('dScores_%s.mat',whatCorr);
+geneEntrez = geneEntrezWrite;
+geneDistanceScores = geneScoresWrite;
+save(fileNameMat,'geneEntrez','geneDistanceScores');
 
 %-------------------------------------------------------------------------------
 % Write them out to ermine J:
@@ -92,8 +100,8 @@ xlabel('Correlation between distance and coexpression')
 fileNameBase = sprintf('corr_d_%s_%s_%s',whatCorr,normalizeHow,pValOrStat);
 doWhat = {'pos','neg','abs'};
 for i = 1:length(doWhat)
-    fileName = sprintf('%s_%s.txt',fileNameBase,doWhat{i});
-    switch doWhat
+    fileName = sprintf('%s_%s',fileNameBase,doWhat{i});
+    switch doWhat{i}
     case 'pos'
         geneScoresNow = geneScoresWrite;
     case 'neg'

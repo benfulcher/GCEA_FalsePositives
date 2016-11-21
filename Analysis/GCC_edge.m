@@ -1,11 +1,11 @@
 % function GCC_edge()
 
 %-------------------------------------------------------------------------------
-% Set Parameters:
+% Set parameters:
 pThreshold = 0.05; % for connectivity data
 
 %-------------------------------------------------------------------------------
-% Load basic connectivity data:
+% Load connectivity data:
 C = load('Mouse_Connectivity_Data.mat'); % C stands for connectome data
 
 %-------------------------------------------------------------------------------
