@@ -18,7 +18,7 @@ A_weight = A_weight(~deadEndNodes,~deadEndNodes);
 
 %-------------------------------------------------------------------------------
 % Get gene expression data:
-G = LoadMeG();
+G = LoadMeG(true);
 GData = G.GeneExpData.(energyOrDensity);
 numGenes = size(GData,2);
 
@@ -28,19 +28,23 @@ edgeMeasures = GiveMeAllEdgeMeasures(A_bin,A_weight);
 edgeMeasureNames = fieldnames(edgeMeasures);
 numStats = length(edgeMeasureNames);
 
-%-------------------------------------------------------------------------------
-% Ok, so now we can find correlations to GCC scores
-gScore = zeros(numGenes,numStats);
+% Convert edge measures to matrix with a row for each connection:
 q = zeros(sum(A_bin(:)),numStats);
-% Not necessary for Spearman:
-% for i = 1:numStats
-%     if ismember(edgeMeasureNames{i},{'edgeBet','G','signalTraffic'})
-%         fprintf(1,'Doing a log10 transform for %s\n',edgeMeasureNames{i});
-%         q(:,i) = log10(edgeMeasures.(edgeMeasureNames{i})(A_bin));
-%     else
-%         q(:,i) = edgeMeasures.(edgeMeasureNames{i})(A_bin);
-%     end
-% end
+for i = 1:numStats
+    q(:,i) = edgeMeasures.(edgeMeasureNames{i})(A_bin);
+    % Transforms necessary for Pearson, e.g.,
+    % if ismember(edgeMeasureNames{i},{'edgeBet','G','signalTraffic'})
+    %     fprintf(1,'Doing a log10 transform for %s\n',edgeMeasureNames{i});
+    %     q(:,i) = log10(edgeMeasures.(edgeMeasureNames{i})(A_bin));
+    % else
+    %     q(:,i) = edgeMeasures.(edgeMeasureNames{i})(A_bin);
+    % end
+end
+
+%-------------------------------------------------------------------------------
+% Ok, so now we can find correlations to GCC scores across genes
+gScore = zeros(numGenes,numStats);
+fprintf(1,'Looping over %u genes, %u edge-based statistics\n',numGenes,numStats);
 for i = 1:numGenes
     g = GData(:,i);
     GCC = g*g';
@@ -55,15 +59,24 @@ for i = 1:numGenes
 end
 
 %-------------------------------------------------------------------------------
+% Get scores relative to what would be expected from distance
+dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
+[geneEntrez,ia,ib] = intersect(dScores.geneEntrez,[G.GeneStruct.gene_entrez_id]);
+gScoresCorrected = gScore(ib) - dScores.geneDistanceScores(ia);
+
+%-------------------------------------------------------------------------------
 % Save quickly to .mat file:
-entrezIDs = [theGeneStruct.filtered.gene_entrez_id];
-save('gScore.mat','gScore','entrezIDs','edgeMeasureNames')
+save('gScore.mat','gScore','gScoresCorrected','geneEntrez','edgeMeasureNames')
 
 %-------------------------------------------------------------------------------
 % Save each result to a separate ErmineJ file:
+doCorrected = true;
 for i = 1:length(edgeMeasureNames)
     fileName = sprintf('%s',edgeMeasureNames{i});
-    writeErmineJFile(fileName,gScore(:,i),entrezIDs,edgeMeasureNames{i});
+    if doCorrected
+        fileName = [fileName,'_corrected'];
+        writeErmineJFile(fileName,gScore(:,i),geneEntrez,edgeMeasureNames{i});
+    end
 end
 
 % end

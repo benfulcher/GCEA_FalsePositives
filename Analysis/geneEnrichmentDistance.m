@@ -11,7 +11,6 @@
 whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
 energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
-normalizeHow = 'raw'; % 'mixedSigmoid', 'zscore'
 thresholdGoodGene = 0.2; % threshold of valid coexpression values at which a gene is kept
 
 %-------------------------------------------------------------------------------
@@ -23,8 +22,8 @@ C = load('Mouse_Connectivity_Data.mat');
 %-------------------------------------------------------------------------------
 % Gene expression data:
 G = LoadMeG();
-GData.raw = G.GeneExpData.(energyOrDensity);
-numGenes = size(GData.raw,2);
+GData = G.GeneExpData.(energyOrDensity);
+numGenes = size(GData,2);
 % Normalize expression levels across brain regions for each gene:
 % GData.z = BF_NormalizeMatrix(GData.raw,normalizeHow);
 % z-score across genes for each brain region:
@@ -41,9 +40,10 @@ d_upper = d(triu(true(size(d)),1));
 % Score genes:
 %-------------------------------------------------------------------------------
 fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
+geneScores = zeros(numGenes,1);
 for i = 1:numGenes
     % This gene's correlation pattern across regions:
-    g = GData.raw(:,i);
+    g = GData(:,i);
     % Correlation with itself (assuming normal distribution of expression):
     ggBlock = g*g';
     % Convert to vector of upper diagonal
@@ -61,6 +61,11 @@ for i = 1:numGenes
         end
     else
         geneScores(i) = NaN;
+    end
+
+    % Print some info to screen for the user:
+    if i==1 || mod(i,numGenes/10)==0
+        fprintf(1,'%u/%u\n',i,numGenes);
     end
 end
 
@@ -93,6 +98,7 @@ fileNameMat = sprintf('dScores_%s.mat',whatCorr);
 geneEntrez = geneEntrezWrite;
 geneDistanceScores = geneScoresWrite;
 save(fileNameMat,'geneEntrez','geneDistanceScores');
+fprintf(1,'Saved info to %s\n',fileNameMat);
 
 %-------------------------------------------------------------------------------
 % Write them out to ermine J:
