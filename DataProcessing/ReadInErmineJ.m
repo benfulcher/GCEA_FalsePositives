@@ -1,4 +1,4 @@
-function [GOName,GOID,pval,corr_pval,numGenes,geneMembers] = ReadInErmineJ(fileNameIn,fileNameMatch)
+function ermineJResults = ReadInErmineJ(fileNameIn,fileNameMatch)
 % ------------------------------------------------------------------------------
 % Ben Fulcher, 2014-12-10
 % ------------------------------------------------------------------------------
@@ -16,7 +16,6 @@ end
 % ------------------------------------------------------------------------------
 % Open the file
 % ------------------------------------------------------------------------------
-% fileName = 'connected_coor_tstat.project');
 fid = fopen(fileNameIn,'r');
 
 if matchFileName
@@ -73,14 +72,25 @@ fclose(fid)
 
 fprintf(1,'Found %u rows of results in %s\n',length(data1{1}),fileNameIn);
 
-GOName = data1{2};
-GOID = data1{3};
-numGenes = data1{5};
+% Output as a table:
+ermineJResults = table;
+
+%% Allocate imported array to column variable names
+ermineJResults.GOName = data1{2};
+ermineJResults.GOID = data1{3};
+ermineJResults.numGenes = data1{5};
+ermineJResults.pVal = data1{7};
+ermineJResults.pVal_corr = data1{8};
+ermineJResults.geneMembers = data1{13};
+
+% GOName = data1{2};
+% GOID = data1{3};
+% numGenes = data1{5};
 % GOIDnum = cellfun(@(x)x(4:end),GOIDstr,'UniformOutput',0);
 
-pval = data1{7};
-corr_pval = data1{8};
-geneMembers = data1{13};
+% pval = data1{7};
+% corr_pval = data1{8};
+% geneMembers = data1{13};
 
 % Nonsense, 'Name'    'ID'    'NumProbes'    'NumGenes'    'RawScore'    'Pval'    'CorrectedPvalue'    'MFPvalue'  'CorrectedMFPvalue'    'Multifunctionality'    'Same as GeneMembers'
 

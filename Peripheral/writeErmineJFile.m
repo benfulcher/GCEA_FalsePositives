@@ -1,6 +1,5 @@
 function fileName = writeErmineJFile(whatData,geneMeasures,theGeneEntrez,columnName)
 % Writes a tab-delimited input file for ermineJ
-%
 % Ben Fulcher, 2014-10-14
 % ------------------------------------------------------------------------------
 

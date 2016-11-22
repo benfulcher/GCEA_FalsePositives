@@ -113,6 +113,6 @@ end
 
 %-------------------------------------------------------------------------------
 % Run ermineJ:
-[GOName,GOID,pval,corr_pval,numGenes,geneMembers] = RunErmineJ(fileNames{3})
+ermineJResults = RunErmineJ(fileNames{1});
 
 % end

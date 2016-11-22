@@ -1,6 +1,7 @@
-function [GOName,GOID,pval,corr_pval,numGenes,geneMembers] = RunErmineJ(inputFileName)
+function ermineJResults = RunErmineJ(inputFileName,numIterations)
 % Runs ermineJ on an input file:
 
+% ---Info on running ermineJ in the commandline---:
 % cf. http://erminej.chibi.ubc.ca/help/tutorials/erminej-cli/
 %
 % -a: sets the annotation file
@@ -18,6 +19,10 @@ function [GOName,GOID,pval,corr_pval,numGenes,geneMembers] = RunErmineJ(inputFil
 % -s gene score file
 % -x maximum class size (100)
 % -y minimum class size
+
+if nargin < 2
+    numIterations = 20000;
+end
 
 
 % Set the ermineJ home directory:
@@ -42,23 +47,44 @@ if exist(outputFile,'file')==2
 end
 
 % Construct the command:
-command = sprintf('%s -C %s -b -j -s %s -o %s',shellScriptPath,propertiesFilePath,inputFilePath,outputFile);
+command = sprintf('%s -C %s -i %u -b -j -s %s -o %s',shellScriptPath,...
+                    propertiesFilePath,numIterations,inputFilePath,outputFile);
 
+%-------------------------------------------------------------------------------
 % Execute the command:
-fprintf(1,'Running ermineJ on %s for biological processes...',inputFileName);
+%-------------------------------------------------------------------------------
+fprintf(1,'Running ermineJ on %s for biological processes using %u iterations...',...
+                                            inputFileName,numIterations);
 [status,cmdOut] = system(command);
 fprintf(1,' Done.\n');
 
+%-------------------------------------------------------------------------------
 % Read in the data:
-[GOName,GOID,pval,corr_pval,numGenes,geneMembers] = ReadInErmineJ(outputFile);
+%-------------------------------------------------------------------------------
+ermineJResults = ReadInErmineJ(outputFile);
 
 % Write out to screen:
-isSig = (corr_pval < 0.05);
-fisSig = find(isSig);
-numSig = length(fisSig);
-fprintf(1,'---%s---\n',inputFileName);
-for i = 1:numSig
-    fprintf(1,'%s (%s) [p=%.2g]\n',GOName{fisSig(i)},GOID{fisSig(i)},corr_pval(fisSig(i)));
+fisSig_005 = find(ermineJResults.pVal_corr < 0.05);
+fisSig_01 = find(ermineJResults.pVal_corr>=0.05 & ermineJResults.pVal_corr < 0.1);
+numSig_005 = length(fisSig_005);
+numSig_01 = length(fisSig_01);
+if numSig_01==0 & numSig_005==0
+    fprintf(1,'No significant GO enrichment for %s\n',inputFileName);
+else
+    fprintf(1,'---%s---\n',inputFileName);
+    % The FDR 0.05 club:
+    for i = 1:numSig_005
+        fprintf(1,'%s (%s) [p=%.2g]\n',ermineJResults.GOName{fisSig_005(i)},...
+                    ermineJResults.GOID{fisSig_005(i)},ermineJResults.pVal_corr(fisSig_005(i)));
+    end
+    % What about outside contenders:
+    if numSig_01 > 0
+        fprintf(1,'--------\n');
+        for i = 1:numSig_01
+            fprintf(1,'%s (%s) [p=%.2g]\n',ermineJResults.GOName{fisSig_01(i)},...
+                        ermineJResults.GOID{fisSig_01(i)},ermineJResults.pVal_corr(fisSig_01(i)));
+        end
+    end
 end
 
 % $ERMINEJ_HOME/bin/ermineJ.sh -C $ERMINEJ_HOME/ermineJBP.properties -b -j -s
