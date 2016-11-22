@@ -1,4 +1,4 @@
-function RunErmineJ(inputFileName)
+function [GOName,GOID,pval,corr_pval,numGenes,geneMembers] = RunErmineJ(inputFileName)
 % Runs ermineJ on an input file:
 
 % cf. http://erminej.chibi.ubc.ca/help/tutorials/erminej-cli/
@@ -26,18 +26,28 @@ function RunErmineJ(inputFileName)
 
 % Get settings for writing out to file:
 shellScriptPath = '/Users/benfulcher/Downloads/ermineJ-3.0.2/bin/ermineJ.sh';
-propertiesFilePath = which('ermineJBP.properties')
+propertiesFilePath = which('ermineJBP.properties');
 inputFilePath = which(inputFileName);
-outputFile = fullfile(pwd,'tmp_ermineJ.out')
+if isempty(inputFilePath)
+    error('%s not found',inputFileName);
+end
+outputFile = fullfile(pwd,'tmp_ermineJ.out');
 
 % Set the JAVA_HOME variable:
 setenv('JAVA_HOME','/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home');
 
+% Delete the temp file if it already exists:
+if exist(outputFile,'file')==2
+    delete(outputFile);
+end
+
 % Construct the command:
-command = sprintf('%s -C %s -b -j -s %s -o %s',shellScriptPath,propertiesFilePath,inputFilePath,outputFile)
+command = sprintf('%s -C %s -b -j -s %s -o %s',shellScriptPath,propertiesFilePath,inputFilePath,outputFile);
 
 % Execute the command:
+fprintf(1,'Running ermineJ on %s for biological processes...',inputFileName);
 [status,cmdOut] = system(command);
+fprintf(1,' Done.\n');
 
 % Read in the data:
 [GOName,GOID,pval,corr_pval,numGenes,geneMembers] = ReadInErmineJ(outputFile);
@@ -46,8 +56,9 @@ command = sprintf('%s -C %s -b -j -s %s -o %s',shellScriptPath,propertiesFilePat
 isSig = (corr_pval < 0.05);
 fisSig = find(isSig);
 numSig = length(fisSig);
+fprintf(1,'---%s---\n',inputFileName);
 for i = 1:numSig
-    fprintf(1,'%s (%s) [p=%.2f]\n',GOName(fisSig(i)),GOID(fisSig(i)),corr_pval(fisSig(i)));
+    fprintf(1,'%s (%s) [p=%.2g]\n',GOName{fisSig(i)},GOID{fisSig(i)},corr_pval(fisSig(i)));
 end
 
 % $ERMINEJ_HOME/bin/ermineJ.sh -C $ERMINEJ_HOME/ermineJBP.properties -b -j -s

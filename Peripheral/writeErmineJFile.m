@@ -1,4 +1,4 @@
-function writeErmineJFile(whatData,geneMeasures,theGeneEntrez,columnName)
+function fileName = writeErmineJFile(whatData,geneMeasures,theGeneEntrez,columnName)
 % Writes a tab-delimited input file for ermineJ
 %
 % Ben Fulcher, 2014-10-14
@@ -12,7 +12,7 @@ end
 
 fileName = sprintf('ermineJ_%s.txt',whatData);
 
-fid = fopen(fullfile('DataOutputs','ermineJ','fileName','w');
+fid = fopen(fullfile('DataOutputs','ermineJ',fileName),'w');
 numGenes = length(theGeneEntrez);
 
 % 1. The header

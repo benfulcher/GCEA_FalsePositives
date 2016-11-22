@@ -5,6 +5,7 @@
 pThreshold = 0.05; % for connectivity data
 whatCorr = 'Spearman'; % what correlation metric
 normalizationSettings = {'robustSigmoid','zscore'}; % {geneNormalization,regionNormalization}
+energyOrDensity = 'energy';
 
 %-------------------------------------------------------------------------------
 % Load connectivity data and process adjacency matrix
@@ -75,6 +76,7 @@ fprintf(1,'Saved data to gScore.mat\n');
 % Save each result to a separate ErmineJ file:
 % Save corrected and uncorrected versions of each:
 doAbs = true;
+fileNames = {};
 for j = 1:2
     if j==1
         doCorrected = false;
@@ -96,16 +98,21 @@ for j = 1:2
         end
         if ~isempty(normalizationSettings)
             fileName = sprintf('%s_N%s-%s',fileName,...
-                            normalizationSettings{1},normalizationSettings{2})
+                            normalizationSettings{1},normalizationSettings{2});
         end
 
         % Take absolute values:
         if doAbs
             gScore_i = abs(gScore_i);
-            fileName = sprintf('%s_%s',fileName,'A')
+            fileName = sprintf('%s_%s',fileName,'A');
         end
-        writeErmineJFile(fileName,gScore_i,entrezWrite,edgeMeasureNames{i});
+        fileNameWrite = writeErmineJFile(fileName,gScore_i,entrezWrite,edgeMeasureNames{i});
+        fileNames = [fileNames,fileNameWrite];
     end
 end
+
+%-------------------------------------------------------------------------------
+% Run ermineJ:
+[GOName,GOID,pval,corr_pval,numGenes,geneMembers] = RunErmineJ(fileNames{3})
 
 % end
