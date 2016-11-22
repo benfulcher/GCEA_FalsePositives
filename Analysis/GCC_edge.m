@@ -4,6 +4,7 @@
 % Set parameters:
 pThreshold = 0.05; % for connectivity data
 whatCorr = 'Spearman'; % what correlation metric
+normalizationSettings = {'log','zscore'}; % {geneNormalization,regionNormalization}
 
 %-------------------------------------------------------------------------------
 % Load connectivity data and process adjacency matrix
@@ -18,10 +19,9 @@ A_weight = A_weight(~deadEndNodes,~deadEndNodes);
 
 %-------------------------------------------------------------------------------
 % Get gene expression data:
-G = LoadMeG(true);
-GData = G.GeneExpData.(energyOrDensity);
+[GeneStruct,GData] = LoadMeG(true,normalizationSettings,energyOrDensity);
 numGenes = size(GData,2);
-geneEntrezIDs = [G.GeneStruct.gene_entrez_id];
+geneEntrezIDs = [GeneStruct.gene_entrez_id];
 
 %-------------------------------------------------------------------------------
 % Compute all edge measures
@@ -63,7 +63,7 @@ end
 % Get scores relative to what would be expected from distance
 dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
 [geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
-gScoresCorrected = bsxfun(@minus,gScore(ib,:)dScores.geneDistanceScores(ia));
+gScoresCorrected = bsxfun(@minus,gScore(ib,:),dScores.geneDistanceScores(ia));
 
 %-------------------------------------------------------------------------------
 % Save quickly to .mat file:
@@ -88,16 +88,21 @@ for j = 1:2
             % Use distance-corrected scores:
             gScore_i = gScoresCorrected(:,i);
             entrezWrite = geneEntrezMatched;
-            fileName = [fileName,'_corrected'];
+            fileName = [fileName,'_corr'];
         else
             % Use raw gene scores:
             gScore_i = gScore(:,i);
             entrezWrite = geneEntrezIDs;
         end
+        if ~isempty(normalizationSettings)
+            fileName = sprintf('%s_N%s-%s',fileName,...
+                            normalizationSettings{1},normalizationSettings{2})
+        end
 
         % Take absolute values:
         if doAbs
             gScore_i = abs(gScore_i);
+            fileName = sprintf('%s_%s',fileName,'A')
         end
         writeErmineJFile(fileName,gScore_i,entrezWrite,edgeMeasureNames{i});
     end

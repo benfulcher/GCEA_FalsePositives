@@ -1,4 +1,4 @@
-function [GeneStruct,GeneExpData] = LoadMeG(removeDuplicates,doNormalize,energyOrDensity)
+function [GeneStruct,GeneExpData] = LoadMeG(removeDuplicates,normalizationSettings,energyOrDensity)
 % Load in the gene data as G
 
 %-------------------------------------------------------------------------------
@@ -7,8 +7,9 @@ function [GeneStruct,GeneExpData] = LoadMeG(removeDuplicates,doNormalize,energyO
 if nargin < 1 || isempty(removeDuplicates)
     removeDuplicates = true;
 end
-if nargin < 2 || isempty(doNormalize)
-    doNormalize = 0;
+if nargin < 2 || isempty(normalizationSettings)
+    normalizationSettings = {};
+    % In the format: {howToNormalizeGenesAcrossRegions,howToNormalizeRegionsAcrossGenes}
 end
 if nargin < 3
     energyOrDensity = 'energy';
@@ -36,9 +37,11 @@ if removeDuplicates
     GeneStruct = GeneStruct(ia);
 end
 %-------------------------------------------------------------------------------
-if doNormalize
-    GeneExpData = BF_NormalizeMatrix(GeneExpData,'mixedSigmoid');
-    fprintf(1,'Normalized using mixed sigmoid\n');
+if ~isempty(normalizationSettings)
+    GeneExpData = BF_NormalizeMatrix(GeneExpData,normalizationSettings{1});
+    fprintf(1,'1. Normalized expression for each gene using %s\n',normalizationSettings{1});
+    GeneExpData = BF_NormalizeMatrix(GeneExpData',normalizationSettings{2})';
+    fprintf(1,'2. Normalized expression across each brain region using %s\n',normalizationSettings{2});
 end
 
 end

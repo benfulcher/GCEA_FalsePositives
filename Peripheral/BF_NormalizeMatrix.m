@@ -67,6 +67,16 @@ numFeatures = size(dataMatrix,2);
 dataMatrixNorm = zeros(size(dataMatrix));
 
 switch normMethod
+    case 'log10'
+        % Take the logarithm of all values in the matrix:
+        dataMatrixNorm = dataMatrix;
+        nonPositive = dataMatrixNorm(:)<=0;
+        if any(nonPositive)
+            warning('%u non-positive entries set to NaN for log transform',sum(nonPositive))
+            dataMatrixNorm(nonPositive) = NaN;
+        end
+        dataMatrixNorm = log10(dataMatrixNorm);
+
     case 'subtractMean'
         % Subtract the mean:
         dataMatrixNorm = bsxfun(@minus,dataMatrix,mean(dataMatrix));
@@ -149,7 +159,9 @@ switch normMethod
                 dataMatrixNorm(goodRows,i) = (kk-min(kk))/(max(kk)-min(kk));
             end
         end
-
+    case 'none'
+        dataMatrixNorm = dataMatrix;
+        return
     otherwise
         error('Invalid normalization method ''%s''', normMethod)
 end
