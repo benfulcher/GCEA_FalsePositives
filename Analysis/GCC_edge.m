@@ -112,7 +112,7 @@ for j = 1:2
 end
 
 %-------------------------------------------------------------------------------
-% Run ermineJ:
-ermineJResults = RunErmineJ(fileNames{1});
+% Run ermineJ for biological processes using 20000 iterations:
+ermineJResults = RunErmineJ(fileNames{1},20000);
 
 % end
