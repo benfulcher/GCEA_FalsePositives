@@ -8,29 +8,12 @@ if nargin < 4
     columnName = 'geneMeanP';
 end
 
-%
-% whatData = 'machineLearn';
-%
-% % Open the file
-% switch whatData
-% case 'machineLearn'
-%     fileName = 'ermineJInputFile_massU.txt';
-%     % geneMeasures = pvalues(:,6); %meanP;
-%     % theGeneEntrez = {theGeneStruct.gene_acronym};
-% case 'meanEnrich'
-%     fileName = 'ermineJInputFile_Enrich.txt';
-%     % geneMeasures = meanP;
-%     % theGeneEntrez = {theGeneStruct.filtered.gene_acronym};
-% end
+%-------------------------------------------------------------------------------
 
-fileName = sprintf('ermineJInputFile_%s.txt',whatData);
+fileName = sprintf('ermineJ_%s.txt',whatData);
 
-fid = fopen(fileName,'w');
-
+fid = fopen(fullfile('DataOutputs','ermineJ','fileName','w');
 numGenes = length(theGeneEntrez);
-
-% Case we have meanP and theGeneStruct
-% ------------------------------------------------------------------------------
 
 % 1. The header
 fprintf(fid,'%s\t%s\n','Gene',columnName);
@@ -45,7 +28,6 @@ fclose(fid);
 
 % ------------------------------------------------------------------------------
 % Display result:
-
 fprintf(1,'\nWrote %s to file for ermineJ.\n\n',fileName);
 
 end

@@ -5,7 +5,7 @@
 removeDuplicates = true;
 doNormalize = false;
 energyOrDensity = 'energy';
-normalizationSettings = {'log','zscore'}; % {geneNormalization,regionNormalization}
+normalizationSettings = {'log10','zscore'}; % {geneNormalization,regionNormalization}
 
 %-------------------------------------------------------------------------------
 [GeneStruct,GeneExpData] = LoadMeG(removeDuplicates,normalizationSettings,energyOrDensity);
@@ -13,15 +13,15 @@ normalizationSettings = {'log','zscore'}; % {geneNormalization,regionNormalizati
 
 %-------------------------------------------------------------------------------
 % Normalize:
-switch whatNormalizationGenes
-case 'log'
-    GeneExpDataN = GeneExpData;
-    GeneExpDataN(GeneExpDataN==0) = NaN;
-    GeneExpDataN = log10(GeneExpData);
-otherwise
-    GeneExpDataN = BF_NormalizeMatrix(GeneExpData,whatNormalizationGenes);
-end
-GeneExpDataN = BF_NormalizeMatrix(GeneExpDataN',whatNormalizationRegions)';
+% switch whatNormalizationGenes
+% case 'log'
+%     GeneExpDataN = GeneExpData;
+%     GeneExpDataN(GeneExpDataN==0) = NaN;
+%     GeneExpDataN = log10(GeneExpData);
+% otherwise
+%     GeneExpDataN = BF_NormalizeMatrix(GeneExpData,whatNormalizationGenes);
+% end
+% GeneExpDataN = BF_NormalizeMatrix(GeneExpDataN',whatNormalizationRegions)';
 
 %-------------------------------------------------------------------------------
 % Distribution of genes across brain regions for a sample of genes:

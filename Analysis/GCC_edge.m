@@ -4,7 +4,7 @@
 % Set parameters:
 pThreshold = 0.05; % for connectivity data
 whatCorr = 'Spearman'; % what correlation metric
-normalizationSettings = {'log','zscore'}; % {geneNormalization,regionNormalization}
+normalizationSettings = {'robustSigmoid','zscore'}; % {geneNormalization,regionNormalization}
 
 %-------------------------------------------------------------------------------
 % Load connectivity data and process adjacency matrix
@@ -74,7 +74,7 @@ fprintf(1,'Saved data to gScore.mat\n');
 %-------------------------------------------------------------------------------
 % Save each result to a separate ErmineJ file:
 % Save corrected and uncorrected versions of each:
-doAbs = false;
+doAbs = true;
 for j = 1:2
     if j==1
         doCorrected = false;
