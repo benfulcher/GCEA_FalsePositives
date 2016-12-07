@@ -3,7 +3,6 @@
 % edge property
 whatEdgeProperty = 'betweenness';
 
-
 %-------------------------------------------------------------------------------
 % Fixed parameters:
 energyOrDensity = 'energy'; % what gene expression data to use
@@ -14,9 +13,9 @@ numIterationsErmineJ = 20000; % number of iterations for GSR in ermineJ
 %-------------------------------------------------------------------------------
 % Set up a structure array containing all of the different processing options:
 absTypes = {true,false};
-corrTypes = {'Pearson'}; % {'Spearman','Pearson'};
-normalizationGeneTypes = {'none'}; % {'none','log10','robustSigmoid'};
-normalizationRegionTypes = {'zscore'}; % {'none','zscore','robustSigmoid'};
+corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
+normalizationGeneTypes = {'none','log10','robustSigmoid'};
+normalizationRegionTypes = {'none','zscore','robustSigmoid'};
 correctDistanceTypes = {true,false};
 
 cntr = 0;
@@ -57,6 +56,12 @@ edgeData = edge_betweenness_bin(A_bin);
 f = figure('color','w');
 histogram(edgeData(edgeData~=0));
 xlabel('Edge betweenness (binary)')
+d = C.Dist_Matrix{1,1}/1000;
+isUpper = triu(true(size(d)),1);
+f = figure('color','w');
+plot(d(isUpper),log10(edgeData(isUpper)),'.k');
+xlabel('d');
+ylabel('log10 binary betweenness')
 
 %-------------------------------------------------------------------------------
 % Get scores for genes:
@@ -109,6 +114,11 @@ for i = 1:numProcessingTypes
     [~,ia,ib] = intersect(allGOIDs,enrichmentTables{i}.GOID);
     summaryTable(ia,i) = enrichmentTables{i}.pVal(ib);
 end
+% order GO categories by relevance:
+propSig = mean(summaryTable > 0,2);
+[~,ix_GO] = sort(propSig,'descend');
+propSig = mean(summaryTable > 0,1);
+[~,ix_pMeth] = sort(propSig,'descend');
 
 labelTable = zeros(numSwitches,numProcessingTypes);
 groupNamesAll = cell(numSwitches,1);
@@ -126,22 +136,23 @@ end
 %-------------------------------------------------------------------------------
 f = figure('color','w'); hold on; ax = gca;
 maxSummaryTable = max(summaryTable(:));
-BF_imagesc([summaryTable;labelTable*maxSummaryTable+1e-6]);
+BF_imagesc([summaryTable(ix_GO,ix_pMeth);(BF_NormalizeMatrix(labelTable(:,ix_pMeth)','maxmin')'*0.99+1)*maxSummaryTable*1.01]);
 ax.YLim = [0.5,numGOIDs + numSwitches+0.5];
 ax.YTick = 1:numGOIDs + numSwitches;
-ax.YTickLabel(1:numGOIDs) = allGOLabels;
+ax.YTickLabel(1:numGOIDs) = allGOLabels(ix_GO);
 ax.YTickLabel(numGOIDs+1:numGOIDs+numSwitches) = theSwitches;
 plot([0.5,numProcessingTypes+0.5],(numGOIDs+0.5)*ones(2,1),'k')
 ax.XTick = 1:numProcessingTypes;
-colormap([BF_getcmap('blues',9,0);BF_getcmap('spectral',9,0)])
+theMap = [BF_getcmap('blues',9,0);BF_getcmap('spectral',11,0)];
+colormap(theMap(1:end-2,:))
 % Label group names
 for i = 1:numSwitches
     numGroups = length(groupNamesAll{i});
     for j = 1:numGroups
         if iscell(groupNamesAll{i})
-            text(find(gidsAll{i}==j,1,'first'),numGOIDs+i,groupNamesAll{i}{j},'color','w')
+            text(find(gidsAll{i}(ix_pMeth)==j,1,'first'),numGOIDs+i,groupNamesAll{i}{j},'color','w')
         else
-            text(find(gidsAll{i}==j,1,'first'),numGOIDs+i,num2str(groupNamesAll{i}(j)),'color','w')
+            text(find(gidsAll{i}(ix_pMeth)==j,1,'first'),numGOIDs+i,num2str(groupNamesAll{i}(j)),'color','w')
         end
     end
 end
