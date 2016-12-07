@@ -70,7 +70,7 @@ enrichmentTables = cell(numProcessingTypes,1);
 timer = tic;
 for i = 1:numProcessingTypes
     % Load in our gene data:
-    [GeneStruct,geneData] = LoadMeG(true,{processingSteps(i).normalizationGene,...
+    [GeneStruct,geneData] = LoadMeG({processingSteps(i).normalizationGene,...
                             processingSteps(i).normalizationRegion},energyOrDensity);
     geneEntrezIDs = [GeneStruct.gene_entrez_id];
     % Compute gene scores:

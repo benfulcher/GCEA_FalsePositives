@@ -7,8 +7,8 @@ function [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneEntrezIDs,what
 % DEFAULTS:
 %-------------------------------------------------------------------------------
 if nargin < 3
-    [GeneStruct,GData] = LoadMeG(true,{'robustSigmoid','zscore'},'energy');
-    geneEntrezIDs = [GeneStruct.gene_entrez_id];
+    [GData,geneInfo] = LoadMeG({'robustSigmoid','zscore'},'energy');
+    geneEntrezIDs = geneInfo.gene_entrez_id;
 end
 if nargin < 4
     whatCorr = 'Pearson';

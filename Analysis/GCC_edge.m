@@ -20,7 +20,7 @@ A_weight = A_weight(~deadEndNodes,~deadEndNodes);
 
 %-------------------------------------------------------------------------------
 % Get gene expression data:
-[GeneStruct,GData] = LoadMeG(true,normalizationSettings,energyOrDensity);
+[GeneStruct,GData] = LoadMeG(normalizationSettings,energyOrDensity);
 numGenes = size(GData,2);
 geneEntrezIDs = [GeneStruct.gene_entrez_id];
 

@@ -2,13 +2,12 @@
 % (and examine the appropriateness of normalization)
 %-------------------------------------------------------------------------------
 
-removeDuplicates = true;
 doNormalize = false;
 energyOrDensity = 'energy';
 normalizationSettings = {'log10','zscore'}; % {geneNormalization,regionNormalization}
 
 %-------------------------------------------------------------------------------
-[GeneStruct,GeneExpData] = LoadMeG(removeDuplicates,normalizationSettings,energyOrDensity);
+[GeneStruct,GeneExpData] = LoadMeG(normalizationSettings,energyOrDensity);
 [numRegions,numGenes] = size(GeneExpData);
 
 %-------------------------------------------------------------------------------
