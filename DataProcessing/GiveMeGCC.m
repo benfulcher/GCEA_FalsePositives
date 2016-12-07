@@ -1,28 +1,32 @@
-function gScore = GiveMeGCC(edgeData,geneData,whatCorr,correctDistance,doAbs,thresholdGoodGene)
+function [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneEntrezIDs,whatCorr,...
+                                correctDistance,doAbs,thresholdGoodGene,pValOrStat)
 % Returns GCC scores for all genes given some edge metric
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % DEFAULTS:
 %-------------------------------------------------------------------------------
-if nargin < 2
-    [~,GData] = LoadMeG(true,{'robustSigmoid','zscore'},'energy');
-end
 if nargin < 3
-    whatCorr = 'Pearson';
+    [GeneStruct,GData] = LoadMeG(true,{'robustSigmoid','zscore'},'energy');
+    geneEntrezIDs = [GeneStruct.gene_entrez_id];
 end
 if nargin < 4
-    correctDistance = false;
+    whatCorr = 'Pearson';
 end
 if nargin < 5
-    doAbs = false;
+    correctDistance = false;
 end
 if nargin < 6
+    doAbs = false;
+end
+if nargin < 7
     % Need minimum of 50% of data to compute correlation
     thresholdGoodGene = 0.5;
 end
+if nargin < 8
+    pValOrStat = 'stat';
+end
 %-------------------------------------------------------------------------------
-
 [numRegions,numGenes] = size(geneData);
 
 % Convert to vector across edges:
@@ -38,10 +42,19 @@ for i = 1:numGenes
     g = geneData(:,i);
     GCC = g*g';
     GCC_A = GCC(isEdge);
-    if mean(isnan(GCC_A)) < thresholdGoodGene
+    if mean(isnan(GCC_A)) > thresholdGoodGene
+        beep
         gScore(i) = NaN;
     else
-        gScore(i) = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
+        switch pValOrStat
+        case 'pVal'
+            [~,gScore(i)] = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
+        case 'stat'
+            gScore(i) = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
+        end
+    end
+    if isnan(gScore(i))
+        keyboard
     end
     % Print some info to screen for the user:
     if i==1 || mod(i,numGenes/10)==0
@@ -50,17 +63,24 @@ for i = 1:numGenes
 end
 
 %-------------------------------------------------------------------------------
+% Correct for distance:
+%-------------------------------------------------------------------------------
+% Get scores relative to what would be expected from distance
+if correctDistance
+    % STILL NEED TO INSPECT WHAT THIS IS DOING...
+    if ~strcmp(whatCorr,'Spearman')
+        warning('Correcting using Spearman, not %s',whatCorr);
+    end
+    dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
+    [geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
+    gScore = bsxfun(@minus,gScore(ib),dScores.geneDistanceScores(ia));
+    geneEntrezIDs = geneEntrezMatched;
+end
+
+%-------------------------------------------------------------------------------
 % Take absolute values:
 if doAbs
     gScore = abs(gScore);
 end
-
-%-------------------------------------------------------------------------------
-% Correct for distance:
-%-------------------------------------------------------------------------------
-% Get scores relative to what would be expected from distance
-dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
-[geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
-gScoresCorrected = bsxfun(@minus,gScore(ib,:),dScores.geneDistanceScores(ia));
 
 end
