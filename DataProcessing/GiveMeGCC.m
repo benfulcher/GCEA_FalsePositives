@@ -42,7 +42,7 @@ edgeVector = edgeData(isEdge);
 gScore = zeros(numGenes,1);
 fprintf(1,'Looping over %u genes, computing correlations across %u edges\n',...
                                                 numGenes,length(edgeVector));
-for i = 1:numGenes
+parfor i = 1:numGenes
     g = geneData(:,i);
     GCC = g*g';
     GCC_A = GCC(isEdge);

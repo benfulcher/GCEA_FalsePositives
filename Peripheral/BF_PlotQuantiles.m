@@ -15,7 +15,7 @@ end
 
 %-------------------------------------------------------------------------------
 % Filter out NaNs:
-goodBoth = (~isnan(xData) & ~isnan(yData));
+goodBoth = (isfinite(xData) & isfinite(yData));
 if ~any(goodBoth)
     error('No good data');
 elseif any(~goodBoth)
@@ -32,8 +32,9 @@ yStds = arrayfun(@(x)std(yData(xData>=xThresholds(x) & xData < xThresholds(x+1))
 % ------------------------------------------------------------------------------
 % Plot:
 if makeNewFigure
-    f = figure('color','w'); box('on'); hold on
+    f = figure('color','w'); box('on');
 end
+hold on
 theColor = 'k';
 theStyle = '-';
 theLineWidth = 2;

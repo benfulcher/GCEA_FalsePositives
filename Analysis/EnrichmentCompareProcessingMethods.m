@@ -1,7 +1,7 @@
 % EnrichmentCompareProcessingMethods()
 % Idea is to compare different preprocessing steps on the enrichment of a given
 % edge property
-whatEdgeProperty = 'betweenness';
+whatEdgeProperty = 'communicability';
 
 %-------------------------------------------------------------------------------
 % Fixed parameters:
@@ -17,6 +17,7 @@ corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
 normalizationGeneTypes = {'none','robustSigmoid'};
 normalizationRegionTypes = {'none','zscore'};
 correctDistanceTypes = {false};
+pThresholds = [0.05];
 
 cntr = 0;
 for i = 1:length(absTypes)
@@ -29,13 +30,17 @@ for i = 1:length(absTypes)
                 normalizationRegionType = normalizationRegionTypes{l};
                 for m = 1:length(correctDistanceTypes)
                     correctDistance = correctDistanceTypes{m};
-                    %----------------------------------------------------------
-                    cntr = cntr + 1;
-                    processingSteps(cntr).abs = absType;
-                    processingSteps(cntr).corrType = corrType;
-                    processingSteps(cntr).normalizationGene = normalizationGeneType;
-                    processingSteps(cntr).normalizationRegion = normalizationRegionType;
-                    processingSteps(cntr).correctDistance = correctDistance;
+                    for n = 1:length(pThresholds)
+                        pThreshold = pThresholds(n);
+                        %----------------------------------------------------------
+                        cntr = cntr + 1;
+                        processingSteps(cntr).abs = absType;
+                        processingSteps(cntr).corrType = corrType;
+                        processingSteps(cntr).normalizationGene = normalizationGeneType;
+                        processingSteps(cntr).normalizationRegion = normalizationRegionType;
+                        processingSteps(cntr).correctDistance = correctDistance;
+                        processingSteps(cntr).pThreshold = pThreshold;
+                    end
                 end
             end
         end
@@ -50,22 +55,28 @@ fprintf(1,'Comparing %u different processing parameters\n',numProcessingTypes);
 % Get edge data:
 %-------------------------------------------------------------------------------
 C = load('Mouse_Connectivity_Data.mat'); % C stands for connectome data
-pThreshold = 0.05;
-A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
-switch whatEdgeProperty
-case 'betweenness'
-    edgeData = edge_betweenness_bin(A_bin);
-    f = figure('color','w');
+f = figure('color','w');
+for p = 1:length(pThresholds)
+    A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
+    switch whatEdgeProperty
+    case 'communicability'
+        edgeData = communicability(A_bin);
+        edgeData(~A_bin) = 0; % only put on real edges
+    case 'betweenness'
+        edgeData = edge_betweenness_bin(A_bin);
+    case 'distance'
+        edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    end
+    subplot(2,length(pThresholds),2*(p-1)+1);
     histogram(edgeData(edgeData~=0));
-    xlabel('Edge betweenness (binary)')
+    xlabel(whatEdgeProperty)
     d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
     isUpper = triu(true(size(d)),1);
-    f = figure('color','w');
-    plot(d(isUpper),log10(edgeData(isUpper)),'.k');
+    subplot(2,length(pThresholds),2*p);
+    BF_PlotQuantiles(d(isUpper),edgeData(isUpper),15,false,false);
+    % plot(d(isUpper),log10(edgeData(isUpper)),'.k');
     xlabel('d');
-    ylabel('log10 binary betweenness')
-case 'distance'
-    edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    ylabel(whatEdgeProperty)
 end
 
 %-------------------------------------------------------------------------------
@@ -74,11 +85,12 @@ end
 enrichmentTables = cell(numProcessingTypes,1);
 timer = tic;
 for i = 1:numProcessingTypes
-    fprintf(1,'%u/%u: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u\n',i,numProcessingTypes,...
+    fprintf(1,'%u/%u: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u, pThresh-%.2f\n',i,numProcessingTypes,...
                                         processingSteps(i).normalizationGene,...
                                         processingSteps(i).normalizationRegion,...
                                         processingSteps(i).corrType,...
-                                        processingSteps(i).correctDistance);
+                                        processingSteps(i).correctDistance,...
+                                        processingSteps(i).pThreshold);
     % Load in our gene data:
     [geneData,geneInfo,structInfo] = LoadMeG({processingSteps(i).normalizationGene,...
                         processingSteps(i).normalizationRegion},energyOrDensity);
@@ -125,9 +137,11 @@ for i = 1:numProcessingTypes
     summaryTable(ia,i) = enrichmentTables{i}.pVal(ib);
 end
 % order GO categories by relevance:
-propSig = mean(summaryTable > 0,2);
+summaryTableSat = summaryTable;
+summaryTableSat(isnan(summaryTable)) = 0.1;
+propSig = mean(summaryTableSat,2);
 [~,ix_GO] = sort(propSig,'descend');
-propSig = mean(summaryTable > 0,1);
+propSig = mean(summaryTableSat,1);
 [~,ix_pMeth] = sort(propSig,'descend');
 
 labelTable = zeros(numSwitches,numProcessingTypes);
