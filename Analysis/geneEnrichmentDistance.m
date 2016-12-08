@@ -55,7 +55,7 @@ textLabel = sprintf('dScores_%s_%s-%s_%s_abs%u_conn%u',whatCorr,normalizationSet
 f = figure('color','w');
 histogram(geneScores)
 xlabel(sprintf('%s correlation between distance and coexpression',whatCorr))
-title(textLabel)
+title(textLabel,'interpreter','none')
 
 %-------------------------------------------------------------------------------
 % Save result to .mat file
@@ -69,7 +69,7 @@ fprintf(1,'Saved info to %s\n',fileNameMat);
 % Do enrichment using ermine J:
 %-------------------------------------------------------------------------------
 numIterations = 10000;
-fileNameWrite = writeErmineJFile('tmp',abs(geneScores),geneEntrezIDs,'distance');
+fileNameWrite = writeErmineJFile('tmp',-(geneScores),geneEntrezIDs,'distance');
 ermineJResults = RunErmineJ(fileNameWrite,numIterations);
 
 % fileName = sprintf('corr_d_%s_%s_%s',whatCorr,normalizeHow,pValOrStat);
