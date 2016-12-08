@@ -68,8 +68,9 @@ fprintf(1,'Saved info to %s\n',fileNameMat);
 %-------------------------------------------------------------------------------
 % Do enrichment using ermine J:
 %-------------------------------------------------------------------------------
-numIterations = 10000;
+numIterations = 20000;
 fileNameWrite = writeErmineJFile('tmp',-(geneScores),geneEntrezIDs,'distance');
+% fileNameWrite = writeErmineJFile('tmp',-geneDistanceScores,geneEntrez,'distance');
 ermineJResults = RunErmineJ(fileNameWrite,numIterations);
 
 % fileName = sprintf('corr_d_%s_%s_%s',whatCorr,normalizeHow,pValOrStat);

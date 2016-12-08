@@ -47,12 +47,12 @@ for i = 1:numGenes
         gScore(i) = NaN;
     else
         % Compute the correlation statistic:
-        [corrVal,pVal] = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
+        [rho,pVal] = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
         switch pValOrStat
         case 'pVal'
             gScore(i) = pVal;
         case 'stat'
-            gScore(i) = corrVal;
+            gScore(i) = rho;
         end
         if isnan(gScore(i))
             keyboard

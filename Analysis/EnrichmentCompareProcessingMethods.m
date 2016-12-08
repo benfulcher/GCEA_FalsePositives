@@ -12,11 +12,11 @@ numIterationsErmineJ = 10000; % number of iterations for GSR in ermineJ
 
 %-------------------------------------------------------------------------------
 % Set up a structure array containing all of the different processing options:
-absTypes = {true,false};
+absTypes = {false}; % false -> coexpression contribution increases with the statistic
 corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
 normalizationGeneTypes = {'none','robustSigmoid'};
 normalizationRegionTypes = {'none','zscore'};
-correctDistanceTypes = {true,false};
+correctDistanceTypes = {false};
 
 cntr = 0;
 for i = 1:length(absTypes)
