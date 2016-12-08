@@ -8,14 +8,14 @@ whatEdgeProperty = 'betweenness';
 energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-numIterationsErmineJ = 20000; % number of iterations for GSR in ermineJ
+numIterationsErmineJ = 10000; % number of iterations for GSR in ermineJ
 
 %-------------------------------------------------------------------------------
 % Set up a structure array containing all of the different processing options:
 absTypes = {true,false};
 corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
-normalizationGeneTypes = {'none','log10','robustSigmoid'};
-normalizationRegionTypes = {'none','zscore','robustSigmoid'};
+normalizationGeneTypes = {'none','robustSigmoid'};
+normalizationRegionTypes = {'none','zscore'};
 correctDistanceTypes = {true,false};
 
 cntr = 0;
@@ -52,16 +52,21 @@ fprintf(1,'Comparing %u different processing parameters\n',numProcessingTypes);
 C = load('Mouse_Connectivity_Data.mat'); % C stands for connectome data
 pThreshold = 0.05;
 A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
-edgeData = edge_betweenness_bin(A_bin);
-f = figure('color','w');
-histogram(edgeData(edgeData~=0));
-xlabel('Edge betweenness (binary)')
-d = C.Dist_Matrix{1,1}/1000;
-isUpper = triu(true(size(d)),1);
-f = figure('color','w');
-plot(d(isUpper),log10(edgeData(isUpper)),'.k');
-xlabel('d');
-ylabel('log10 binary betweenness')
+switch whatEdgeProperty
+case 'betweenness'
+    edgeData = edge_betweenness_bin(A_bin);
+    f = figure('color','w');
+    histogram(edgeData(edgeData~=0));
+    xlabel('Edge betweenness (binary)')
+    d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    isUpper = triu(true(size(d)),1);
+    f = figure('color','w');
+    plot(d(isUpper),log10(edgeData(isUpper)),'.k');
+    xlabel('d');
+    ylabel('log10 binary betweenness')
+case 'distance'
+    edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+end
 
 %-------------------------------------------------------------------------------
 % Get scores for genes:
@@ -69,16 +74,21 @@ ylabel('log10 binary betweenness')
 enrichmentTables = cell(numProcessingTypes,1);
 timer = tic;
 for i = 1:numProcessingTypes
+    fprintf(1,'%u/%u: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u\n',i,numProcessingTypes,...
+                                        processingSteps(i).normalizationGene,...
+                                        processingSteps(i).normalizationRegion,...
+                                        processingSteps(i).corrType,...
+                                        processingSteps(i).correctDistance);
     % Load in our gene data:
-    [GeneStruct,geneData] = LoadMeG({processingSteps(i).normalizationGene,...
-                            processingSteps(i).normalizationRegion},energyOrDensity);
-    geneEntrezIDs = [GeneStruct.gene_entrez_id];
+    [geneData,geneInfo,structInfo] = LoadMeG({processingSteps(i).normalizationGene,...
+                        processingSteps(i).normalizationRegion},energyOrDensity);
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
-    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneEntrezIDs,processingSteps(i).corrType,...
-                    processingSteps(i).correctDistance,thresholdGoodGene,pValOrStat);
+    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,processingSteps(i).corrType,...
+                    processingSteps(i).correctDistance,processingSteps(i).abs,thresholdGoodGene,pValOrStat);
+
     % Do enrichment:
-    fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,'bin_betw');
+    fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,whatEdgeProperty);
     ermineJResults = RunErmineJ(fileNameWrite,numIterationsErmineJ);
     % <<<Keep ermineJResults for p-values under 0.1>>>
     enrichmentTables{i} = ermineJResults(ermineJResults.pVal_corr < 0.1,:);
@@ -132,28 +142,50 @@ for i = 1:numSwitches
     labelTable(i,:) = gidsAll{i};
 end
 
-
 %-------------------------------------------------------------------------------
-f = figure('color','w'); hold on; ax = gca;
+% Plot a table summarizing enrichment results
+%-------------------------------------------------------------------------------
+
+f = figure('color','w'); hold on;
 maxSummaryTable = max(summaryTable(:));
-BF_imagesc([summaryTable(ix_GO,ix_pMeth);(BF_NormalizeMatrix(labelTable(:,ix_pMeth)','maxmin')'*0.99+1)*maxSummaryTable*1.01]);
-ax.YLim = [0.5,numGOIDs + numSwitches+0.5];
-ax.YTick = 1:numGOIDs + numSwitches;
-ax.YTickLabel(1:numGOIDs) = allGOLabels(ix_GO);
-ax.YTickLabel(numGOIDs+1:numGOIDs+numSwitches) = theSwitches;
-plot([0.5,numProcessingTypes+0.5],(numGOIDs+0.5)*ones(2,1),'k')
-ax.XTick = 1:numProcessingTypes;
+subplot(5,1,1); ax1 = gca;
+imagesc((BF_NormalizeMatrix(labelTable(:,ix_pMeth)','maxmin')'*0.999+1.001)*maxSummaryTable)
+ax1.YLim = [0.5,0.5+numSwitches];
+ax1.YTick = 1:numSwitches;
+ax1.YTickLabel = theSwitches;
+caxis([0,maxSummaryTable*2])
+subplot(5,1,2:5); hold on; ax2 = gca;
+BF_imagesc(summaryTable(ix_GO,ix_pMeth));
+ax2.XLim = [0.5,numProcessingTypes+0.5];
+ax2.YLim = [0.5,numGOIDs + 0.5];
+ax2.YTick = 1:numGOIDs;
+ax2.YTickLabel = allGOLabels(ix_GO);
+% plot([0.5,numProcessingTypes+0.5],(numGOIDs+0.5)*ones(2,1),'k')
+ax2.XTick = 1:numProcessingTypes;
+ax2.XTickLabel = [];
 theMap = [BF_getcmap('blues',9,0);BF_getcmap('spectral',11,0)];
 colormap(theMap(1:end-2,:))
+caxis([0,maxSummaryTable*2])
 % Label group names
+subplot(5,1,1)
 for i = 1:numSwitches
-    numGroups = length(groupNamesAll{i});
-    for j = 1:numGroups
+    for j = 1:numProcessingTypes
         if iscell(groupNamesAll{i})
-            text(find(gidsAll{i}(ix_pMeth)==j,1,'first'),numGOIDs+i,groupNamesAll{i}{j},'color','w')
+            text(j,i,groupNamesAll{i}{gidsAll{i}(ix_pMeth(j))},'color','w')
         else
-            text(find(gidsAll{i}(ix_pMeth)==j,1,'first'),numGOIDs+i,num2str(groupNamesAll{i}(j)),'color','w')
+            text(j,i,num2str(groupNamesAll{i}(gidsAll{i}(ix_pMeth(j)))),'color','w')
         end
     end
+    % numGroups = length(groupNamesAll{i});
+    % for j = 1:numGroups
+    %     if iscell(groupNamesAll{i})
+    %         text(find(gidsAll{i}(ix_pMeth)==j,1,'first'),numGOIDs+i,groupNamesAll{i}{j},'color','w')
+    %     else
+    %         text(find(gidsAll{i}(ix_pMeth)==j,1,'first'),numGOIDs+i,num2str(groupNamesAll{i}(j)),'color','w')
+    %     end
+    % end
 end
-colorbar()
+linkaxes([ax1,ax2],'x')
+ax1.XLim = [0.5,numProcessingTypes+0.5];
+ax2.Position = [0.4141    0.1100    0.5686    0.6423];
+ax1.Position = [0.4141    0.7526    0.5686    0.1724];
