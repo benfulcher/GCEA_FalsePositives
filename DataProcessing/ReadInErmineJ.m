@@ -68,7 +68,7 @@ headings = textscan(fid,'%s %s %s %s %s %s %s %s %s %s %s %s %s',1,'Delimiter','
 % Now read data to the end of this block:
 data1 = textscan(fid,'%s %s %s %u %u %f %f %f %f %f %f %s %s','Delimiter','\t'); %,'MultipleDelimsAsOne',1);
 % !    regulation of neuronal synaptic plasticity    GO:0048168    39    37    0.73788422    1.192E-07    5.207E-04    3.342E-07    1.46E-03    0.866
-fclose(fid)
+fclose(fid);
 
 fprintf(1,'Found %u rows of results in %s\n',length(data1{1}),fileNameIn);
 

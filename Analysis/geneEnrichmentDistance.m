@@ -11,113 +11,83 @@
 whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
 energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
-thresholdGoodGene = 0.2; % threshold of valid coexpression values at which a gene is kept
+normalizationSettings = {'none','none'}; % normalization by gene/region
+thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
+doAbs = false;
+onlyConnections = false; % only look where there are connections
 
 %-------------------------------------------------------------------------------
 % Load in and process data:
 %-------------------------------------------------------------------------------
 % Connectivity data:
 C = load('Mouse_Connectivity_Data.mat');
+% Pairwise Euclidean distance data:
+d = C.Dist_Matrix{1,1}/1000;
+
+% Make vector of distances
+if onlyConnections
+    pThreshold = 0.05;
+    A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
+    dVector = d(A_bin > 0);
+else
+    % Convert to vector of upper diagonal
+    dVector = d(triu(true(size(d)),1));
+end
 
 %-------------------------------------------------------------------------------
 % Gene expression data:
-G = LoadMeG();
-GData = G.GeneExpData.(energyOrDensity);
-numGenes = size(GData,2);
-% Normalize expression levels across brain regions for each gene:
-% GData.z = BF_NormalizeMatrix(GData.raw,normalizeHow);
-% z-score across genes for each brain region:
-% GData.zz = BF_NormalizeMatrix(GData.z','zscore')';
-% fprintf(1,'Gene data normalized.\n');
-
-%-------------------------------------------------------------------------------
-% Pairwise Euclidean distance data:
-d = C.Dist_Matrix{1,1}/1000;
-% Convert to vector of upper diagonal
-d_upper = d(triu(true(size(d)),1));
+[geneData,geneInfo,structInfo] = LoadMeG(normalizationSettings,energyOrDensity);
+numGenes = size(geneData,2);
 
 %-------------------------------------------------------------------------------
 % Score genes:
 %-------------------------------------------------------------------------------
 fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
-geneScores = zeros(numGenes,1);
-for i = 1:numGenes
-    % This gene's correlation pattern across regions:
-    g = GData(:,i);
-    % Correlation with itself (assuming normal distribution of expression):
-    ggBlock = g*g';
-    % Convert to vector of upper diagonal
-    ggBlock_upper = ggBlock(triu(true(size(ggBlock)),1));
 
-    % Only compute correlation for gene score when the proportion of missing
-    % data is under 20%:
-    if mean(isnan(ggBlock_upper)) < thresholdGoodGene
-        [rho,pVal] = corr(ggBlock_upper,d_upper,'rows','pairwise','type',whatCorr);
-        switch pValOrStat
-        case 'pVal'
-            geneScores(i) = pVal;
-        case 'stat'
-            geneScores(i) = rho;
-        end
-    else
-        geneScores(i) = NaN;
-    end
+[geneScores,geneEntrezIDs] = GiveMeGCC(dVector,geneData,geneInfo.entrez_id,whatCorr,...
+                                false,doAbs,thresholdGoodGene,pValOrStat);
 
-    % Print some info to screen for the user:
-    if i==1 || mod(i,numGenes/10)==0
-        fprintf(1,'%u/%u\n',i,numGenes);
-    end
-end
-
-%-------------------------------------------------------------------------------
-% Filter to genes with valid scores:
-%-------------------------------------------------------------------------------
-geneEntrez = [G.GeneStruct.gene_entrez_id];
-% Filtering:
-if any(~isfinite(geneScores))
-    keepGenes = isfinite(geneScores);
-    fprintf(1,'Removing %u genes -> now %u\n',sum(~keepGenes),sum(keepGenes));
-    geneScoresWrite = geneScores(keepGenes);
-    geneEntrezWrite = geneEntrez(keepGenes);
-else
-    geneScoresWrite = geneScores;
-    geneEntrezWrite = geneEntrez;
-end
-
+textLabel = sprintf('dScores_%s_%s-%s_%s_abs%u_conn%u',whatCorr,normalizationSettings{1},...
+                        normalizationSettings{2},pValOrStat,doAbs,onlyConnections);
 %-------------------------------------------------------------------------------
 % Look at the distribution
 %-------------------------------------------------------------------------------
 f = figure('color','w');
-histogram(geneScoresWrite)
+histogram(geneScores)
 xlabel(sprintf('%s correlation between distance and coexpression',whatCorr))
+title(textLabel)
 
 %-------------------------------------------------------------------------------
 % Save result to .mat file
 %-------------------------------------------------------------------------------
-fileNameMat = sprintf('dScores_%s.mat',whatCorr);
-geneEntrez = geneEntrezWrite;
-geneDistanceScores = geneScoresWrite;
-save(fileNameMat,'geneEntrez','geneDistanceScores');
+geneEntrez = geneEntrezIDs;
+geneDistanceScores = geneScores;
+save([textLabel,'.mat'],'geneEntrez','geneDistanceScores');
 fprintf(1,'Saved info to %s\n',fileNameMat);
 
 %-------------------------------------------------------------------------------
-% Write them out to ermine J:
+% Do enrichment using ermine J:
 %-------------------------------------------------------------------------------
-fileNameBase = sprintf('corr_d_%s_%s_%s',whatCorr,normalizeHow,pValOrStat);
-doWhat = {'pos','neg','abs'};
-for i = 1:length(doWhat)
-    fileName = sprintf('%s_%s',fileNameBase,doWhat{i});
-    switch doWhat{i}
-    case 'pos'
-        geneScoresNow = geneScoresWrite;
-    case 'neg'
-        geneScoresNow = -geneScoresWrite;
-    case 'abs'
-        geneScoresNow = abs(geneScoresWrite);
-    end
+numIterations = 10000;
+fileNameWrite = writeErmineJFile('tmp',abs(geneScores),geneEntrezIDs,'distance');
+ermineJResults = RunErmineJ(fileNameWrite,numIterations);
 
-    writeErmineJFile(fileName,geneScoresNow,geneEntrezWrite,...
-                    sprintf('%s_%s_%s',whatCorr,normalizeHow,pValOrStat));
-end
+% fileName = sprintf('corr_d_%s_%s_%s',whatCorr,normalizeHow,pValOrStat);
+%
+% doWhat = {'pos','neg','abs'};
+% for i = 1:length(doWhat)
+%     fileName = sprintf('%s_%s',fileNameBase,doWhat{i});
+%     switch doWhat{i}
+%     case 'pos'
+%         geneScoresNow = geneScores;
+%     case 'neg'
+%         geneScoresNow = -geneScores;
+%     case 'abs'
+%         geneScoresNow = abs(geneScores);
+%     end
+%
+%     writeErmineJFile(fileName,geneScoresNow,geneEntrez,...
+%                     sprintf('%s_%s_%s',whatCorr,normalizeHow,pValOrStat));
+% end
 
 % end

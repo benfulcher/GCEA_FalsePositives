@@ -61,6 +61,10 @@ fprintf(1,' Done.\n');
 %-------------------------------------------------------------------------------
 % Read in the data:
 %-------------------------------------------------------------------------------
+if ~exist(outputFile,'file')
+    warning('ermineJ didn''t write output??')
+    keyboard
+end
 ermineJResults = ReadInErmineJ(outputFile);
 
 % Write out to screen:
@@ -68,8 +72,8 @@ fisSig_005 = find(ermineJResults.pVal_corr < 0.05);
 fisSig_01 = find(ermineJResults.pVal_corr>=0.05 & ermineJResults.pVal_corr < 0.1);
 numSig_005 = length(fisSig_005);
 numSig_01 = length(fisSig_01);
-if numSig_01==0 & numSig_005==0
-    fprintf(1,'No significant GO enrichment for %s\n',inputFileName);
+if numSig_01==0 && numSig_005==0
+    fprintf(1,'No significant GO enrichment for %s at q < 0.1\n',inputFileName);
 else
     fprintf(1,'---%s---\n',inputFileName);
     % The FDR 0.05 club:

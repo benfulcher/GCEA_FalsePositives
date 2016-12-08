@@ -20,9 +20,9 @@ end
 %-------------------------------------------------------------------------------
 % Get NEW DATA FROM SDK RETRIEVALS:
 %-------------------------------------------------------------------------------
-dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/Timescales_Wang/Code/AllenGeneDataset_19419.mat'
+dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/Timescales_Wang/Code/AllenGeneDataset_19419.mat';
 fprintf(1,'New Allen SDK-data from %s\n',dataFile);
-load(fullfile(allenDataPath,'AllenGeneData_All.mat'),'GeneExpData','geneInfo','structInfo');
+load(dataFile,'GeneExpData','geneInfo','structInfo');
 switch energyOrDensity
 case 'energy'
     GeneExpData = GeneExpData.gene_energy;

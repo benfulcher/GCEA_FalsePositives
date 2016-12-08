@@ -154,6 +154,7 @@ ax1.YLim = [0.5,0.5+numSwitches];
 ax1.YTick = 1:numSwitches;
 ax1.YTickLabel = theSwitches;
 caxis([0,maxSummaryTable*2])
+title(whatEdgeProperty)
 subplot(5,1,2:5); hold on; ax2 = gca;
 BF_imagesc(summaryTable(ix_GO,ix_pMeth));
 ax2.XLim = [0.5,numProcessingTypes+0.5];
