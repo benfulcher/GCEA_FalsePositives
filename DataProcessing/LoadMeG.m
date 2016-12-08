@@ -9,7 +9,7 @@ function [GeneExpData,geneInfo,structInfo] = LoadMeG(normalizationSettings,energ
 % Check inputs:
 %-------------------------------------------------------------------------------
 if nargin < 1 || isempty(normalizationSettings)
-    normalizationSettings = {};
+    normalizationSettings = {'none','none'};
     % In the format: {howToNormalizeGenesAcrossRegions,howToNormalizeRegionsAcrossGenes}
 end
 if nargin < 2
@@ -34,11 +34,10 @@ end
 % FURTHER PROCESSING:
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
-if ~isempty(normalizationSettings)
-    GeneExpData = BF_NormalizeMatrix(GeneExpData,normalizationSettings{1});
-    fprintf(1,'1. Normalized expression for each gene using %s\n',normalizationSettings{1});
-    GeneExpData = BF_NormalizeMatrix(GeneExpData',normalizationSettings{2})';
-    fprintf(1,'2. Normalized expression across each brain region using %s\n',normalizationSettings{2});
-end
+GeneExpData = BF_NormalizeMatrix(GeneExpData,normalizationSettings{1});
+fprintf(1,'1. Normalized expression for each gene using %s\n',normalizationSettings{1});
+
+GeneExpData = BF_NormalizeMatrix(GeneExpData',normalizationSettings{2})';
+fprintf(1,'2. Normalized expression across each brain region using %s\n',normalizationSettings{2});
 
 end

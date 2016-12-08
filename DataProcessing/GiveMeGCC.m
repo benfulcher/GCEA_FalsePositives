@@ -30,6 +30,9 @@ end
 [numRegions,numGenes] = size(geneData);
 
 % Convert to vector across edges:
+if any(size(edgeData)==1)
+    error('edgeData must be a square matrix');
+end
 isEdge = (edgeData~=0);
 fprintf(1,'%u edges in the data\n',sum(isEdge(:)));
 edgeVector = edgeData(isEdge);

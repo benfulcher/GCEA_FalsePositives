@@ -28,15 +28,22 @@ d = C.Dist_Matrix{1,1}/1000;
 if onlyConnections
     pThreshold = 0.05;
     A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
-    dVector = d(A_bin > 0);
+    dData = d;
+    dData(A_bin == 0) = 0;
+    % Only symmetric?:
+    dData(tril(true(size(dData)),-1)) = 0;
 else
     % Convert to vector of upper diagonal
-    dVector = d(triu(true(size(d)),1));
+    dData = d;
+    dData(tril(true(size(d)),-1)) = 0;
 end
 
 %-------------------------------------------------------------------------------
 % Gene expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(normalizationSettings,energyOrDensity);
+% [GeneStruct,geneData] = LoadMeG_old(true,normalizationSettings,energyOrDensity);
+% entrezIDs = [GeneStruct.gene_entrez_id];
+entrezIDs = geneInfo.entrez_id;
 numGenes = size(geneData,2);
 
 %-------------------------------------------------------------------------------
@@ -44,7 +51,7 @@ numGenes = size(geneData,2);
 %-------------------------------------------------------------------------------
 fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
 
-[geneScores,geneEntrezIDs] = GiveMeGCC(dVector,geneData,geneInfo.entrez_id,whatCorr,...
+[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,whatCorr,...
                                 false,doAbs,thresholdGoodGene,pValOrStat);
 
 textLabel = sprintf('dScores_%s_%s-%s_%s_abs%u_conn%u',whatCorr,normalizationSettings{1},...
