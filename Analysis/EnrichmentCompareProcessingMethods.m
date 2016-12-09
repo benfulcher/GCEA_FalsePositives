@@ -1,7 +1,7 @@
 % EnrichmentCompareProcessingMethods()
 % Idea is to compare different preprocessing steps on the enrichment of a given
 % edge property
-whatEdgeProperty = 'wei-betweenness';
+whatEdgeProperty = 'bin-communicability';
 
 %-------------------------------------------------------------------------------
 % Fixed parameters:
@@ -18,7 +18,7 @@ absTypes = {'pos'}; % 'pos','neg','abs' -> e.g., pos -> coexpression contributio
 corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
 normalizationGeneTypes = {'none'};
 normalizationRegionTypes = {'none','zscore'}; % {'none','zscore'}
-correctDistanceTypes = {false};
+correctDistanceTypes = {false,true};
 pThresholds = [0.05];
 processingSteps = struct();
 
@@ -116,26 +116,46 @@ enrichmentSigThresh = 0.05;
 fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',enrichmentSigThresh);
 timer = tic;
 for i = 1:numProcessingTypes
-    fprintf(1,'%u/%u: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u, pThresh-%.2f\n',...
+    fprintf(1,'%u/%u: %s: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u, pThresh-%.2f, abs-%s\n',...
                                         i,numProcessingTypes,...
+                                        processingSteps(i).connectomeType,...
                                         processingSteps(i).normalizationGene,...
                                         processingSteps(i).normalizationRegion,...
                                         processingSteps(i).corrType,...
                                         processingSteps(i).correctDistance,...
-                                        processingSteps(i).pThreshold);
+                                        processingSteps(i).pThreshold,...
+                                        processingSteps(i).absType);
 
-    % Load in our gene data:
+    % Compute edge-level statistics:
+    [edgeData,regionStruct] = GiveMeEdgeStat(processingSteps(i).connectomeType,processingSteps(i).pThreshold,...
+                            whatEdgeProperty,processingSteps(i).correctDistance,numQuantiles);
+
+    % Load in our gene data, properly processed:
     [geneData,geneInfo,structInfo] = LoadMeG({processingSteps(i).normalizationGene,...
                         processingSteps(i).normalizationRegion},energyOrDensity);
 
-    % Compute edge-level statistics:
-    edgeData = GiveMeEdgeStat(processingSteps(i).connectomeType,processingSteps(i).pThreshold,...
-                            whatEdgeProperty,processingSteps(i).correctDistance,numQuantiles);
+    % Check gene data matches connectome data
+    if ~all([regionStruct.id]'==structInfo.id)
+        % Take subset
+        [~,ia,ib] = intersect([regionStruct.id]',structInfo.id,'stable');
+        geneData = geneData(ib,:);
+        structInfo = structInfo(ib,:);
+        fprintf(1,'Gene data matched to subset of %u Allen regions\n',length(ib));
+    end
+
+    % Correct distance?
+    if processingSteps(i).correctDistance
+        C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+        distanceRegressor = C.Dist_Matrix{1,1};
+        fprintf(1,'Regressing ipsilateral distances\n');
+    else
+        distanceRegressor = []; % just compute normal correlations
+    end
 
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
-    [gScore,geneEntrezIDs] = GiveMeGCC(theEdgeData,geneData,geneInfo.entrez_id,...
-                                    processingSteps(i).corrType,false,...
+    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,...
+                                    processingSteps(i).corrType,distanceRegressor,...
                                     processingSteps(i).absType,thresholdGoodGene,pValOrStat);
 
     % Do enrichment:

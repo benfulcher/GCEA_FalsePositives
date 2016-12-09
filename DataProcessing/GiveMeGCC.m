@@ -1,5 +1,5 @@
 function [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneEntrezIDs,whatCorr,...
-                                correctDistance,absType,thresholdGoodGene,pValOrStat)
+                                distanceRegressor,absType,thresholdGoodGene,pValOrStat)
 % Returns GCC scores for all genes given some edge metric
 %-------------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ if nargin < 4
     whatCorr = 'Pearson';
 end
 if nargin < 5
-    correctDistance = false;
+    distanceRegressor = [];
 end
 if nargin < 6
     absType = 'pos'; % measure how GCC increases with the edge statistic
@@ -27,6 +27,7 @@ if nargin < 8
     pValOrStat = 'stat';
 end
 %-------------------------------------------------------------------------------
+% Get dimensions of gene data
 [numRegions,numGenes] = size(geneData);
 
 % Convert to vector across edges:
@@ -40,7 +41,13 @@ edgeVector = edgeData(isEdge);
 %-------------------------------------------------------------------------------
 % Ok, so now we can find correlations to GCC scores across genes
 gScore = zeros(numGenes,1);
-fprintf(1,'Looping over %u genes, computing correlations across %u edges\n',...
+if ~isempty(distanceRegressor)
+    fprintf(1,'***COMPUTING PARTIAL CORRELATIONS USING DISTANCE AS A REGRESSOR***\n');
+    distanceRegressor = distanceRegressor(isEdge);
+else
+    fprintf(1,'***COMPUTING CORRELATIONS (WITHOUT ANY REGRESSORS)^^^\n');
+end
+fprintf(1,'Looping over %u genes, computing correlations across %u edges...\n',...
                                                 numGenes,length(edgeVector));
 parfor i = 1:numGenes
     g = geneData(:,i);
@@ -49,13 +56,20 @@ parfor i = 1:numGenes
     if mean(isnan(GCC_A)) > thresholdGoodGene
         gScore(i) = NaN;
     else
-        % Compute the correlation statistic:
-        [rho,pVal] = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
-        switch pValOrStat
-        case 'pVal'
-            gScore(i) = pVal;
-        case 'stat'
-            gScore(i) = rho;
+        if ~isempty(distanceRegressor)
+            % Partial correlations using distance as a regressor
+            [rho,p] = partialcorr([edgeVector,GCC_A],distanceRegressor,...
+                                'rows','pairwise','type','Spearman');
+            gScore(i) = rho(1,2);
+        else
+            % Pure correlations:
+            [rho,pVal] = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
+            switch pValOrStat
+            case 'pVal'
+                gScore(i) = pVal;
+            case 'stat'
+                gScore(i) = rho;
+            end
         end
         if isnan(gScore(i))
             keyboard
@@ -78,16 +92,18 @@ geneEntrezIDs(notGoodEnough) = [];
 % Correct for distance:
 %-------------------------------------------------------------------------------
 % Get scores relative to what would be expected from distance
-if correctDistance
-    % STILL NEED TO INSPECT WHAT THIS IS DOING...
-    if ~strcmp(whatCorr,'Spearman')
-        warning('Correcting using Spearman, not %s',whatCorr);
-    end
-    dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
-    [geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
-    gScore = bsxfun(@minus,gScore(ib),dScores.geneDistanceScores(ia));
-    geneEntrezIDs = geneEntrezMatched;
-end
+% A pretty poor way to do it because the signature of distance may be from a
+% different pattern of GCC scores than the edge metric of interest
+% if correctDistance
+%     % STILL NEED TO INSPECT WHAT THIS IS DOING...
+%     if ~strcmp(whatCorr,'Spearman')
+%         warning('Correcting using Spearman, not %s',whatCorr);
+%     end
+%     dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
+%     [geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
+%     gScore = bsxfun(@minus,gScore(ib),dScores.geneDistanceScores(ia));
+%     geneEntrezIDs = geneEntrezMatched;
+% end
 
 %-------------------------------------------------------------------------------
 % Transform the scores:

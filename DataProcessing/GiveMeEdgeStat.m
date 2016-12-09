@@ -1,4 +1,4 @@
-function edgeData = GiveMeEdgeStat(connectomeType,pThreshold,whatEdgeProperty,correctDistance,numThresholds)
+function [edgeData,regionInfo] = GiveMeEdgeStat(connectomeType,pThreshold,whatEdgeProperty,correctDistance,numThresholds)
 % Returns edge data for a given connectome and edge property
 %-------------------------------------------------------------------------------
 
@@ -13,10 +13,10 @@ end
 % First get the adjacency matrix for the connectome shorthand specified:
 switch connectomeType
 case 'Oh-brain'
-    A_bin = GiveMeAdj('Oh',pThreshold,true,'right',false);
+    [A_bin,regionInfo] = GiveMeAdj('Oh',pThreshold,true,'right',false);
     A_wei = GiveMeAdj('Oh',pThreshold,false,'right',false);
 case 'Oh-cortex'
-    A_bin = GiveMeAdj('Oh',pThreshold,true,'right',true);
+    [A_bin,regionInfo] = GiveMeAdj('Oh',pThreshold,true,'right',true);
     A_wei = GiveMeAdj('Oh',pThreshold,false,'right',true);
 otherwise
     error('Unknown connectome: %s',connectomeTypes);
@@ -36,7 +36,10 @@ case 'bin-betweenness'
 case 'wei-betweenness'
     edgeData = edge_betweenness_wei(A_bin);
 case 'distance'
+    C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
     edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+otherwise
+    error('Unknown edge property: %s',whatEdgeProperty);
 end
 
 %-------------------------------------------------------------------------------
@@ -44,19 +47,25 @@ end
 % (based on method in BF_PlotQuantiles)
 if correctDistance
     connValues = (edgeData > 0); % connections exist here
-    xData = C.Dist_Matrix{1,1}(connValues)/1000;
-    yData = edgeData(connValues);
+    C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+    xData = C.Dist_Matrix{1,1}(connValues)/1000; % distances for edges that exist
+    yData = edgeData(connValues); % edge statistic for edges that exist
 
     xThresholds = arrayfun(@(x)quantile(xData,x),linspace(0,1,numThresholds));
-    xThresholds(end) = xThresholds(end) + eps; % make sure all data included in final bin
+    xThresholds(end) = xThresholds(end)*1.1; % make sure all data included in final bin
 
-    edgeDataCorrected = nan(size(yData));
+    yDataCorrected = nan(size(yData));
     for p = 1:numThresholds-1
         inBin = (xData>=xThresholds(p) & xData < xThresholds(p+1));
-        edgeDataCorrected(inBin) = yData(inBin) - mean(yData(inBin));
+        yDataCorrected(inBin) = yData(inBin) - mean(yData(inBin));
+    end
+    if any(isnan(yDataCorrected))
+        keyboard
+        error('NaNs in edge data :/');
     end
 
-    edgeData = edgeDataCorrected;
+    edgeDataCorrected = zeros(size(edgeData));
+    edgeDataCorrected(connValues) = yDataCorrected;
 end
 
 end
