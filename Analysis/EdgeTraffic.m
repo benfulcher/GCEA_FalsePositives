@@ -14,7 +14,7 @@ Corrs.corrected = GiveMeRegionCorrs(G,'norm','energy',C,'distance','expFitAll');
 
 %-------------------------------------------------------------------------------
 % Get the adjacency matrix:
-A = logical(GiveMeAdj(C,'binary','ipsi',0,pThreshold));
+A = logical(GiveMeAdj('Oh',pThreshold,true));
 PlotColorMatrix(A,C.RegionStruct,[],[],'',0);
 colormap(gray)
 

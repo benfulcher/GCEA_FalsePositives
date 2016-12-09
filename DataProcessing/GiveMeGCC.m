@@ -61,10 +61,10 @@ parfor i = 1:numGenes
             keyboard
         end
     end
-    % Print some info to screen for the user:
-    if i==1 || mod(i,round(numGenes/5))==0
-        fprintf(1,'%u/%u\n',i,numGenes);
-    end
+    % Print some info to screen for the user [not useful with parfor]:
+    % if i==1 || mod(i,round(numGenes/5))==0
+    %     fprintf(1,'%u/%u\n',i,numGenes);
+    % end
 end
 
 % Remove genes with too few good values:

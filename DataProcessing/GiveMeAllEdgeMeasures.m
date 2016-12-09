@@ -32,7 +32,9 @@ edgeMeasures.ktot_ktot = ktot*ktot';
 %-------------------------------------------------------------------------------
 % WEIGHTED
 %-------------------------------------------------------------------------------
-%
+
+[EBC,BC] = edge_betweenness_wei(A_weight);
+
 % % The weight itself!
 % edgeMeasures.weight = A_weight;
 %

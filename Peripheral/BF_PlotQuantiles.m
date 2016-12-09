@@ -1,5 +1,6 @@
-function BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure)
+function yDataCorrected = BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure)
 % Plots x-y scatter, but with mean of y plotted in quantiles of x
+% Outputs yData, corrected for the quantile means
 % Ben Fulcher
 %-------------------------------------------------------------------------------
 
@@ -49,5 +50,14 @@ for k = 1:numThresholds-1
     plot(xThresholds(k:k+1),ones(2,1)*(yMeans(k)-yStds(k)),'LineStyle','--','LineWidth',theLineWidth,'Color',theColor)
     plot(mean(xThresholds(k:k+1)),yMeans(k),'o','MarkerSize',5,'LineStyle',theStyle,'LineWidth',theLineWidth,'Color',theColor)
 end
+
+%-------------------------------------------------------------------------------
+% Correct the yData
+yDataCorrected = nan(size(yData));
+for p = 1:numThresholds-1
+    inBin = (xData>=xThresholds(p) & xData < xThresholds(p+1));
+    yDataCorrected(inBin) = yData(inBin) - yMeans(p);
+end
+
 
 end

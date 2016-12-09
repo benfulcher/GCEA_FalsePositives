@@ -20,14 +20,14 @@ onlyConnections = false; % only look where there are connections
 % Load in and process data:
 %-------------------------------------------------------------------------------
 % Connectivity data:
-C = load('Mouse_Connectivity_Data.mat');
-% Pairwise Euclidean distance data:
+C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+% Pairwise ipsilateral Euclidean distance data:
 d = C.Dist_Matrix{1,1}/1000;
 
 % Make vector of distances
 if onlyConnections
     pThreshold = 0.05;
-    A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
+    A_bin = GiveMeAdj('Oh',pThreshold,true);
     dData = d;
     dData(A_bin == 0) = 0;
     % Only symmetric?:

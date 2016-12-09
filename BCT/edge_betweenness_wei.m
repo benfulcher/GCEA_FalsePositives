@@ -1,11 +1,11 @@
-function [EBC,BC]=edge_betweenness_wei(G)
+function [EBC,BC] = edge_betweenness_wei(G)
 %EDGE_BETWEENNESS_WEI    Edge betweenness centrality
 %
 %   EBC = edge_betweenness_wei(L);
 %   [EBC BC] = edge_betweenness_wei(L);
 %
-%   Edge betweenness centrality is the fraction of all shortest paths in 
-%   the network that contain a given edge. Edges with high values of 
+%   Edge betweenness centrality is the fraction of all shortest paths in
+%   the network that contain a given edge. Edges with high values of
 %   betweenness centrality participate in a large number of shortest paths.
 %
 %   Input:      L,      Directed/undirected connection-length matrix.
@@ -18,7 +18,7 @@ function [EBC,BC]=edge_betweenness_wei(G)
 %   obtained via a mapping from weight to length. For instance, in a
 %   weighted correlation network higher correlations are more naturally
 %   interpreted as shorter distances and the input matrix should
-%   consequently be some inverse of the connectivity matrix. 
+%   consequently be some inverse of the connectivity matrix.
 %       Betweenness centrality may be normalised to the range [0,1] as
 %   BC/[(N-1)(N-2)], where N is the number of nodes in the network.
 %

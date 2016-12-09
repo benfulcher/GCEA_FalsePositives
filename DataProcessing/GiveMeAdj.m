@@ -1,85 +1,87 @@
-function theAdjMat = GiveMeAdj(C,whatAdj,whatHemisphere,justCortex,pThreshold)
+function [theAdjMat,regionInfo] = GiveMeAdj(whatData,pThreshold,doBinarize,whatHemispheres,justCortex)
 % Gives a string identifying the type of normalization to apply, then returns
 % the gene data for that normalization.
 % ------------------------------------------------------------------------------
 % Ben Fulcher, 2014-07-17
 % ------------------------------------------------------------------------------
 
-% ------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
 % Check Inputs
-% ------------------------------------------------------------------------------
-
-if nargin < 3 || isempty(whatHemisphere)
-    whatHemisphere = 'ipsi';
+%-------------------------------------------------------------------------------
+if nargin < 1
+    whatData = 'Oh';
 end
-
-if nargin < 4 || isempty(justCortex)
-    justCortex = 0;
-end
-
-if nargin < 5 || isempty(pThreshold)
+if nargin < 2 || isempty(pThreshold)
     pThreshold = 0.05;
 end
-
-% ------------------------------------------------------------------------------
-% Take the appropriate hemisphere
-% ------------------------------------------------------------------------------
-
-switch whatHemisphere
-case 'ipsi'
-    theIndex = 1;
-case 'contra'
-    theIndex = 2;
+if nargin < 3
+    doBinarize = false
+end
+if nargin < 4
+    whatHemispheres = 'right';
+end
+if nargin < 5
+    justCortex = false;
 end
 
-% ------------------------------------------------------------------------------
-% Retrieve and process the data
-% ------------------------------------------------------------------------------
-switch whatAdj
-case 'raw'
-    % No normalization, or p-filtering
-    theAdjMat = C.Conn_W{theIndex};
-
-case 'zero'
-    % Raw weights but with zeros where either zero or NaN
-    theAdjMat = C.Conn_W{theIndex};
-
+%-------------------------------------------------------------------------------
+% Load in and minimally preprocess the data:
+if isstruct(whatData)
+    C = whatData;
+    whatData = 'Oh'
+end
+switch whatData
+case 'Oh'
+    if ~exist('C','var')
+        C = load('Mouse_Connectivity_Data.mat','Conn_W','Conn_p','RegionStruct');
+    end
+    % Ipsi:
+    switch whatHemispheres
+    case 'right'
+        ind = [1,1];
+    case 'left'
+        ind = [2,2];
+    end
+    theAdjMat = C.Conn_W{ind(1),ind(2)};
     % Remove diagonal entries:
     theAdjMat(logical(eye(size(theAdjMat)))) = 0;
-
     % Zero high-p links using the given p-threshold:
-    theAdjMat = filterP(theAdjMat);
-
-case 'binary'
-    % Raw weights but with zeros where either zero or NaN
-    theAdjMat = C.Conn_W{theIndex};
-
-    % Remove diagonal entries:
-    theAdjMat(logical(eye(size(theAdjMat)))) = 0;
-
-    % Zeros for 0.05-significant connections, no diagonal
-    theAdjMat = filterP(theAdjMat);
-
-    % Make binary:
-    theAdjMat(theAdjMat>0) = 1;
-
-otherwise
-    error('Unknown adjacency matrix option: ''%s''',whatAdj);
+    theAdjMat = filterP(theAdjMat,C.Conn_p{ind(1),ind(2)});
+    % Get structure information:
+    regionInfo = RegionStruct;
+case 'Ypma'
+    [W_rect,sourceRegions,targetRegions] = ImportCorticalConnectivityWeights();
+    [W,regionNames] = MakeCompleteConnectome(W_rect,sourceRegions,targetRegions);
+    [regionStruct,ia] = MatchRegionsOh([],regionNames);
+    W = W(ia,ia);
 end
 
-% ------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+% Binarize
+if doBinarize
+    theAdjMat = theAdjMat;
+    theAdjMat(theAdjMat > 0) = 1;
+end
+
+%-------------------------------------------------------------------------------
 % Take just cortex?
-% ------------------------------------------------------------------------------
 if justCortex
     isCortex = strcmp({C.RegionStruct.MajorRegionName},'Isocortex');
     theAdjMat = theAdjMat(isCortex,isCortex);
 end
 
+% case {'Oh-brain','Oh-cortex'}
+%     % Oh et al. ipsilateral weighted connectome
+%
+% case 'Oh-cortex'
+%
+% end
+
 % ------------------------------------------------------------------------------
-function AdjOut = filterP(AdjIn)
+function AdjThresh = filterP(AdjIn,pValues)
     % Sets high-p-value links to zero:
-    AdjOut = AdjIn;
-    AdjOut(C.Conn_p{theIndex} > pThreshold) = 0;
+    AdjThresh = AdjIn;
+    AdjThresh(pValues > pThreshold) = 0;
 end
 
 end

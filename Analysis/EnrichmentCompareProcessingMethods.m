@@ -1,7 +1,7 @@
 % EnrichmentCompareProcessingMethods()
 % Idea is to compare different preprocessing steps on the enrichment of a given
 % edge property
-whatEdgeProperty = 'communicability';
+whatEdgeProperty = 'wei-betweenness';
 
 %-------------------------------------------------------------------------------
 % Fixed parameters:
@@ -9,15 +9,17 @@ energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
 numIterationsErmineJ = 10000; % number of iterations for GSR in ermineJ
+numQuantiles = 15; % quantiles with which to learn the distance relationship
 
 %-------------------------------------------------------------------------------
 % Set up a structure array containing all of the different processing options:
+connectomeType = {'Oh-brain','Oh-cortex'};
 absTypes = {false}; % false -> coexpression contribution increases with the statistic
 corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
-normalizationGeneTypes = {'none','robustSigmoid'};
-normalizationRegionTypes = {'none','zscore'};
-correctDistanceTypes = {false};
-pThresholds = [0.05];
+normalizationGeneTypes = {'none'};
+normalizationRegionTypes = {'none','zscore'}; % {'none','zscore'}
+correctDistanceTypes = {false,true};
+pThresholds = [0.05,0.5];
 
 cntr = 0;
 for i = 1:length(absTypes)
@@ -54,29 +56,40 @@ fprintf(1,'Comparing %u different processing parameters\n',numProcessingTypes);
 %-------------------------------------------------------------------------------
 % Get edge data:
 %-------------------------------------------------------------------------------
-C = load('Mouse_Connectivity_Data.mat'); % C stands for connectome data
+C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
 f = figure('color','w');
+edgeData = cell(length(pThresholds),2);
 for p = 1:length(pThresholds)
-    A_bin = GiveMeAdj(C,'binary','ipsi',0,pThreshold);
+    A_bin = GiveMeAdj('Oh',pThresholds(p),true);
+    A_wei = GiveMeAdj('Oh',pThresholds(p),false);
     switch whatEdgeProperty
-    case 'communicability'
-        edgeData = communicability(A_bin);
-        edgeData(~A_bin) = 0; % only put on real edges
-    case 'betweenness'
-        edgeData = edge_betweenness_bin(A_bin);
+    case 'wei-communicability'
+        edgeData{p,1} = communicability(A_wei);
+        edgeData{p,1}(A_wei==0) = 0; % only put on real edges
+    case 'bin-communicability'
+        edgeData{p,1} = communicability(A_bin);
+        edgeData{p,1}(~A_bin) = 0; % only put on real edges
+    case 'bin-betweenness'
+        edgeData{p,1} = edge_betweenness_bin(A_bin);
+    case 'wei-betweenness'
+        edgeData{p,1} = edge_betweenness_wei(A_bin);
     case 'distance'
-        edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+        edgeData{p,1} = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
     end
+    %---------------------------------------------------------------------------
     subplot(2,length(pThresholds),2*(p-1)+1);
-    histogram(edgeData(edgeData~=0));
+    histogram(edgeData{p,1}(edgeData{p,1}~=0));
     xlabel(whatEdgeProperty)
     d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
-    isUpper = triu(true(size(d)),1);
+    title(pThresholds(p))
     subplot(2,length(pThresholds),2*p);
-    BF_PlotQuantiles(d(isUpper),edgeData(isUpper),15,false,false);
-    % plot(d(isUpper),log10(edgeData(isUpper)),'.k');
+    connValues = edgeData{p,1} > 0;
+    edgeDataCorrected = BF_PlotQuantiles(d(connValues),edgeData{p,1}(connValues),numQuantiles,false,false);
+    title(sprintf('communicability on %u edges',sum(connValues(:))))
     xlabel('d');
     ylabel(whatEdgeProperty)
+    edgeData{p,2} = zeros(size(edgeData{p,1}));
+    edgeData{p,2}(connValues) = edgeDataCorrected;
 end
 
 %-------------------------------------------------------------------------------
@@ -85,19 +98,28 @@ end
 enrichmentTables = cell(numProcessingTypes,1);
 timer = tic;
 for i = 1:numProcessingTypes
-    fprintf(1,'%u/%u: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u, pThresh-%.2f\n',i,numProcessingTypes,...
+    fprintf(1,'%u/%u: norm-gene-%s, norm-reg-%s, corr-%s, dcorr-%u, pThresh-%.2f\n',...
+                                        i,numProcessingTypes,...
                                         processingSteps(i).normalizationGene,...
                                         processingSteps(i).normalizationRegion,...
                                         processingSteps(i).corrType,...
                                         processingSteps(i).correctDistance,...
                                         processingSteps(i).pThreshold);
+
     % Load in our gene data:
     [geneData,geneInfo,structInfo] = LoadMeG({processingSteps(i).normalizationGene,...
                         processingSteps(i).normalizationRegion},energyOrDensity);
+
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
-    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,processingSteps(i).corrType,...
-                    processingSteps(i).correctDistance,processingSteps(i).abs,thresholdGoodGene,pValOrStat);
+    if processingSteps(i).correctDistance
+        theEdgeData = edgeData{processingSteps(i).pThreshold==pThresholds,2};
+    else
+        theEdgeData = edgeData{processingSteps(i).pThreshold==pThresholds,1};
+    end
+    [gScore,geneEntrezIDs] = GiveMeGCC(theEdgeData,geneData,geneInfo.entrez_id,...
+                                    processingSteps(i).corrType,false,...
+                                    processingSteps(i).abs,thresholdGoodGene,pValOrStat);
 
     % Do enrichment:
     fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,whatEdgeProperty);
@@ -130,7 +152,7 @@ allGOLabels = arrayfun(@(x)sprintf('%s (%s)',allGONames{x},allGOIDs{x}),...
                             1:numGOIDs,'UniformOutput',false);
 
 % 2. Prepare output
-summaryTable = ones(numGOIDs,numProcessingTypes)*NaN;
+summaryTable = nan(numGOIDs,numProcessingTypes);
 for i = 1:numProcessingTypes
     if isempty(enrichmentTables{i}), continue; end
     [~,ia,ib] = intersect(allGOIDs,enrichmentTables{i}.GOID);
