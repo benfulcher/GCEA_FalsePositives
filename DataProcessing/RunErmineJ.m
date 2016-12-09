@@ -32,6 +32,7 @@ end
 % Get settings for writing out to file:
 shellScriptPath = '/Users/benfulcher/Downloads/ermineJ-3.0.2/bin/ermineJ.sh';
 propertiesFilePath = which('ermineJBP.properties');
+fprintf(1,'Using ermineJ settings in %s.\n',propertiesFilePath);
 inputFilePath = which(inputFileName);
 if isempty(inputFilePath)
     error('%s not found',inputFileName);

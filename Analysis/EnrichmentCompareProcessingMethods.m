@@ -13,7 +13,7 @@ numQuantiles = 15; % quantiles with which to learn the distance relationship
 
 %-------------------------------------------------------------------------------
 % Set up a structure array containing all of the different processing options:
-connectomeTypes = {'Oh-brain','Oh-cortex'};
+connectomeTypes = {'Oh-brain'}; % 'Oh-cortex'
 absTypes = {'pos'}; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
 normalizationGeneTypes = {'none'};
@@ -61,52 +61,50 @@ fprintf(1,'Comparing %u different processing parameters\n',numProcessingTypes);
 %-------------------------------------------------------------------------------
 % Get edge data:
 %-------------------------------------------------------------------------------
-% C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
-% f = figure('color','w');
-% edgeData = cell(length(pThresholds),2);
-% for p = 1:length(pThresholds)
-%     for o = 1:length(connectomeTypes)
-%         switch connectomeTypes{o}
-%         case 'Oh-brain'
-%             A_bin = GiveMeAdj('Oh',pThresholds(p),true,'right',false);
-%             A_wei = GiveMeAdj('Oh',pThresholds(p),false,'right',false);
-%         case 'Oh-cortex'
-%             A_bin = GiveMeAdj('Oh',pThresholds(p),true,'right',true);
-%             A_wei = GiveMeAdj('Oh',pThresholds(p),false,'right',true);
-%         otherwise
-%             error('Unknown connectome: %s',connectomeTypes);
-%         end
-%         switch whatEdgeProperty
-%         case 'wei-communicability'
-%             edgeData{p,1} = communicability(A_wei);
-%             edgeData{p,1}(A_wei==0) = 0; % only put on real edges
-%         case 'bin-communicability'
-%             edgeData{p,1} = communicability(A_bin);
-%             edgeData{p,1}(~A_bin) = 0; % only put on real edges
-%         case 'bin-betweenness'
-%             edgeData{p,1} = edge_betweenness_bin(A_bin);
-%         case 'wei-betweenness'
-%             edgeData{p,1} = edge_betweenness_wei(A_bin);
-%         case 'distance'
-%             edgeData{p,1} = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
-%         end
-%         %---------------------------------------------------------------------------
-%         subplot(2,length(pThresholds),2*(p-1)+1);
-%         histogram(edgeData{p,1}(edgeData{p,1}~=0));
-%         xlabel(whatEdgeProperty)
-%         d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
-%         title(pThresholds(p))
-%         subplot(2,length(pThresholds),2*p);
-%         connValues = edgeData{p,1} > 0;
-%         edgeDataCorrected = BF_PlotQuantiles(d(connValues),edgeData{p,1}(connValues),numQuantiles,false,false);
-%         title(sprintf('%s on %u edges',whatEdgeProperty,sum(connValues(:))))
-%         xlabel('d');
-%         ylabel(whatEdgeProperty)
-%         edgeData{p,2} = zeros(size(edgeData{p,1}));
-%         edgeData{p,2}(connValues) = edgeDataCorrected;
-%     end
-% end
-% drawnow
+C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+f = figure('color','w');
+edgeData = cell(length(pThresholds),2);
+for p = 1:length(pThresholds)
+    switch connectomeTypes{1}
+    case 'Oh-brain'
+        A_bin = GiveMeAdj('Oh',pThresholds(p),true,'right',false);
+        A_wei = GiveMeAdj('Oh',pThresholds(p),false,'right',false);
+    case 'Oh-cortex'
+        A_bin = GiveMeAdj('Oh',pThresholds(p),true,'right',true);
+        A_wei = GiveMeAdj('Oh',pThresholds(p),false,'right',true);
+    otherwise
+        error('Unknown connectome: %s',connectomeTypes);
+    end
+    switch whatEdgeProperty
+    case 'wei-communicability'
+        edgeData{p,1} = communicability(A_wei);
+        edgeData{p,1}(A_wei==0) = 0; % only put on real edges
+    case 'bin-communicability'
+        edgeData{p,1} = communicability(A_bin);
+        edgeData{p,1}(~A_bin) = 0; % only put on real edges
+    case 'bin-betweenness'
+        edgeData{p,1} = edge_betweenness_bin(A_bin);
+    case 'wei-betweenness'
+        edgeData{p,1} = edge_betweenness_wei(A_bin);
+    case 'distance'
+        edgeData{p,1} = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    end
+    %---------------------------------------------------------------------------
+    subplot(2,length(pThresholds),2*(p-1)+1);
+    histogram(edgeData{p,1}(edgeData{p,1}~=0));
+    xlabel(whatEdgeProperty)
+    d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    title(pThresholds(p))
+    subplot(2,length(pThresholds),2*p);
+    connValues = edgeData{p,1} > 0;
+    edgeDataCorrected = BF_PlotQuantiles(d(connValues),edgeData{p,1}(connValues),numQuantiles,false,false);
+    title(sprintf('%s on %u edges',whatEdgeProperty,sum(connValues(:))))
+    xlabel('d');
+    ylabel(whatEdgeProperty)
+    edgeData{p,2} = zeros(size(edgeData{p,1}));
+    edgeData{p,2}(connValues) = edgeDataCorrected;
+end
+drawnow
 
 %-------------------------------------------------------------------------------
 % Get scores for genes:
@@ -127,8 +125,10 @@ for i = 1:numProcessingTypes
                                         processingSteps(i).absType);
 
     % Compute edge-level statistics:
+    % [a quantile-based distance correction could appear here [false]; but now
+    % we're doing a partial correlation-based correction]
     [edgeData,regionStruct] = GiveMeEdgeStat(processingSteps(i).connectomeType,processingSteps(i).pThreshold,...
-                            whatEdgeProperty,processingSteps(i).correctDistance,numQuantiles);
+                            whatEdgeProperty,false,numQuantiles);
 
     % Load in our gene data, properly processed:
     [geneData,geneInfo,structInfo] = LoadMeG({processingSteps(i).normalizationGene,...

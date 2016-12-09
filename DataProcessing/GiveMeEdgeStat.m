@@ -38,6 +38,7 @@ case 'wei-betweenness'
 case 'distance'
     C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
     edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    edgeData(tril(true(size(dData)),-1)) = 0; % remove lower diagonal (symmetric)
 otherwise
     error('Unknown edge property: %s',whatEdgeProperty);
 end
