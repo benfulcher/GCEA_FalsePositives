@@ -15,7 +15,7 @@ if nargin < 2 || isempty(pThreshold)
     pThreshold = 0.05;
 end
 if nargin < 3
-    doBinarize = false
+    doBinarize = false;
 end
 if nargin < 4
     whatHemispheres = 'right';
@@ -28,7 +28,7 @@ end
 % Load in and minimally preprocess the data:
 if isstruct(whatData)
     C = whatData;
-    whatData = 'Oh'
+    whatData = 'Oh';
 end
 switch whatData
 case 'Oh'
@@ -48,7 +48,7 @@ case 'Oh'
     % Zero high-p links using the given p-threshold:
     theAdjMat = filterP(theAdjMat,C.Conn_p{ind(1),ind(2)});
     % Get structure information:
-    regionInfo = RegionStruct;
+    regionInfo = C.RegionStruct;
 case 'Ypma'
     [W_rect,sourceRegions,targetRegions] = ImportCorticalConnectivityWeights();
     [W,regionNames] = MakeCompleteConnectome(W_rect,sourceRegions,targetRegions);

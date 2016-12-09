@@ -1,5 +1,5 @@
 function [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneEntrezIDs,whatCorr,...
-                                correctDistance,doAbs,thresholdGoodGene,pValOrStat)
+                                correctDistance,absType,thresholdGoodGene,pValOrStat)
 % Returns GCC scores for all genes given some edge metric
 %-------------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ if nargin < 5
     correctDistance = false;
 end
 if nargin < 6
-    doAbs = false;
+    absType = 'pos'; % measure how GCC increases with the edge statistic
 end
 if nargin < 7
     % Need minimum of 50% of data to compute correlation
@@ -90,10 +90,18 @@ if correctDistance
 end
 
 %-------------------------------------------------------------------------------
-% Take absolute values:
-if doAbs
+% Transform the scores:
+switch absType
+case 'pos'
+    fprintf(1,'Scores capture how GCC *increases* with the edge statistic\n');
+case 'neg'
+    gScore = -gScore;
+    fprintf(1,'Scores converted to negatives (measuring how much GCC *decreases* with edge statistic)\n');
+case 'abs'
     gScore = abs(gScore);
-    fprintf(1,'Scores converted to absolute values\n');
+    fprintf(1,'Scores converted to absolute values -- measure how GCC correlates with the edge statistic (+ly or -ly equivalent)\n');
+otherwise
+    error('Unknown abs type: %s',absType);
 end
 
 end
