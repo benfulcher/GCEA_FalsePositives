@@ -1,4 +1,4 @@
-function fileName = writeErmineJFile(whatData,geneMeasures,theGeneEntrez,columnName)
+function filePath = writeErmineJFile(whatData,geneMeasures,theGeneEntrez,columnName)
 % Writes a tab-delimited input file for ermineJ
 % Ben Fulcher, 2014-10-14
 % ------------------------------------------------------------------------------
@@ -8,10 +8,17 @@ if nargin < 4
 end
 
 %-------------------------------------------------------------------------------
-
 fileName = sprintf('ermineJ_%s.txt',whatData);
+filePath = fullfile('DataOutputs','ermineJ',fileName);
 
-fid = fopen(fullfile('DataOutputs','ermineJ',fileName),'w');
+% Delete the enrichment file if it already exists:
+if exist(filePath,'file')==2
+    delete(filePath);
+    fprintf(1,'Deleted %s\n',filePath);
+end
+
+%-------------------------------------------------------------------------------
+fid = fopen(filePath,'w');
 numGenes = length(theGeneEntrez);
 
 % 1. The header
@@ -27,6 +34,6 @@ fclose(fid);
 
 % ------------------------------------------------------------------------------
 % Display result:
-fprintf(1,'\nWrote %s to file for ermineJ.\n\n',fileName);
+fprintf(1,'\nWrote %s to file for ermineJ.\n\n',filePath);
 
 end

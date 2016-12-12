@@ -52,18 +52,18 @@ fprintf(1,'Looping over %u genes, computing correlations across %u edges...\n',.
 parfor i = 1:numGenes
     g = geneData(:,i);
     GCC = g*g';
-    GCC_A = GCC(isEdge);
-    if mean(isnan(GCC_A)) > thresholdGoodGene
+    GCCVector = GCC(isEdge);
+    if mean(isnan(GCCVector)) > thresholdGoodGene
         gScore(i) = NaN;
     else
         if ~isempty(distanceRegressor)
             % Partial correlations using distance as a regressor
-            [rho,p] = partialcorr([edgeVector,GCC_A],distanceRegressor,...
-                                'rows','pairwise','type','Spearman');
+            [rho,p] = partialcorr([edgeVector,GCCVector],distanceRegressor,...
+                                'rows','pairwise','type',whatCorr);
             gScore(i) = rho(1,2);
         else
             % Pure correlations:
-            [rho,pVal] = corr(edgeVector,GCC_A,'type',whatCorr,'rows','pairwise');
+            [rho,pVal] = corr(edgeVector,GCCVector,'type',whatCorr,'rows','pairwise');
             switch pValOrStat
             case 'pVal'
                 gScore(i) = pVal;

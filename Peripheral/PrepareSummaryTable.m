@@ -24,7 +24,7 @@ allGOLabels = arrayfun(@(x)sprintf('%s (%s)',allGONames{x},allGOIDs{x}),...
 % 2. Prepare output
 numRuns = length(enrichmentTables);
 summaryTable = nan(numGOIDs,numRuns);
-for i = 1:numProcessingTypes
+for i = 1:numRuns
     if isempty(enrichmentTables{i}), continue; end
     [~,ia,ib] = intersect(allGOIDs,enrichmentTables{i}.GOID);
     summaryTable(ia,i) = enrichmentTables{i}.pVal(ib);
@@ -43,7 +43,7 @@ if doReorder
     allGOLabels = allGOLabels(ix_GOcat);
     allGONames = allGONames(ix_GOcat);
     allGOIDs = allGOIDs(ix_GOcat);
-    summaryTable = summaryTable(ix_GOcat,:);
+    summaryTable = summaryTable(ix_GOcat,ix_runs);
 else
     ix_runs = 1:numRuns;
 end

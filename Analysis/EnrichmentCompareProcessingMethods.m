@@ -172,36 +172,9 @@ end
 %-------------------------------------------------------------------------------
 % Ok, and now we want to summarize the results
 %-------------------------------------------------------------------------------
+doReorder = true;
+[summaryTable,allGOLabels,allGONames,allGOIDs,ix_pMeth] = PrepareSummaryTable(enrichmentTables,doReorder);
 
-% 1. What are the different GO IDs implicated
-GOIDs = cellfun(@(x)x.GOID,enrichmentTables,'UniformOutput',0);
-allGOIDs = unique(vertcat(GOIDs{:}));
-numGOIDs = length(allGOIDs);
-% map to names
-allGONames = cell(numGOIDs,1);
-for i = 1:numGOIDs
-    isHere = cellfun(@(x)ismember(allGOIDs{i},x),GOIDs);
-    isHere = find(isHere,1,'first');
-    thisRow = strcmp(enrichmentTables{isHere}.GOID,allGOIDs{i});
-    allGONames{i} = enrichmentTables{isHere}.GOName{thisRow};
-end
-allGOLabels = arrayfun(@(x)sprintf('%s (%s)',allGONames{x},allGOIDs{x}),...
-                            1:numGOIDs,'UniformOutput',false);
-
-% 2. Prepare output
-summaryTable = nan(numGOIDs,numProcessingTypes);
-for i = 1:numProcessingTypes
-    if isempty(enrichmentTables{i}), continue; end
-    [~,ia,ib] = intersect(allGOIDs,enrichmentTables{i}.GOID);
-    summaryTable(ia,i) = enrichmentTables{i}.pVal(ib);
-end
-% order GO categories by relevance:
-summaryTableSat = summaryTable;
-summaryTableSat(isnan(summaryTable)) = 0.1;
-propSig = mean(summaryTableSat,2);
-[~,ix_GO] = sort(propSig,'descend');
-propSig = mean(summaryTableSat,1);
-[~,ix_pMeth] = sort(propSig,'descend');
 
 labelTable = zeros(numSwitches,numProcessingTypes);
 groupNamesAll = cell(numSwitches,1);
@@ -229,11 +202,11 @@ ax1.YTickLabel = theSwitches;
 caxis([0,maxSummaryTable*2])
 title(sprintf('%s (p_{FDR} < %.2f)',whatEdgeProperty,enrichmentSigThresh))
 subplot(5,1,2:5); hold on; ax2 = gca;
-BF_imagesc(summaryTable(ix_GO,ix_pMeth));
+BF_imagesc(summaryTable(:,ix_pMeth));
 ax2.XLim = [0.5,numProcessingTypes+0.5];
 ax2.YLim = [0.5,numGOIDs + 0.5];
 ax2.YTick = 1:numGOIDs;
-ax2.YTickLabel = allGOLabels(ix_GO);
+ax2.YTickLabel = allGOLabels(:);
 % plot([0.5,numProcessingTypes+0.5],(numGOIDs+0.5)*ones(2,1),'k')
 ax2.XTick = 1:numProcessingTypes;
 ax2.XTickLabel = [];

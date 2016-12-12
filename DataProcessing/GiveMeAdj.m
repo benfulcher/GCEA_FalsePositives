@@ -1,4 +1,4 @@
-function [theAdjMat,regionInfo] = GiveMeAdj(whatData,pThreshold,doBinarize,whatHemispheres,justCortex)
+function [theAdjMat,regionInfo,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,whatHemispheres,justCortex)
 % Gives a string identifying the type of normalization to apply, then returns
 % the gene data for that normalization.
 % ------------------------------------------------------------------------------
@@ -43,10 +43,11 @@ case 'Oh'
         ind = [2,2];
     end
     theAdjMat = C.Conn_W{ind(1),ind(2)};
+    adjPVals = C.Conn_p{ind(1),ind(2)};
     % Remove diagonal entries:
     theAdjMat(logical(eye(size(theAdjMat)))) = 0;
     % Zero high-p links using the given p-threshold:
-    theAdjMat = filterP(theAdjMat,C.Conn_p{ind(1),ind(2)});
+    theAdjMat = filterP(theAdjMat,adjPVals);
     % Get structure information:
     regionInfo = C.RegionStruct;
 case 'Ypma'
@@ -54,6 +55,8 @@ case 'Ypma'
     [W,regionNames] = MakeCompleteConnectome(W_rect,sourceRegions,targetRegions);
     [regionStruct,ia] = MatchRegionsOh([],regionNames);
     W = W(ia,ia);
+    theAdjMat = W;
+    adjPVals = [];
 end
 
 %-------------------------------------------------------------------------------
