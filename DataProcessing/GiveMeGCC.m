@@ -120,4 +120,34 @@ otherwise
     error('Unknown abs type: %s',absType);
 end
 
+% Plot some of the top ones:
+% geneData(:,notGoodEnough) = [];
+% [~,ix] = sort(gScore,'descend');
+% f = figure('color','w');
+% for i = 1:10
+%     subplot(2,5,i);
+%     g = geneData(:,ix(i));
+%     GCC = g*g';
+%     GCCVector = GCC(isEdge);
+%     plot(edgeVector,GCCVector,'.k');
+%     title(sprintf('%.2f -- %u',gScore(ix(i)),geneEntrezIDs(ix(i))));
+%     xlabel('edge properties')
+%     ylabel('gcc')
+% end
+%
+% % Look at distributions of genes that did well:
+% f = figure('color','w');
+% for i = 1:20
+%     subplot(5,8,i)
+%     histogram(geneData(:,ix(i)))
+%     title(i)
+% end
+% for i = 1:20
+%     subplot(5,8,20+i)
+%     histogram(geneData(:,ix(end-i)))
+%     title(length(ix)-i)
+% end
+% keyboard
+
+
 end
