@@ -15,7 +15,7 @@ onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
 % Randomization
-randomizeHow = 'uniformTopology'; % 'uniformTopology', 'permutedGeneDep'
+randomizeHow = 'permutedGeneDep'; % 'uniformTopology', 'permutedGeneDep'
 numNulls = 250;
 
 % Gene processing
@@ -128,7 +128,7 @@ for i = 1:numNulls+1
         theGeneData = geneData(rp,:);
     end
     % Compute the score:
-    [gScore,geneEntrezIDs] = GiveMeGCC(edgeMeasures{i},geneData,...
+    [gScore,geneEntrezIDs] = GiveMeGCC(theEdgeData,theGeneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
 
