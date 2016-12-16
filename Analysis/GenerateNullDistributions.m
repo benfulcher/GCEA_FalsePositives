@@ -163,13 +163,13 @@ stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each categor
 pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
 pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
 pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
-whatStat = pValsZ_corr;
-[~,ix] = sort(whatStat,'ascend');
+[~,ix] = sort(pValsZ_corr,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
 for i = 1:numTop
-    fprintf(1,'%u (%u genes): %s (%.2g)\n',i,sizeGOCategories(ix(i)),...
-                        GOTable.GOName{ix(i)},whatStat(ix(i)));
+    geneAcro = geneInfo.acronym(ismember(geneInfo.entrez_id,geneEntrezAnnotations{ix(i)}));
+    fprintf(1,'%u (%u genes): %s (p = %.2g) [%s]\n',i,sizeGOCategories(ix(i)),...
+                        GOTable.GOName{ix(i)},pValsZ_corr(ix(i)),BF_cat(geneAcro));
 end
 
 % Plot distribution of p-values:
@@ -188,7 +188,7 @@ ylabel('frequency')
 
 % Check dependence on GO category size
 f = figure('color','w');
-plot(sizeGOCategories,whatStat,'.k')
+plot(sizeGOCategories,pValsZ_corr,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
 
