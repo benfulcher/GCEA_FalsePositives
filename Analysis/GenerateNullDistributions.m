@@ -149,6 +149,12 @@ end
 f = figure('color','w');
 histogram(meanNull)
 
+% Check dependence on GO category size
+f = figure('color','w');
+plot(sizeGOCategories,whatStat,'.k')
+xlabel('GO category size')
+ylabel('corrected p-value')
+
 %-------------------------------------------------------------------------------
 % Look at distribution for some top ones
 %-------------------------------------------------------------------------------
