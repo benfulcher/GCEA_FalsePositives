@@ -13,7 +13,7 @@ justCortex = false;
 whatEdgeMeasure = 'ktotktot';
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
-numNulls = 100;
+numNulls = 50;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
@@ -42,22 +42,26 @@ fprintf(1,'Randomizing edges uniformly\n');
 N = length(A_bin);
 numLinks = sum(A_bin(:));
 
-edgeMeasures = cell(numNulls,1);
-for i = 1:numNulls
-    A_rand_vector = zeros(N*(N-1),1);
-    rp = randperm(N*(N-1));
-    A_rand_vector(rp(1:numLinks)) = 1;
-    A_bin_i = squareform(A_rand_vector(1:end/2));
-    A_bin_ii = squareform(A_rand_vector(end/2+1:end));
-    upper = triu(true(size(A_bin)),+1);
-    A_rand = zeros(size(A_bin));
-    A_rand(upper) = A_bin_i(upper);
-    lower = tril(true(size(A_bin)),-1);
-    A_rand(lower) = A_bin_ii(lower);
+edgeMeasures = cell(numNulls+1,1);
+for i = 1:numNulls+1
+    if i == 1
+        A_rand = A_bin;
+    else
+        A_rand_vector = zeros(N*(N-1),1);
+        rp = randperm(N*(N-1));
+        A_rand_vector(rp(1:numLinks)) = 1;
+        A_bin_i = squareform(A_rand_vector(1:end/2));
+        A_bin_ii = squareform(A_rand_vector(end/2+1:end));
+        upper = triu(true(size(A_bin)),+1);
+        A_rand = zeros(size(A_bin));
+        A_rand(upper) = A_bin_i(upper);
+        lower = tril(true(size(A_bin)),-1);
+        A_rand(lower) = A_bin_ii(lower);
+    end
 
-    weightVector = A_wei(A_wei > 0);
-    A_wei_rand = A_rand;
-    A_wei_rand(A_wei_rand>0) = weightVector;
+    % weightVector = A_wei(A_wei > 0);
+    % A_wei_rand = A_rand;
+    % A_wei_rand(A_wei_rand>0) = weightVector;
 
     ktot = sum(A_rand,1)' + sum(A_rand,2);
     product = ktot*ktot';
@@ -88,12 +92,12 @@ numGOCategories = height(GOTable);
 %-------------------------------------------------------------------------------
 % Get scores for genes:
 %-------------------------------------------------------------------------------
-categoryScores = nan(numGOCategories,numNulls);
+categoryScores = nan(numGOCategories,numNulls+1);
 enrichmentSigThresh = 0.05;
 fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',enrichmentSigThresh);
 timer = tic;
-for i = 1:numNulls
-    fprintf(1,'%u/%u\n\n',i,numNulls);
+for i = 1:numNulls+1
+    fprintf(1,'%u/%u\n\n',i,numNulls+1);
 
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
@@ -111,21 +115,34 @@ for i = 1:numNulls
     end
 
     % Give user feedback
-    fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numNulls,...
-                            BF_thetime((numNulls-i)*(toc(timer)/i)));
+    fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numNulls+1,...
+                            BF_thetime((numNulls+1-i)*(toc(timer)/i)));
 end
+
+%-------------------------------------------------------------------------------
+% Save
+%-------------------------------------------------------------------------------
+fileName = sprintf('%s-%s-%unulls.mat',whatEdgeMeasure,processFilter,numNulls);
+save(fullfile('DataOutputs',fileName));
 
 %-------------------------------------------------------------------------------
 % List categories with the highest mean nulls
 %-------------------------------------------------------------------------------
 numTop = 100;
-meanNull = nanmean(categoryScores,2); % mean score of genes in each category
-[~,ix] = sort(meanNull,'ascend');
-fprintf(1,'%u nans removed\n',sum(isnan(meanNull)));
-ix(isnan(meanNull(ix))) = [];
+nullInd = 2:numNulls+1;
+meanNull = nanmean(categoryScores(:,nullInd),2); % mean score of genes in each category
+stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each category
+% looking at right tail:
+pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
+pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
+pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
+whatStat = pValsZ_corr;
+[~,ix] = sort(whatStat,'ascend');
+fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
+ix(isnan(whatStat(ix))) = [];
 for i = 1:numTop
     fprintf(1,'%u (%u genes): %s (%.2g)\n',i,sizeGOCategories(ix(i)),...
-                        GOTable.GOName{ix(i)},meanNull(ix(i)));
+                        GOTable.GOName{ix(i)},whatStat(ix(i)));
 end
 
 % Plot distribution of mean nulls:
@@ -138,7 +155,10 @@ histogram(meanNull)
 f = figure('color','w');
 for i = 1:10
     subplot(5,2,i); hold on
-    histogram(categoryScores(ix(i),:));
-    plot(meanNull(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
+    histogram(categoryScores(ix(i),nullInd));
+    plot(categoryScores(ix(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
+    % plot(whatStat(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     title(GOTable.GOName{ix(i)})
+    title(sprintf('%s (%u genes; mean: %.2g)\n',GOTable.GOName{ix(i)},...
+                        sizeGOCategories(ix(i)),meanNull(ix(i))));
 end
