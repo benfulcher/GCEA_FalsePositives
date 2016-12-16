@@ -13,6 +13,9 @@ justCortex = false;
 whatEdgeMeasure = 'bin_edgeBet';
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
+
+% Randomization
+randomizeHow = 'uniformTopology'; % 'uniformTopology', 'permutedGeneDep'
 numNulls = 250;
 
 % Gene processing
@@ -31,6 +34,7 @@ pValOrStat = 'stat'; % 'pval','stat'
 absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 correctDistance = false; % false,true;
 
+
 %-------------------------------------------------------------------------------
 % Define a set of edge measures to compare:
 [A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatHemispheres,justCortex);
@@ -38,44 +42,49 @@ A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
 
 %-------------------------------------------------------------------------------
 % Compute randomized
-fprintf(1,'Randomizing edges uniformly\n');
-N = length(A_bin);
-numLinks = sum(A_bin(:));
+switch randomizeHow
+case 'uniformTopology'
+    fprintf(1,'Randomizing edges uniformly\n');
+    N = length(A_bin);
+    numLinks = sum(A_bin(:));
 
-edgeMeasures = cell(numNulls+1,1);
-for i = 1:numNulls+1
-    if i == 1
-        A_rand = A_bin;
-    else
-        A_rand_vector = zeros(N*(N-1),1);
-        rp = randperm(N*(N-1));
-        A_rand_vector(rp(1:numLinks)) = 1;
-        A_bin_i = squareform(A_rand_vector(1:end/2));
-        A_bin_ii = squareform(A_rand_vector(end/2+1:end));
-        upper = triu(true(size(A_bin)),+1);
-        A_rand = zeros(size(A_bin));
-        A_rand(upper) = A_bin_i(upper);
-        lower = tril(true(size(A_bin)),-1);
-        A_rand(lower) = A_bin_ii(lower);
+    edgeMeasures = cell(numNulls+1,1);
+    for i = 1:numNulls+1
+        if i == 1
+            A_rand = A_bin;
+        else
+            A_rand_vector = zeros(N*(N-1),1);
+            rp = randperm(N*(N-1));
+            A_rand_vector(rp(1:numLinks)) = 1;
+            A_bin_i = squareform(A_rand_vector(1:end/2));
+            A_bin_ii = squareform(A_rand_vector(end/2+1:end));
+            upper = triu(true(size(A_bin)),+1);
+            A_rand = zeros(size(A_bin));
+            A_rand(upper) = A_bin_i(upper);
+            lower = tril(true(size(A_bin)),-1);
+            A_rand(lower) = A_bin_ii(lower);
+        end
+
+        % weightVector = A_wei(A_wei > 0);
+        % A_wei_rand = A_rand;
+        % A_wei_rand(A_wei_rand>0) = weightVector;
+
+        switch whatEdgeMeasure
+        case 'ktotktot'
+            ktot = sum(A_rand,1)' + sum(A_rand,2);
+            product = ktot*ktot';
+            product(A_rand == 0) = 0;
+            edgeMeasures{i} = product;
+        case 'bin_edgeBet'
+            edgeMeasures{i} = edge_betweenness_bin(A_rand);
+        end
     end
-
-    % weightVector = A_wei(A_wei > 0);
-    % A_wei_rand = A_rand;
-    % A_wei_rand(A_wei_rand>0) = weightVector;
-
-    switch whatEdgeMeasure
-    case 'ktotktot'
-        ktot = sum(A_rand,1)' + sum(A_rand,2);
-        product = ktot*ktot';
-        product(A_rand == 0) = 0;
-        edgeMeasures{i} = product;
-    case 'bin_edgeBet'
-        edgeMeasures{i} = edge_betweenness_bin(A_rand);
-    end
+case 'permutedGeneDep'
+    edgeMeasures = edge_betweenness_bin(A_bin);
 end
 
 %-------------------------------------------------------------------------------
-% Get, and match gene data
+% Retrieve and match gene data
 [geneData,geneInfo,structInfo] = LoadMeG({normalizationGene,normalizationRegion},energyOrDensity);
 % Check gene data matches connectome data
 if ~all([regionStruct.id]'==structInfo.id)
@@ -85,6 +94,7 @@ if ~all([regionStruct.id]'==structInfo.id)
     structInfo = structInfo(ib,:);
     fprintf(1,'Gene data matched to subset of %u Allen regions\n',length(ib));
 end
+numGenes = size(geneData,1);
 % Don't regress distance:
 distanceRegressor = [];
 
@@ -106,9 +116,21 @@ for i = 1:numNulls+1
 
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
+    switch randomizeHow
+    case 'uniformTopology'
+        % each null has a different set of edge measures:
+        theEdgeData = edgeMeasures{i};
+        theGeneData = geneData;
+    case 'permutedGeneDep'
+        % each null should use the same edge measure but different permutations of the gene data
+        theEdgeData = edgeMeasures;
+        rp = randperm(numGenes);
+        theGeneData = geneData(rp,:);
+    end
+    % Compute the score:
     [gScore,geneEntrezIDs] = GiveMeGCC(edgeMeasures{i},geneData,...
-                                geneInfo.entrez_id,corrType,distanceRegressor,absType,...
-                                thresholdGoodGene,pValOrStat);
+                            geneInfo.entrez_id,corrType,distanceRegressor,absType,...
+                            thresholdGoodGene,pValOrStat);
 
     % Record mean scores for each category:
     for j = 1:numGOCategories
@@ -127,7 +149,7 @@ end
 %-------------------------------------------------------------------------------
 % Save
 %-------------------------------------------------------------------------------
-fileName = sprintf('%s-%s-%unulls.mat',whatEdgeMeasure,processFilter,numNulls);
+fileName = sprintf('%s-%s-%s-%unulls.mat',whatEdgeMeasure,randomizeHow,processFilter,numNulls);
 save(fullfile('DataOutputs',fileName));
 
 %-------------------------------------------------------------------------------
@@ -141,7 +163,7 @@ stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each categor
 pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
 pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
 pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
-whatStat = -meanNull;
+whatStat = pValsZ_corr;
 [~,ix] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
@@ -149,6 +171,14 @@ for i = 1:numTop
     fprintf(1,'%u (%u genes): %s (%.2g)\n',i,sizeGOCategories(ix(i)),...
                         GOTable.GOName{ix(i)},whatStat(ix(i)));
 end
+
+% Plot distribution of p-values:
+f = figure('color','w'); hold on
+histogram(pValsZ)
+histogram(pValsZ_corr)
+xlabel('p-values')
+legend({'raw','corrected'})
+ylabel('frequency')
 
 % Plot distribution of mean nulls:
 f = figure('color','w');
@@ -185,6 +215,6 @@ for i = 1:10
     plot(categoryScores(ix(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     title(GOTable.GOName{ix(i)})
-    title(sprintf('%s (%u genes; mean: %.2g)\n',GOTable.GOName{ix(i)},...
-                        sizeGOCategories(ix(i)),meanNull(ix(i))));
+    title(sprintf('%s (%u genes; p = %.2g)\n',GOTable.GOName{ix(i)},...
+                        sizeGOCategories(ix(i)),pValsZ_corr(ix(i))));
 end
