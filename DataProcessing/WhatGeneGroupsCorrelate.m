@@ -10,37 +10,10 @@ normalizationGene = 'none'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
 [geneData,geneInfo,structInfo] = LoadMeG({normalizationGene,normalizationRegion},energyOrDensity);
 
-% Get GO annotation data (processed):
-load('GOAnnotation.mat','allGOCategories','geneEntrezAnnotations','annotationTable');
-
-% Get GO ontology details
-whatFilter = 'biological_process';
-GOTable = GetGOTerms(whatFilter);
-
-
-%-------------------------------------------------------------------------------
-% Filter
-%-------------------------------------------------------------------------------
-% Filter by ontology details:
-[~,ia,ib] = intersect(GOTable.GOID,allGOCategories);
-fprintf(1,'Filtering to %u annotated GO categories related to %s\n',length(ia),whatFilter);
-GOTable = GOTable(ia,:);
-allGOCategories = allGOCategories(ib);
-geneEntrezAnnotations = geneEntrezAnnotations(ib);
-
-% Filter by category size:
+processFilter = 'biological_process';
 sizeFilter = [5,200];
-numGOCategories = length(allGOCategories);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
-isGoodSize = (sizeGOCategories >= sizeFilter(1)) & (sizeGOCategories <= sizeFilter(2));
-allGOCategories = allGOCategories(isGoodSize);
-geneEntrezAnnotations = geneEntrezAnnotations(isGoodSize);
-GOTable = GOTable(isGoodSize,:);
-sizeGOCategories = sizeGOCategories(isGoodSize);
-numGOCategories = length(allGOCategories);
-fprintf(1,'Filtered to %u categories with between %u and %u annotations\n',...
-                numGOCategories,sizeFilter(1),sizeFilter(2));
-
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter);
+numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
 % Go through and compute pairwise correlations within each category:
@@ -74,7 +47,8 @@ ix(isnan(meanCorrs(ix))) = [];
 % toNumber = @(GOCell) cellfun(@(x)str2num(x(4:end)),GOCell,'UniformOutput',true);
 % tableIDs = arrayfun(@(x)str2num(x(4:end)),annotationTable.GO);
 
-for i = 1:250
+numTopCategories = 250;
+for i = 1:numTopCategories
     % Match to table:
     fprintf(1,'%u (%u genes): %s (%.2f)\n',i,sizeGOCategories(ix(i)),GOTable.GOName{ix(i)},meanCorrs(ix(i)));
 end
@@ -85,6 +59,5 @@ f = figure('color','w');
 plot(sizeGOCategories,meanCorrs,'.k');
 xlabel('Category size')
 ylabel(sprintf('mean %s correlation of genes in category',whatCorr))
-
 
 end

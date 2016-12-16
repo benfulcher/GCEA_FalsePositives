@@ -1,7 +1,10 @@
-function [GOTable,geneEntrezAnnotations] = GetFilteredGOData(whatFilter)
+function [GOTable,geneEntrezAnnotations] = GetFilteredGOData(whatFilter,sizeFilter)
 
 if nargin < 1
     whatFilter = 'biological_process';
+end
+if nargin < 2
+    sizeFilter = [5,200];
 end
 
 % Get GO annotation data (processed):
@@ -21,7 +24,6 @@ allGOCategories = allGOCategories(ib);
 geneEntrezAnnotations = geneEntrezAnnotations(ib);
 
 % Filter by category size:
-sizeFilter = [5,200];
 numGOCategories = length(allGOCategories);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 isGoodSize = (sizeGOCategories >= sizeFilter(1)) & (sizeGOCategories <= sizeFilter(2));

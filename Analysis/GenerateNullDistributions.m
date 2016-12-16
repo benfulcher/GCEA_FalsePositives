@@ -13,12 +13,16 @@ justCortex = false;
 whatEdgeMeasure = 'ktotktot';
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
-numNulls = 20;
+numNulls = 100;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
 normalizationGene = 'none'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
+
+% GO settings
+processFilter = 'biological_process';
+sizeFilter = [5,200];
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
@@ -27,15 +31,10 @@ pValOrStat = 'stat'; % 'pval','stat'
 absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 correctDistance = false; % false,true;
 
-% Enrichment settings:
-numIterationsErmineJ = 20000; % number of iterations for GSR in ermineJ
-
 %-------------------------------------------------------------------------------
-
 % Define a set of edge measures to compare:
 [A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatHemispheres,justCortex);
 A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
-
 
 %-------------------------------------------------------------------------------
 % Compute randomized
@@ -43,7 +42,7 @@ fprintf(1,'Randomizing edges uniformly\n');
 N = length(A_bin);
 numLinks = sum(A_bin(:));
 
-edgeMeasures = zeros(N,numNulls);
+edgeMeasures = cell(numNulls,1);
 for i = 1:numNulls
     A_rand_vector = zeros(N*(N-1),1);
     rp = randperm(N*(N-1));
@@ -63,9 +62,8 @@ for i = 1:numNulls
     ktot = sum(A_rand,1)' + sum(A_rand,2);
     product = ktot*ktot';
     product(A_rand == 0) = 0;
-    edgeMeasures(:,i) = product;
+    edgeMeasures{i} = product;
 end
-
 
 %-------------------------------------------------------------------------------
 % Get, and match gene data
@@ -82,65 +80,65 @@ end
 distanceRegressor = [];
 
 %-------------------------------------------------------------------------------
+% Get GO data
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter);
+sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+numGOCategories = height(GOTable);
+
+%-------------------------------------------------------------------------------
 % Get scores for genes:
 %-------------------------------------------------------------------------------
-enrichmentTables = cell(numEdgeMeasures,1);
+categoryScores = nan(numGOCategories,numNulls);
 enrichmentSigThresh = 0.05;
 fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',enrichmentSigThresh);
 timer = tic;
 for i = 1:numNulls
-    fprintf(1,'%u/%u: %s\n\n',i,numNulls,edgeMeasureNames{i});
+    fprintf(1,'%u/%u\n\n',i,numNulls);
 
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
-    [gScore,geneEntrezIDs] = GiveMeGCC(edgeMeasures(:,i),geneData,...
+    [gScore,geneEntrezIDs] = GiveMeGCC(edgeMeasures{i},geneData,...
                                 geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                                 thresholdGoodGene,pValOrStat);
 
-    % Do enrichment:
-    
+    % Record mean scores for each category:
+    for j = 1:numGOCategories
+        matchMe = ismember(geneEntrezIDs,geneEntrezAnnotations{j});
+        if sum(matchMe) <= 1
+            continue
+        end
+        categoryScores(j,i) = nanmean(gScore(matchMe));
+    end
 
     % Give user feedback
-    fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numEdgeMeasures,...
-                            BF_thetime((numEdgeMeasures-i)*(toc(timer)/i)));
+    fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numNulls,...
+                            BF_thetime((numNulls-i)*(toc(timer)/i)));
 end
 
 %-------------------------------------------------------------------------------
-% Save
+% List categories with the highest mean nulls
 %-------------------------------------------------------------------------------
-labelName = sprintf('%s-%s-%s-%s-%s-dist%u.mat',connectomeSource,...
-                    normalizationGene,normalizationRegion,corrType,absType,...
-                    correctDistance);
-matName = [labelName,'.mat'];
-fprintf(1,'Saving all outputs to %s...',matName);
-save(fullfile(pwd,'DataOutputs',matName));
-fprintf(1,' Saved.\n');
-
-%-------------------------------------------------------------------------------
-% Prepare a table of the results
-%-------------------------------------------------------------------------------
-doReorder = true;
-[summaryTable,allGOLabels,allGONames,allGOIDs,ix_edgeM] = PrepareSummaryTable(enrichmentTables,doReorder);
-numGOIDs = length(allGOIDs);
-
-%-------------------------------------------------------------------------------
-% Plot a table summarizing enrichment results
-%-------------------------------------------------------------------------------
-if numGOIDs > 0
-    f = figure('color','w'); hold on; ax = gca;
-    title(sprintf('%s (p_{FDR} < %.2f)',labelName,enrichmentSigThresh))
-    BF_imagesc(summaryTable);
-    ax.XLim = [0.5,numEdgeMeasures+0.5];
-    ax.YLim = [0.5,numGOIDs + 0.5];
-    ax.YTick = 1:numGOIDs;
-    ax.YTickLabel = allGOLabels;
-    ax.XTickLabelRotation = 90;
-    ax.TickLabelInterpreter = 'none';
-    % plot([0.5,numEdgeMeasures+0.5],(numGOIDs+0.5)*ones(2,1),'k')
-    ax.XTick = 1:numEdgeMeasures;
-    ax.XTickLabel = edgeMeasureNames(ix_edgeM);
-    colormap(BF_getcmap('blues',9,0));
+numTop = 100;
+meanNull = nanmean(categoryScores,2); % mean score of genes in each category
+[~,ix] = sort(meanNull,'ascend');
+fprintf(1,'%u nans removed\n',sum(isnan(meanNull)));
+ix(isnan(meanNull(ix))) = [];
+for i = 1:numTop
+    fprintf(1,'%u (%u genes): %s (%.2g)\n',i,sizeGOCategories(ix(i)),...
+                        GOTable.GOName{ix(i)},meanNull(ix(i)));
 end
 
+% Plot distribution of mean nulls:
+f = figure('color','w');
+histogram(meanNull)
+
 %-------------------------------------------------------------------------------
-% Look into the correlations within each GO group
+% Look at distribution for some top ones
+%-------------------------------------------------------------------------------
+f = figure('color','w');
+for i = 1:10
+    subplot(5,2,i); hold on
+    histogram(categoryScores(ix(i),:));
+    plot(meanNull(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
+    title(GOTable.GOName{ix(i)})
+end
