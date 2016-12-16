@@ -13,7 +13,7 @@ justCortex = false;
 whatEdgeMeasure = 'ktotktot';
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
-numNulls = 50;
+numNulls = 250;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
