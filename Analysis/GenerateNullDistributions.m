@@ -94,7 +94,7 @@ if ~all([regionStruct.id]'==structInfo.id)
     structInfo = structInfo(ib,:);
     fprintf(1,'Gene data matched to subset of %u Allen regions\n',length(ib));
 end
-numGenes = size(geneData,1);
+[numRegions,numGenes] = size(geneData);
 % Don't regress distance:
 distanceRegressor = [];
 
@@ -124,7 +124,12 @@ for i = 1:numNulls+1
     case 'permutedGeneDep'
         % each null should use the same edge measure but different permutations of the gene data
         theEdgeData = edgeMeasures;
-        rp = randperm(numGenes);
+        if i==1
+            % (don't permute the first one!)
+            rp = 1:numRegions;
+        else
+            rp = randperm(numRegions);
+        end
         theGeneData = geneData(rp,:);
     end
     % Compute the score:
@@ -151,6 +156,7 @@ end
 %-------------------------------------------------------------------------------
 fileName = sprintf('%s-%s-%s-%unulls.mat',whatEdgeMeasure,randomizeHow,processFilter,numNulls);
 save(fullfile('DataOutputs',fileName));
+fprintf(1,'Saved %s\n',fileName);
 
 %-------------------------------------------------------------------------------
 % List categories with the highest mean nulls
@@ -192,7 +198,7 @@ plot(sizeGOCategories,pValsZ_corr,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
 
-% Relationship between null variance and corrected p-value
+% Relationship between null mean and corrected p-value
 f = figure('color','w'); hold on
 plot(meanNull,categoryScores(:,1),'.k')
 plot([min(meanNull),max(meanNull)],[min(meanNull),max(meanNull)],'r')
