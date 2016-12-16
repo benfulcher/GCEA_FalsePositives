@@ -10,7 +10,7 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'bin_edgeBet';
+whatEdgeMeasure = 'ktotktot';
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
@@ -108,6 +108,7 @@ numGOCategories = height(GOTable);
 % Get scores for genes:
 %-------------------------------------------------------------------------------
 categoryScores = nan(numGOCategories,numNulls+1);
+gScores = cell(numNulls+1,1);
 enrichmentSigThresh = 0.05;
 fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',enrichmentSigThresh);
 timer = tic;
@@ -133,7 +134,7 @@ for i = 1:numNulls+1
         theGeneData = geneData(rp,:);
     end
     % Compute the score:
-    [gScore,geneEntrezIDs] = GiveMeGCC(theEdgeData,theGeneData,...
+    [gScores{i},geneEntrezIDs] = GiveMeGCC(theEdgeData,theGeneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
 
@@ -143,7 +144,7 @@ for i = 1:numNulls+1
         if sum(matchMe) <= 1
             continue
         end
-        categoryScores(j,i) = nanmean(gScore(matchMe));
+        categoryScores(j,i) = nanmean(gScores{i}(matchMe));
     end
 
     % Give user feedback
@@ -169,7 +170,8 @@ stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each categor
 pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
 pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
 pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
-[~,ix] = sort(pValsZ_corr,'ascend');
+whatStat = meanNull;
+[~,ix] = sort(whatStat,'descend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
 for i = 1:numTop
@@ -194,16 +196,17 @@ ylabel('frequency')
 
 % Check dependence on GO category size
 f = figure('color','w');
-plot(sizeGOCategories,pValsZ_corr,'.k')
+plot(sizeGOCategories,pValsZ,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
 
-% Relationship between null mean and corrected p-value
+% Relationship between null mean and real scores
 f = figure('color','w'); hold on
 plot(meanNull,categoryScores(:,1),'.k')
 plot([min(meanNull),max(meanNull)],[min(meanNull),max(meanNull)],'r')
 xlabel('mean of null distribution')
 ylabel('real scores')
+title(whatEdgeMeasure,'interpreter','none')
 
 % Std
 f = figure('color','w'); hold on
