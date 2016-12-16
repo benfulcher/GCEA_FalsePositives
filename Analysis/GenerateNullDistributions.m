@@ -10,10 +10,10 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'ktotktot';
+whatEdgeMeasure = 'bin_edgeBet';
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
-numNulls = 50;
+numNulls = 250;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
@@ -63,10 +63,15 @@ for i = 1:numNulls+1
     % A_wei_rand = A_rand;
     % A_wei_rand(A_wei_rand>0) = weightVector;
 
-    ktot = sum(A_rand,1)' + sum(A_rand,2);
-    product = ktot*ktot';
-    product(A_rand == 0) = 0;
-    edgeMeasures{i} = product;
+    switch whatEdgeMeasure
+    case 'ktotktot'
+        ktot = sum(A_rand,1)' + sum(A_rand,2);
+        product = ktot*ktot';
+        product(A_rand == 0) = 0;
+        edgeMeasures{i} = product;
+    case 'bin_edgeBet'
+        edgeMeasures{i} = edge_betweenness_bin(A_rand);
+    end
 end
 
 %-------------------------------------------------------------------------------
@@ -136,7 +141,7 @@ stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each categor
 pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
 pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
 pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
-whatStat = pValsZ_corr;
+whatStat = -meanNull;
 [~,ix] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
@@ -148,12 +153,27 @@ end
 % Plot distribution of mean nulls:
 f = figure('color','w');
 histogram(meanNull)
+xlabel('mean corr statistic across nulls')
+ylabel('frequency')
 
 % Check dependence on GO category size
 f = figure('color','w');
 plot(sizeGOCategories,whatStat,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
+
+% Relationship between null variance and corrected p-value
+f = figure('color','w'); hold on
+plot(meanNull,categoryScores(:,1),'.k')
+plot([min(meanNull),max(meanNull)],[min(meanNull),max(meanNull)],'r')
+xlabel('mean of null distribution')
+ylabel('real scores')
+
+% Std
+f = figure('color','w'); hold on
+plot(stdNull,categoryScores(:,1),'.k')
+xlabel('std of null distribution')
+ylabel('real scores')
 
 %-------------------------------------------------------------------------------
 % Look at distribution for some top ones
