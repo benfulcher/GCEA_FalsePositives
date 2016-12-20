@@ -34,7 +34,7 @@ if isempty(ourEntrez)
 else
     fprintf(1,'Filtering on size of GO category after matching to our genes\n');
     % Make sure all annotations match those in our set of entrez_ids
-    geneEntrezAnnotations = cellfun(@(x)x(ismember(x,ourEntrez)),geneEntrezAnnotations);
+    geneEntrezAnnotations = cellfun(@(x)x(ismember(x,ourEntrez)),geneEntrezAnnotations,'UniformOutput',false);
     sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 end
 isGoodSize = (sizeGOCategories >= sizeFilter(1)) & (sizeGOCategories <= sizeFilter(2));
