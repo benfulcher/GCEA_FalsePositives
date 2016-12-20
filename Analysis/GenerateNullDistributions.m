@@ -15,7 +15,7 @@ onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
 % Randomization
-randomizeHow = 'permutedGeneDep'; % 'uniformTopology', 'permutedGeneDep'
+randomizeHow = 'shuffleEdgeVals'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
 numNulls = 250;
 
 % Gene processing
@@ -160,18 +160,11 @@ for i = 1:numNulls+1
                             BF_thetime((numNulls+1-i)*(toc(timer)/i)));
 end
 
-%-------------------------------------------------------------------------------
-% Save
-%-------------------------------------------------------------------------------
-fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,randomizeHow,...
-                processFilter,normalizationGene,normalizationRegion,numNulls);
-save(fullfile('DataOutputs',fileName));
-fprintf(1,'Saved %s\n',fileName);
+
 
 %-------------------------------------------------------------------------------
-% List categories with the highest mean nulls
+% Summarize nulls, estimate p-values
 %-------------------------------------------------------------------------------
-numTop = 20;
 whatTail = 'right';
 nullInd = 2:numNulls+1;
 meanNull = nanmean(categoryScores(:,nullInd),2); % mean score of genes in each category
@@ -189,6 +182,19 @@ case 'left' % categories with more negative correlations to the edge measure tha
 end
 
 pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
+
+%-------------------------------------------------------------------------------
+% Save to mat file:
+%-------------------------------------------------------------------------------
+fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,randomizeHow,...
+                processFilter,normalizationGene,normalizationRegion,numNulls);
+save(fullfile('DataOutputs',fileName));
+fprintf(1,'Saved %s\n',fileName);
+
+%-------------------------------------------------------------------------------
+% List categories with greatest p-values, or highest mean across nulls, etc.
+%-------------------------------------------------------------------------------
+numTop = 50;
 whatStat = pValsZ;
 [~,ix] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
@@ -200,7 +206,8 @@ for i = 1:numTop
 end
 
 % Plot distribution of p-values:
-f = figure('color','w'); hold on
+f = figure('color','w');
+subplot(2,3,1); hold on
 histogram(pValsZ)
 histogram(pValsZ_corr)
 xlabel('p-values')
@@ -208,7 +215,7 @@ legend({'raw','corrected'})
 ylabel('frequency')
 
 % Plot distribution of mean nulls:
-f = figure('color','w'); hold on
+subplot(2,3,2); hold on
 histogram(meanNull)
 histogram(categoryScores(:,1))
 plot(ones(2,1)*nanmean(categoryScores(:,1)),[0,max(get(gca,'ylim'))],'r')
@@ -216,13 +223,13 @@ xlabel('mean corr statistic across nulls')
 ylabel('frequency')
 
 % Check dependence on GO category size
-f = figure('color','w');
+subplot(2,3,3)
 plot(sizeGOCategories,pValsZ,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
 
 % Relationship between null mean and real scores
-f = figure('color','w'); hold on
+subplot(2,3,4); hold on
 plot(meanNull,categoryScores(:,1),'.k')
 plot([min(meanNull),max(meanNull)],[min(meanNull),max(meanNull)],'r')
 xlabel('mean of null distribution')
@@ -230,7 +237,7 @@ ylabel('real scores')
 title(whatEdgeMeasure,'interpreter','none')
 
 % Std
-f = figure('color','w'); hold on
+subplot(2,3,5); hold on
 plot(stdNull,categoryScores(:,1),'.k')
 xlabel('std of null distribution')
 ylabel('real scores')
@@ -239,8 +246,8 @@ ylabel('real scores')
 % Look at distribution for some top ones
 %-------------------------------------------------------------------------------
 f = figure('color','w');
-for i = 1:10
-    subplot(5,2,i); hold on
+for i = 1:15
+    subplot(5,3,i); hold on
     histogram(categoryScores(ix(i),nullInd));
     plot(categoryScores(ix(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')

@@ -1,4 +1,4 @@
-% function WhatGeneGroupsCorrelate()
+function WhatGeneGroupsCorrelate()
 
 % Params:
 whatCorr = 'Spearman';
@@ -41,7 +41,10 @@ end
 %-------------------------------------------------------------------------------
 % Save
 %-------------------------------------------------------------------------------
-
+fileName = sprintf('whatGenesCorrelate-%s-%s-G%s_R%s.mat',whatCorr,...
+                processFilter,normalizationGene,normalizationRegion);
+save(fullfile('DataOutputs',fileName));
+fprintf(1,'Saved %s\n',fileName);
 
 %-------------------------------------------------------------------------------
 % Find mean correlation
@@ -67,4 +70,4 @@ plot(sizeGOCategories,meanCorrs,'.k');
 xlabel('Category size')
 ylabel(sprintf('mean %s correlation of genes in category',whatCorr))
 
-% end
+end
