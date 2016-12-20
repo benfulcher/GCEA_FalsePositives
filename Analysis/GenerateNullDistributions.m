@@ -20,8 +20,8 @@ numNulls = 250;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
-normalizationGene = 'mixedSigmoid'; % 'none', 'mixedSigmoid'
-normalizationRegion = 'zscore'; % 'none', 'zscore'
+normalizationGene = 'none'; % 'none', 'mixedSigmoid'
+normalizationRegion = 'none'; % 'none', 'zscore'
 
 % GO settings
 processFilter = 'biological_process';
