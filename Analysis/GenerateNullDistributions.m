@@ -162,22 +162,32 @@ fprintf(1,'Saved %s\n',fileName);
 %-------------------------------------------------------------------------------
 % List categories with the highest mean nulls
 %-------------------------------------------------------------------------------
-numTop = 100;
+numTop = 20;
+whatTail = 'right';
 nullInd = 2:numNulls+1;
 meanNull = nanmean(categoryScores(:,nullInd),2); % mean score of genes in each category
 stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each category
 % looking at right tail:
-pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
-pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
+switch whatTail
+case 'right' % categories with higher positive correlations to the edge measure than nulls
+    fprintf(1,'Right tail: GO categories with more positive correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
+    pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
+    pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
+case 'left' % categories with more negative correlations to the edge measure than nulls
+    fprintf(1,'Left tail: GO categories with more negative correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
+    pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)<=categoryScores(x,1)),1:numGOCategories);
+    pValsZ = arrayfun(@(x)normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
+end
+
 pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
-whatStat = meanNull;
-[~,ix] = sort(whatStat,'descend');
+whatStat = pValsZ;
+[~,ix] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
 for i = 1:numTop
     geneAcro = geneInfo.acronym(ismember(geneInfo.entrez_id,geneEntrezAnnotations{ix(i)}));
-    fprintf(1,'%u (%u genes): %s (p = %.2g) [%s]\n',i,sizeGOCategories(ix(i)),...
-                        GOTable.GOName{ix(i)},pValsZ_corr(ix(i)),BF_cat(geneAcro));
+    fprintf(1,'%u (%u genes): %s (nullmean = %.2g; p = %.2g; p_corr = %.2g) [%s]\n',i,sizeGOCategories(ix(i)),...
+                        GOTable.GOName{ix(i)},meanNull(ix(i)),pValsZ(ix(i)),pValsZ_corr(ix(i)),BF_cat(geneAcro));
 end
 
 % Plot distribution of p-values:
@@ -189,8 +199,10 @@ legend({'raw','corrected'})
 ylabel('frequency')
 
 % Plot distribution of mean nulls:
-f = figure('color','w');
+f = figure('color','w'); hold on
 histogram(meanNull)
+histogram(categoryScores(:,1))
+plot(ones(2,1)*nanmean(categoryScores(:,1)),[0,max(get(gca,'ylim'))],'r')
 xlabel('mean corr statistic across nulls')
 ylabel('frequency')
 
