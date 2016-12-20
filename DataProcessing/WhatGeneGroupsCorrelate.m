@@ -1,4 +1,4 @@
-function WhatGeneGroupsCorrelate()
+% function WhatGeneGroupsCorrelate()
 
 % Params:
 whatCorr = 'Spearman';
@@ -12,7 +12,8 @@ normalizationRegion = 'none'; % 'none', 'zscore'
 
 processFilter = 'biological_process';
 sizeFilter = [5,200];
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter);
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
+sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -37,6 +38,12 @@ parfor i = 1:numGOCategories
 end
 %-------------------------------------------------------------------------------
 
+%-------------------------------------------------------------------------------
+% Save
+%-------------------------------------------------------------------------------
+
+
+%-------------------------------------------------------------------------------
 % Find mean correlation
 meanUpper = @(corrMat) mean(corrMat(triu(true(size(corrMat)),+1)));
 meanCorrs = cellfun(meanUpper,PC);
@@ -47,7 +54,7 @@ ix(isnan(meanCorrs(ix))) = [];
 % toNumber = @(GOCell) cellfun(@(x)str2num(x(4:end)),GOCell,'UniformOutput',true);
 % tableIDs = arrayfun(@(x)str2num(x(4:end)),annotationTable.GO);
 
-numTopCategories = 250;
+numTopCategories = 100;
 for i = 1:numTopCategories
     % Match to table:
     fprintf(1,'%u (%u genes): %s (%.2f)\n',i,sizeGOCategories(ix(i)),GOTable.GOName{ix(i)},meanCorrs(ix(i)));
@@ -60,4 +67,4 @@ plot(sizeGOCategories,meanCorrs,'.k');
 xlabel('Category size')
 ylabel(sprintf('mean %s correlation of genes in category',whatCorr))
 
-end
+% end

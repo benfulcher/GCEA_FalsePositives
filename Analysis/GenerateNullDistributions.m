@@ -44,6 +44,7 @@ A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
 % Compute randomized
 switch randomizeHow
 case 'uniformTopology'
+    % Randomize the topology to have a uniform probability across all possible edges
     fprintf(1,'Randomizing edges uniformly\n');
     N = length(A_bin);
     numLinks = sum(A_bin(:));
@@ -65,29 +66,28 @@ case 'uniformTopology'
             A_rand(lower) = A_bin_ii(lower);
         end
 
-        % weightVector = A_wei(A_wei > 0);
-        % A_wei_rand = A_rand;
-        % A_wei_rand(A_wei_rand>0) = weightVector;
+        weightVector = A_wei(A_wei > 0);
+        A_wei_rand = A_rand;
+        A_wei_rand(A_wei_rand > 0) = weightVector;
 
-        switch whatEdgeMeasure
-        case 'ktotktot'
-            ktot = sum(A_rand,1)' + sum(A_rand,2);
-            product = ktot*ktot';
-            product(A_rand == 0) = 0;
-            edgeMeasures{i} = product;
-        case 'bin_edgeBet'
-            edgeMeasures{i} = edge_betweenness_bin(A_rand);
-        end
+        % Compute the desired edge measure:
+        edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
     end
 case 'permutedGeneDep'
-    switch whatEdgeMeasure
-    case 'ktotktot'
-        ktot = sum(A_bin,1)' + sum(A_bin,2);
-        product = ktot*ktot';
-        product(A_bin == 0) = 0;
-        edgeMeasures = product;
-    case 'bin_edgeBet'
-        edgeMeasures = edge_betweenness_bin(A_bin);
+    % Permute gene profiles assigned to regions (later)
+    % Edge measure stays constant using the correct topology:
+    edgeMeasures = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges);
+case 'shuffleEdgeVals'
+    % Shuffle values given to each edge
+    % First compute the proper values:
+    edgeMeasure0 = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges);
+    % Get the vector of values:
+    edgeValsVector = edgeMeasure0(edgeMeasure0 > 0);
+    % Now shuffle the values many times across the edges, preserving the binary topology
+    edgeMeasures = cell(numNulls+1,1);
+    for i = 1:numNulls
+        edgeMeasures{i} = A_bin;
+        edgeMeasures{i}(A_bin > 0) = edgeValsVector(randperm(length(edgeValsVector)));
     end
 end
 

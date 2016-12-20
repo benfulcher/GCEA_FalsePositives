@@ -24,23 +24,14 @@ end
 
 %-------------------------------------------------------------------------------
 % Compute an edge-level statistic from this connectome:
-switch whatEdgeProperty
-case 'wei-communicability'
-    edgeData = communicability(A_wei);
-    edgeData(A_wei==0) = 0; % only put on real edges
-case 'bin-communicability'
-    edgeData = communicability(A_bin);
-    edgeData(~A_bin) = 0; % only put on real edges
-case 'bin-betweenness'
-    edgeData = edge_betweenness_bin(A_bin);
-case 'wei-betweenness'
-    edgeData = edge_betweenness_wei(A_bin);
-case 'distance'
+onlyOnEdges = true;
+A_p = [];
+if strcmp(whatEdgeProperty,'distance')
     C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
     edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
     edgeData(tril(true(size(dData)),-1)) = 0; % remove lower diagonal (symmetric)
-otherwise
-    error('Unknown edge property: %s',whatEdgeProperty);
+else
+    edgeData = GiveMeEdgeMeasure(whatEdgeProperty,A_bin,A_wei,onlyOnEdges);
 end
 
 %-------------------------------------------------------------------------------
