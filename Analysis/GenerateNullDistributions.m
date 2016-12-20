@@ -10,7 +10,7 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'ktotktot';
+whatEdgeMeasure = 'ktotktot'; % 'bin_edgeBet', 'ktotktot'
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
@@ -80,7 +80,15 @@ case 'uniformTopology'
         end
     end
 case 'permutedGeneDep'
-    edgeMeasures = edge_betweenness_bin(A_bin);
+    switch whatEdgeMeasure
+    case 'ktotktot'
+        ktot = sum(A_bin,1)' + sum(A_bin,2);
+        product = ktot*ktot';
+        product(A_bin == 0) = 0;
+        edgeMeasures = product;
+    case 'bin_edgeBet'
+        edgeMeasures = edge_betweenness_bin(A_bin);
+    end
 end
 
 %-------------------------------------------------------------------------------
@@ -237,6 +245,6 @@ for i = 1:10
     plot(categoryScores(ix(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     title(GOTable.GOName{ix(i)})
-    title(sprintf('%s (%u genes; p = %.2g)\n',GOTable.GOName{ix(i)},...
-                        sizeGOCategories(ix(i)),pValsZ_corr(ix(i))));
+    title(sprintf('%s (%u genes; p = %.2g; p_{corr} = %.2g)\n',GOTable.GOName{ix(i)},...
+                        sizeGOCategories(ix(i)),pValsZ(ix(i)),pValsZ_corr(ix(i))));
 end
