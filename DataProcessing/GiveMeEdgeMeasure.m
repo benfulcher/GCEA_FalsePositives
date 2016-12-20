@@ -82,7 +82,7 @@ end
 %-------------------------------------------------------------------------------
 if onlyOnEdges
     fprintf(1,'Values can only be assigned to edges that exist\n');
-    edgeMeasures(A_bin==0) = 0;
+    edgeMeasure(A_bin==0) = 0;
 end
 
 %-------------------------------------------------------------------------------
