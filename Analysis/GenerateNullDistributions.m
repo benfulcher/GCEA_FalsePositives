@@ -20,7 +20,7 @@ numNulls = 250;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
-normalizationGene = 'none'; % 'none', 'mixedSigmoid'
+normalizationGene = 'mixedSigmoid'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
 
 % GO settings
@@ -100,7 +100,7 @@ distanceRegressor = [];
 
 %-------------------------------------------------------------------------------
 % Get GO data
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter);
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 
@@ -155,7 +155,8 @@ end
 %-------------------------------------------------------------------------------
 % Save
 %-------------------------------------------------------------------------------
-fileName = sprintf('%s-%s-%s-%unulls.mat',whatEdgeMeasure,randomizeHow,processFilter,numNulls);
+fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,randomizeHow,...
+                processFilter,normalizationGene,normalizationRegion,numNulls);
 save(fullfile('DataOutputs',fileName));
 fprintf(1,'Saved %s\n',fileName);
 
