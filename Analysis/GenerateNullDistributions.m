@@ -10,12 +10,12 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'ktot_ktot'; % 'bin_edgeBet', 'ktot_ktot'
+whatEdgeMeasure = 'weight'; % 'bin_edgeBet', 'ktot_ktot'
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
 % Randomization
-randomizeHow = 'shuffleEdgeVals'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
+randomizeHow = 'permutedGeneDep'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
 numNulls = 250;
 
 % Gene processing
@@ -85,9 +85,13 @@ case 'shuffleEdgeVals'
     edgeValsVector = edgeMeasure0(edgeMeasure0 > 0);
     % Now shuffle the values many times across the edges, preserving the binary topology
     edgeMeasures = cell(numNulls+1,1);
-    for i = 1:numNulls
-        edgeMeasures{i} = A_bin;
-        edgeMeasures{i}(A_bin > 0) = edgeValsVector(randperm(length(edgeValsVector)));
+    for i = 1:numNulls+1
+        if i==1
+            edgeMeasures{i} = edgeMeasure0;
+        else
+            edgeMeasures{i} = zeros(size(A_bin));
+            edgeMeasures{i}(A_bin > 0) = edgeValsVector(randperm(length(edgeValsVector)));
+        end
     end
 end
 
@@ -205,8 +209,11 @@ for i = 1:numTop
                         GOTable.GOName{ix(i)},meanNull(ix(i)),pValsZ(ix(i)),pValsZ_corr(ix(i)),BF_cat(geneAcro));
 end
 
-% Plot distribution of p-values:
+%-------------------------------------------------------------------------------
+% Produce some summary plots:
+%-------------------------------------------------------------------------------
 f = figure('color','w');
+% Plot distribution of p-values:
 subplot(2,3,1); hold on
 histogram(pValsZ)
 histogram(pValsZ_corr)
