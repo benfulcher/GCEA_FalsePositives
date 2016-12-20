@@ -10,7 +10,7 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'ktotktot'; % 'bin_edgeBet', 'ktotktot'
+whatEdgeMeasure = 'ktot_ktot'; % 'bin_edgeBet', 'ktot_ktot'
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
