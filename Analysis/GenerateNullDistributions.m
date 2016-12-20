@@ -126,7 +126,7 @@ for i = 1:numNulls+1
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
     switch randomizeHow
-    case 'uniformTopology'
+    case {'uniformTopology','shuffleEdgeVals'}
         % each null has a different set of edge measures:
         theEdgeData = edgeMeasures{i};
         theGeneData = geneData;
