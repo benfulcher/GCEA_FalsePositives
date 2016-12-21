@@ -10,7 +10,7 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'weight'; % 'bin_edgeBet', 'ktot_ktot'
+whatEdgeMeasure = 'wei_communicability'; % 'bin_edgeBet', 'ktot_ktot'
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
@@ -173,7 +173,7 @@ whatTail = 'right';
 nullInd = 2:numNulls+1;
 meanNull = nanmean(categoryScores(:,nullInd),2); % mean score of genes in each category
 stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each category
-% looking at right tail:
+% We should better quantify taking into account the number of nulls:
 switch whatTail
 case 'right' % categories with higher positive correlations to the edge measure than nulls
     fprintf(1,'Right tail: GO categories with more positive correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
@@ -220,6 +220,7 @@ histogram(pValsZ_corr)
 xlabel('p-values')
 legend({'raw','corrected'})
 ylabel('frequency')
+title(whatEdgeMeasure)
 
 % Plot distribution of mean nulls:
 subplot(2,3,2); hold on
