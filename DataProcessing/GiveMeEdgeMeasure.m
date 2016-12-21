@@ -50,7 +50,7 @@ case 'pValue'
         error('Did not give edge-based p-value info, you dummy');
     end
     edgeMeasure = A_p;
-case 'wei_betweenness'
+case 'wei_edgeBet'
     % weighted edge betweenness
     edgeMeasure = edge_betweenness_wei(A_wei);
 case 'wei_communicability'
