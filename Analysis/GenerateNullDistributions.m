@@ -108,9 +108,13 @@ if ~all([regionStruct.id]'==structInfo.id)
 end
 [numRegions,numGenes] = size(geneData);
 
-% Don't regress distance:
-C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
-distanceRegressor = C.Dist_Matrix{1,1};
+% Regress distance:
+if correctDistance
+    C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+    distanceRegressor = C.Dist_Matrix{1,1};
+else
+    distanceRegressor = [];
+end
 
 %-------------------------------------------------------------------------------
 % Get GO data
