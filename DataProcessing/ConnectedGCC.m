@@ -45,14 +45,16 @@ parfor i = 1:numGenes
     GCC_group = cell(2,1);
     if isempty(distanceRegressor)
         % Uncorrected
-        GCC_group{1} = GCC(edgeData==0); % unconnected
-        GCC_group{2} = GCC(edgeData==1); % connected
+        GCC_group{1} = GCC(edgeData==0 & ~isnan(GCC)); % unconnected
+        GCC_group{2} = GCC(edgeData==1 & ~isnan(GCC)); % connected
     else
         % Distance regressed out:
         lookyHere = (~isnan(edgeData) & ~isnan(GCC));
         [p,S] = polyfit(distanceRegressor(lookyHere),GCC(lookyHere),1);
         GCC_fit = p(2) + p(1)*distanceRegressor;
         GCCresid = GCC - GCC_fit;
+        GCC_group{1} = GCCresid(edgeData==0 & ~isnan(GCCresid));
+        GCC_group{2} = GCCresid(edgeData==1 & ~isnan(GCCresid));
     end
 
     % Do the hypothesis test
