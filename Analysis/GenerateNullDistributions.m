@@ -29,7 +29,7 @@ sizeFilter = [5,200];
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-corrType = 'Spearman'; % {'Spearman','Pearson'};
+corrType = 'Spearman'; % 'Spearman','Pearson'
 pValOrStat = 'stat'; % 'pval','stat'
 absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 correctDistance = false; % false,true;
@@ -107,11 +107,14 @@ if ~all([regionStruct.id]'==structInfo.id)
     fprintf(1,'Gene data matched to subset of %u Allen regions\n',length(ib));
 end
 [numRegions,numGenes] = size(geneData);
+
 % Don't regress distance:
-distanceRegressor = [];
+C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+distanceRegressor = C.Dist_Matrix{1,1};
 
 %-------------------------------------------------------------------------------
 % Get GO data
+% (include only annotations for genes with entrez IDs that are in our dataset)
 [GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
@@ -213,6 +216,7 @@ end
 % Produce some summary plots:
 %-------------------------------------------------------------------------------
 f = figure('color','w');
+titleText = sprintf('%s-%s',whatEdgeMeasure,randomizeHow);
 % Plot distribution of p-values:
 subplot(2,3,1); hold on
 histogram(pValsZ)
@@ -220,7 +224,7 @@ histogram(pValsZ_corr)
 xlabel('p-values')
 legend({'raw','corrected'})
 ylabel('frequency')
-title(whatEdgeMeasure)
+title(titleText,'interpreter','none')
 
 % Plot distribution of mean nulls:
 subplot(2,3,2); hold on
@@ -229,12 +233,14 @@ histogram(categoryScores(:,1))
 plot(ones(2,1)*nanmean(categoryScores(:,1)),[0,max(get(gca,'ylim'))],'r')
 xlabel('mean corr statistic across nulls')
 ylabel('frequency')
+title(titleText,'interpreter','none')
 
 % Check dependence on GO category size
 subplot(2,3,3)
 plot(sizeGOCategories,pValsZ,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
+title(titleText,'interpreter','none')
 
 % Relationship between null mean and real scores
 subplot(2,3,4); hold on
@@ -242,13 +248,14 @@ plot(meanNull,categoryScores(:,1),'.k')
 plot([min(meanNull),max(meanNull)],[min(meanNull),max(meanNull)],'r')
 xlabel('mean of null distribution')
 ylabel('real scores')
-title(whatEdgeMeasure,'interpreter','none')
+title(titleText,'interpreter','none')
 
 % Std
 subplot(2,3,5); hold on
 plot(stdNull,categoryScores(:,1),'.k')
 xlabel('std of null distribution')
 ylabel('real scores')
+title(titleText,'interpreter','none')
 
 %-------------------------------------------------------------------------------
 % Look at distribution for some top ones

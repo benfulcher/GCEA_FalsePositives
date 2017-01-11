@@ -58,9 +58,14 @@ parfor i = 1:numGenes
     else
         if ~isempty(distanceRegressor)
             % Partial correlations using distance as a regressor
-            [rho,p] = partialcorr([edgeVector,GCCVector],distanceRegressor,...
+            [rho,pVal] = partialcorr([edgeVector,GCCVector],distanceRegressor,...
                                 'rows','pairwise','type',whatCorr);
-            gScore(i) = rho(1,2);
+            switch pValOrStat
+            case 'pVal'
+                gScore(i) = pVal(1,2);
+            case 'stat'
+                gScore(i) = rho(1,2);
+            end
         else
             % Pure correlations:
             [rho,pVal] = corr(edgeVector,GCCVector,'type',whatCorr,'rows','pairwise');
