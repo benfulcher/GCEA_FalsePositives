@@ -31,7 +31,7 @@ end
 [numRegions,numGenes] = size(geneData);
 
 if ~isempty(distanceRegressor)
-    fprintf(1,'***USING DISTANCE AS A LINEAR REGRESSOR FOR EVERY GENE'S GCC***\n');
+    fprintf(1,'***USING DISTANCE AS A LINEAR REGRESSOR FOR EVERY GENE''S GCC***\n');
 else
     fprintf(1,'***COMPUTING U-STATS WITHOUT DISTANCE CORRECTION^^^\n');
 end
