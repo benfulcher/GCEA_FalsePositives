@@ -30,6 +30,12 @@ end
 % Get dimensions of gene data
 [numRegions,numGenes] = size(geneData);
 
+if ~isempty(distanceRegressor)
+    fprintf(1,'***USING DISTANCE AS A LINEAR REGRESSOR FOR EVERY GENE'S GCC***\n');
+else
+    fprintf(1,'***COMPUTING U-STATS WITHOUT DISTANCE CORRECTION^^^\n');
+end
+
 gScore = zeros(numGenes,1);
 parfor i = 1:numGenes
     g = geneData(:,i);
@@ -58,15 +64,17 @@ parfor i = 1:numGenes
     end
 
     % Do the hypothesis test
-    % U-test between connected and unconnected:
-    [p,~,stats] = ranksum(GCC_group{1},GCC_group{2});
-    % Normalized Mann-Whitney U test (given the sample size may change across features)
-    n1 = length(GCC_group{1});
-    n2 = length(GCC_group{2});
-    normuStat = (stats.ranksum - n1*(n1+1)/2)/n1/n2; % normalized uStat
+    [h,pVal,~,stats] = ttest2(GCC_group{1},GCC_group{1},'Vartype','unequal');
+    % % U-test between connected and unconnected:
+    % [p,~,stats] = ranksum(GCC_group{1},GCC_group{2});
+    % % Normalized Mann-Whitney U test (given the sample size may change across features)
+    % n1 = length(GCC_group{1});
+    % n2 = length(GCC_group{2});
+    % normuStat = (stats.ranksum - n1*(n1+1)/2)/n1/n2; % normalized uStat
     switch pValOrStat
     case 'stat'
-        gScore(i) = normuStat;
+        gScore(i) = stats.tstat;
+        % gScore(i) = normuStat;
     case 'pVal'
         gScore(i) = pVal;
     end
