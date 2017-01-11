@@ -10,7 +10,7 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'wei_communicability'; % 'bin_edgeBet', 'ktot_ktot'
+whatEdgeMeasure = 'connected'; % 'bin_edgeBet', 'ktot_ktot', 'wei_communicability'
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 
@@ -149,9 +149,17 @@ for i = 1:numNulls+1
         theGeneData = geneData(rp,:);
     end
     % Compute the score:
-    [gScores{i},geneEntrezIDs] = GiveMeGCC(theEdgeData,theGeneData,...
+    if strcmp(whatEdgeMeasure,'connected')
+        % We want to score each gene by how much (relative to expectation of distance)
+        % it's GCC scores differ
+        [gScores{i},geneEntrezIDs] = ConnectedGCC(theEdgeData,theGeneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
+    else
+        [gScores{i},geneEntrezIDs] = GiveMeGCC(theEdgeData,theGeneData,...
+                            geneInfo.entrez_id,corrType,distanceRegressor,absType,...
+                            thresholdGoodGene,pValOrStat);
+    end
 
     % Record mean scores for each category:
     for j = 1:numGOCategories
