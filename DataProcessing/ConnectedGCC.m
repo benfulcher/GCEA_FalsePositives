@@ -6,7 +6,7 @@ function [gScore,geneEntrezIDs] = ConnectedGCC(edgeData,geneData,geneEntrezIDs,w
 
 
 if nargin < 3
-    [GData,geneInfo] = LoadMeG({'robustSigmoid','zscore'},'energy');
+    [geneData,geneInfo] = LoadMeG({'robustSigmoid','zscore'},'energy');
     geneEntrezIDs = geneInfo.gene_entrez_id;
 end
 if nargin < 4
@@ -45,11 +45,11 @@ parfor i = 1:numGenes
     GCC_group = cell(2,1);
     if isempty(distanceRegressor)
         % Uncorrected
-        GCC_group{1} = GCC(theEdgeData==0); % unconnected
-        GCC_group{2} = GCC(theEdgeData==1); % connected
+        GCC_group{1} = GCC(edgeData==0); % unconnected
+        GCC_group{2} = GCC(edgeData==1); % connected
     else
         % Distance regressed out:
-        lookyHere = (~isnan(theEdgeData) & ~isnan(GCC));
+        lookyHere = (~isnan(edgeData) & ~isnan(GCC));
         [p,S] = polyfit(distanceRegressor(lookyHere),GCC(lookyHere),1);
         GCC_fit = p(2) + p(1)*distanceRegressor;
         GCCresid = GCC - GCC_fit;
