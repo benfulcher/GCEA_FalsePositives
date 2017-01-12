@@ -16,7 +16,7 @@ onlyOnEdges = true; % whether to put values only on existing edges
 
 % Randomization
 randomizeHow = 'permutedGeneDep'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
-numNulls = 250;
+numNulls = 100;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
@@ -32,7 +32,7 @@ thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gen
 corrType = 'Spearman'; % 'Spearman','Pearson'
 pValOrStat = 'stat'; % 'pval','stat'
 absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
-correctDistance = false; % false,true;
+correctDistance = true; % false,true;
 
 
 %-------------------------------------------------------------------------------
@@ -214,8 +214,8 @@ fprintf(1,'Saved %s\n',fileName);
 % List categories with greatest p-values, or highest mean across nulls, etc.
 %-------------------------------------------------------------------------------
 numTop = 50;
-whatStat = pValsZ;
-[~,ix] = sort(whatStat,'ascend');
+whatStat = stdNull; % meanNull, stdNull, pValsZ
+[~,ix] = sort(whatStat,'descend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
 for i = 1:numTop
@@ -275,10 +275,10 @@ title(titleText,'interpreter','none')
 f = figure('color','w');
 for i = 1:15
     subplot(5,3,i); hold on
-    histogram(categoryScores(ix(i),nullInd));
+    histogram(categoryScores(ix(i),nullInd),'edgeColor','k','FaceColor','w');
     plot(categoryScores(ix(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
-    title(GOTable.GOName{ix(i)})
-    title(sprintf('%s (%u genes; p = %.2g; p_{corr} = %.2g)\n',GOTable.GOName{ix(i)},...
-                        sizeGOCategories(ix(i)),pValsZ(ix(i)),pValsZ_corr(ix(i))));
+    title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix(i)},...
+                        sizeGOCategories(ix(i)),pValsZ_corr(ix(i))));
+    % ,pValsZ(ix(i))
 end

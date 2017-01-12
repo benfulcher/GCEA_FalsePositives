@@ -33,7 +33,7 @@ end
 if ~isempty(distanceRegressor)
     fprintf(1,'***USING DISTANCE AS A LINEAR REGRESSOR FOR EVERY GENE''S GCC***\n');
 else
-    fprintf(1,'***COMPUTING U-STATS WITHOUT DISTANCE CORRECTION^^^\n');
+    fprintf(1,'***COMPUTING T-STATS WITHOUT DISTANCE CORRECTION^^^\n');
 end
 
 gScore = zeros(numGenes,1);
@@ -51,20 +51,20 @@ parfor i = 1:numGenes
     GCC_group = cell(2,1);
     if isempty(distanceRegressor)
         % Uncorrected
-        GCC_group{1} = GCC(edgeData==0 & ~isnan(GCC)); % unconnected
-        GCC_group{2} = GCC(edgeData==1 & ~isnan(GCC)); % connected
+        GCC_group{1} = GCC(edgeData==1 & ~isnan(GCC)); % connected
+        GCC_group{2} = GCC(edgeData==0 & ~isnan(GCC)); % unconnected
     else
         % Distance regressed out:
         lookyHere = (~isnan(edgeData) & ~isnan(GCC));
-        [p,S] = polyfit(distanceRegressor(lookyHere),GCC(lookyHere),1);
-        GCC_fit = p(2) + p(1)*distanceRegressor;
-        GCCresid = GCC - GCC_fit;
-        GCC_group{1} = GCCresid(edgeData==0 & ~isnan(GCCresid));
-        GCC_group{2} = GCCresid(edgeData==1 & ~isnan(GCCresid));
+        p = polyfit(distanceRegressor(lookyHere),GCC(lookyHere),1);
+        GCC_fit = p(2) + p(1)*distanceRegressor; % linear fit GCC to distance
+        GCCresid = GCC - GCC_fit; % residuals from linear fit
+        GCC_group{1} = GCCresid(edgeData==1 & ~isnan(GCCresid)); % connected
+        GCC_group{2} = GCCresid(edgeData==0 & ~isnan(GCCresid)); % unconnected
     end
 
     % Do the hypothesis test
-    [h,pVal,~,stats] = ttest2(GCC_group{1},GCC_group{1},'Vartype','unequal');
+    [h,pVal,~,stats] = ttest2(GCC_group{1},GCC_group{2},'Vartype','unequal');
     % % U-test between connected and unconnected:
     % [p,~,stats] = ranksum(GCC_group{1},GCC_group{2});
     % % Normalized Mann-Whitney U test (given the sample size may change across features)
