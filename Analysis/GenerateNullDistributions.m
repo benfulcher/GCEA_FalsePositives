@@ -11,17 +11,20 @@ pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
 whatEdgeMeasure = 'connected'; % 'bin_edgeBet', 'ktot_ktot', 'wei_communicability'
-onlyOnEdges = true; % whether to put values only on existing edges
+onlyOnEdges = false; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
+useFakeConnectome = false;
 
 % Randomization
-randomizeHow = 'permutedGeneDep'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
-numNulls = 100;
+randomizeHow = 'uniformTopology'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
+numNulls = 200;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
-normalizationGene = 'none'; % 'none', 'mixedSigmoid'
+normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
+subsetOfGenes = 100; % only look at the first X genes. Set to empty for all
+                     % genes & save a .mat file of results
 
 % GO settings
 processFilter = 'biological_process';
@@ -37,8 +40,18 @@ correctDistance = true; % false,true;
 
 %-------------------------------------------------------------------------------
 % Define a set of edge measures to compare:
-[A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatHemispheres,justCortex);
-A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
+if ~useFakeConnectome
+    [A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,...
+                                                whatHemispheres,justCortex);
+    A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
+else
+    % A matrix with 50% connection probability:
+    numEdgesUpper = (213*212)/2;
+    edgesUpperEqual = [ones(numEdgesUpper/2,1);zeros(numEdgesUpper/2,1)];
+    A_bin = zeros(213);
+    A_bin(triu(true(size(A_bin)),+1)) = edgesUpperEqual;
+    A_wei = A_bin;
+end
 
 %-------------------------------------------------------------------------------
 % Compute randomized
@@ -98,6 +111,12 @@ end
 %-------------------------------------------------------------------------------
 % Retrieve and match gene data
 [geneData,geneInfo,structInfo] = LoadMeG({normalizationGene,normalizationRegion},energyOrDensity);
+% SUBSET FIRST X GENES:
+if isnumeric(subsetOfGenes)
+    warning('Only looking at the first %u genes',subsetOfGenes);
+    geneData = geneData(:,1:subsetOfGenes);
+    geneInfo = geneInfo(1:subsetOfGenes,:);
+end
 % Check gene data matches connectome data
 if ~all([regionStruct.id]'==structInfo.id)
     % Take subset
@@ -128,6 +147,7 @@ numGOCategories = height(GOTable);
 %-------------------------------------------------------------------------------
 categoryScores = nan(numGOCategories,numNulls+1);
 gScores = cell(numNulls+1,1);
+entrezIDsKept = cell(numNulls+1,1);
 enrichmentSigThresh = 0.05;
 fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',enrichmentSigThresh);
 timer = tic;
@@ -156,18 +176,18 @@ for i = 1:numNulls+1
     if strcmp(whatEdgeMeasure,'connected')
         % We want to score each gene by how much (relative to expectation of distance)
         % it's GCC scores differ
-        [gScores{i},geneEntrezIDs] = ConnectedGCC(theEdgeData,theGeneData,...
+        [gScores{i},entrezIDsKept{i}] = ConnectedGCC(theEdgeData,theGeneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
     else
-        [gScores{i},geneEntrezIDs] = GiveMeGCC(theEdgeData,theGeneData,...
+        [gScores{i},entrezIDsKept{i}] = GiveMeGCC(theEdgeData,theGeneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
     end
 
     % Record mean scores for each category:
     for j = 1:numGOCategories
-        matchMe = ismember(geneEntrezIDs,geneEntrezAnnotations{j});
+        matchMe = ismember(entrezIDsKept{i},geneEntrezAnnotations{j});
         if sum(matchMe) <= 1
             continue
         end
@@ -178,7 +198,6 @@ for i = 1:numNulls+1
     fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numNulls+1,...
                             BF_thetime((numNulls+1-i)*(toc(timer)/i)));
 end
-
 
 
 %-------------------------------------------------------------------------------
@@ -205,17 +224,19 @@ pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
 %-------------------------------------------------------------------------------
 % Save to mat file:
 %-------------------------------------------------------------------------------
-fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,randomizeHow,...
-                processFilter,normalizationGene,normalizationRegion,numNulls);
-save(fullfile('DataOutputs',fileName));
-fprintf(1,'Saved %s\n',fileName);
+if isempty(subsetOfGenes)
+    fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,randomizeHow,...
+                    processFilter,normalizationGene,normalizationRegion,numNulls);
+    save(fullfile('DataOutputs',fileName));
+    fprintf(1,'Saved %s\n',fileName);
+end
 
 %-------------------------------------------------------------------------------
 % List categories with greatest p-values, or highest mean across nulls, etc.
 %-------------------------------------------------------------------------------
-numTop = 50;
-whatStat = stdNull; % meanNull, stdNull, pValsZ
-[~,ix] = sort(whatStat,'descend');
+numTop = 30;
+whatStat = pValsZ; % meanNull, stdNull, pValsZ
+[~,ix] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
 ix(isnan(whatStat(ix))) = [];
 for i = 1:numTop
@@ -223,6 +244,26 @@ for i = 1:numTop
     fprintf(1,'%u (%u genes): %s (nullmean = %.2g; p = %.2g; p_corr = %.2g) [%s]\n',i,sizeGOCategories(ix(i)),...
                         GOTable.GOName{ix(i)},meanNull(ix(i)),pValsZ(ix(i)),pValsZ_corr(ix(i)),BF_cat(geneAcro));
 end
+
+%-------------------------------------------------------------------------------
+% Check that the mean null score for each gene is zero
+%-------------------------------------------------------------------------------
+f = figure('color','w');
+allKeptEntrez = unique(vertcat(entrezIDsKept{:}));
+gScoresMat = nan(length(allKeptEntrez),numNulls);
+for i = 1:numNulls
+    [~,~,perm] = intersect(allKeptEntrez,entrezIDsKept{i+1},'stable');
+    gScoresMat(:,i) = gScores{i+1}(perm);
+end
+subplot(121); hold on
+histogram(mean(gScoresMat,2),'FaceColor','w','EdgeColor','k')
+plot(mean(mean(gScoresMat,2))*ones(2,1),[0,max(get(gca,'YLim'))])
+xlabel('mean score across nulls')
+[~,ix] = sort(abs(mean(gScoresMat,2)),'descend');
+subplot(122)
+histogram(gScoresMat(ix(1),:),'FaceColor','w','EdgeColor','k');
+title(sprintf('gene scores for %s',geneInfo.acronym{ix(1)}))
+xlabel(sprintf('scores across %u nulls',numNulls))
 
 %-------------------------------------------------------------------------------
 % Produce some summary plots:
