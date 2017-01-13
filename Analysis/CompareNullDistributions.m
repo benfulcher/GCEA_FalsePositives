@@ -70,6 +70,9 @@ for i = 1:numNulls
         % [h,pVal,~,stats] = ttest2(X,Y,'Vartype','unequal');
         % myT(i) = stats.tstat;
     case 'permutedGeneDep'
+        gt = g(randperm(size(g)));
+        GCCt = g*g';
+        V = GCCt(triu(true(size(GCCt)),+1)); % GCC_upper
         X = V(rp0(1:split)); % same every time
         Y = V(rp0(split+1:end)); % same permutation every time
     end

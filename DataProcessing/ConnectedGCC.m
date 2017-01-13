@@ -64,23 +64,25 @@ parfor i = 1:numGenes
     end
 
     % Do the hypothesis test
-    [h,pVal,~,stats] = ttest2(GCC_group{1},GCC_group{2},'Vartype','unequal');
-    % % U-test between connected and unconnected:
+    gScore(i) = (mean(GCC_group{1})-mean(GCC_group{2}))/sqrt(std(GCC_group{1})^2 + std(GCC_group{2})^2); %/...
+            % (sqrt((std(GCC_group{1})/length(GCC_group{1}))+sqrt((std(GCC_group{2})/length(GCC_group{2})))));
+    % [h,pVal,~,stats] = ttest2(GCC_group{1},GCC_group{2},'Vartype','unequal');
+    % % % U-test between connected and unconnected:
     % [p,~,stats] = ranksum(GCC_group{1},GCC_group{2});
     % % Normalized Mann-Whitney U test (given the sample size may change across features)
     % n1 = length(GCC_group{1});
     % n2 = length(GCC_group{2});
     % normuStat = (stats.ranksum - n1*(n1+1)/2)/n1/n2; % normalized uStat
-    switch pValOrStat
-    case 'stat'
-        gScore(i) = stats.tstat;
-        % gScore(i) = normuStat;
-    case 'pVal'
-        gScore(i) = pVal;
-    end
-    if isnan(gScore(i))
-        keyboard
-    end
+    % switch pValOrStat
+    % case 'stat'
+    %     gScore(i) = stats.tstat;
+    %     % gScore(i) = normuStat;
+    % case 'pVal'
+    %     gScore(i) = pVal;
+    % end
+    % if isnan(gScore(i))
+    %     keyboard
+    % end
 end
 
 %-------------------------------------------------------------------------------
