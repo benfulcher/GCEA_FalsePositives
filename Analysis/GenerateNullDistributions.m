@@ -16,7 +16,7 @@ onlyOnEdges = false; % whether to put values only on existing edges
 useFakeConnectome = false;
 
 % Randomization
-randomizeHow = 'uniformTopology'; % 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
+randomizeHow = 'topology'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
 numNulls = 200;
 
 % Gene processing
@@ -86,6 +86,19 @@ case 'uniformTopology'
         % Compute the desired edge measure:
         edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
     end
+case 'topology'
+    numIter = 50; % (num randomizations per edge)
+    for i = 1:numNulls+1
+        if i == 1
+            A_rand = A_bin;
+        else
+            A_rand = randmio_dir(A_bin,numIter);
+            A_wei_rand = randmio_dir(A_wei,numIter);
+        end
+        % Compute the desired edge measure:
+        edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
+    end
+
 case 'permutedGeneDep'
     % Permute gene profiles assigned to regions (later)
     % Edge measure stays constant using the correct topology:
@@ -112,7 +125,7 @@ end
 % Retrieve and match gene data
 [geneData,geneInfo,structInfo] = LoadMeG({normalizationGene,normalizationRegion},energyOrDensity);
 % SUBSET FIRST X GENES:
-if isnumeric(subsetOfGenes)
+if ~isempty(subsetOfGenes)
     warning('Only looking at the first %u genes',subsetOfGenes);
     geneData = geneData(:,1:subsetOfGenes);
     geneInfo = geneInfo(1:subsetOfGenes,:);

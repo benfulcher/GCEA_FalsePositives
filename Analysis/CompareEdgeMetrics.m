@@ -134,6 +134,11 @@ for i = 1:numEdgeMeasures
                                 geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                                 thresholdGoodGene,pValOrStat);
 
+    % Filter first:
+    filterMe = isnan(gScore);
+    gScore(filterMe) = [];
+    geneEntrezIDs(filterMe) = [];
+
     % Do enrichment:
     fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,edgeMeasureNames{i});
     ermineJResults = RunErmineJ(fileNameWrite,numIterationsErmineJ);
@@ -142,6 +147,10 @@ for i = 1:numEdgeMeasures
     % Give user feedback
     fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numEdgeMeasures,...
                             BF_thetime((numEdgeMeasures-i)*(toc(timer)/i)));
+
+    % Check our method:
+    GOTable = SingleEnrichment(gScore,geneEntrezIDs,'biological_process',[5,100],20000);
+
 end
 
 %-------------------------------------------------------------------------------

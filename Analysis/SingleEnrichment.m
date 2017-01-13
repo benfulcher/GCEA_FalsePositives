@@ -1,4 +1,4 @@
-function GOTable = SingleEnrichment(geneEntrezIDs,geneScores,processFilter,sizeFilter,numIters)
+function GOTable = SingleEnrichment(geneScores,geneEntrezIDs,processFilter,sizeFilter,numIters)
 %-------------------------------------------------------------------------------
 % Do an ermineJ style analysis for a given set of entrezIDs and scores
 %-------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
 % Compute the mean score for within each category:
-categoryScores = zeros(numGOCategories,1);
+categoryScores = nan(numGOCategories,1);
 for j = 1:numGOCategories
     matchMe = ismember(geneEntrezIDs,geneEntrezAnnotations{j});
     if sum(matchMe) <= 1
@@ -38,22 +38,21 @@ end
 uniqueSizes = unique(sizeGOCategories);
 numSizes = length(uniqueSizes);
 nullDistribution = zeros(numSizes,numIters);
+fprintf(1,'Gene score reasmpling for %u iterations across %u category sizes (%u-%u)\n',...
+                        numIters,numSizes,min(uniqueSizes),max(uniqueSizes));
 for j = 1:numIters
-    rp = randperm(numGenes); % takes a millisecond
+    rp = randperm(numGenes); % takes a millisecond to compute this (put outside inner loop)
     for i = 1:numSizes
-        try
-            nullDistribution(i,j) = nanmean(geneScores(rp(1:uniqueSizes(i))));
-        catch
-            keyboard
-        end
+        nullDistribution(i,j) = nanmean(geneScores(rp(1:uniqueSizes(i))));
     end
 end
 
 %-------------------------------------------------------------------------------
 % Compute p-values
-pVals = zeros(numGOCategories);
+pVals = zeros(numGOCategories,1);
 for i = 1:numGOCategories
-    pVals(i) = mean(categoryScores(i) > nullDistribution(uniqueSizes==sizeGOCategories(i),:));
+    % Bigger is better:
+    pVals(i) = mean(categoryScores(i) < nullDistribution(uniqueSizes==sizeGOCategories(i),:));
 end
 
 %-------------------------------------------------------------------------------
