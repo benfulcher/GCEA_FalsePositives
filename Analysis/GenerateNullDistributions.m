@@ -13,17 +13,17 @@ justCortex = false;
 whatEdgeMeasure = 'connected'; % 'bin_edgeBet', 'ktot_ktot', 'wei_communicability'
 onlyOnEdges = false; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
-useFakeConnectome = false;
+useFakeConnectome = false; % e.g., use a connectome with 50% link density
 
 % Randomization
 randomizeHow = 'topology'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
-numNulls = 200;
+numNulls = 100;
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
 normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
-subsetOfGenes = 100; % only look at the first X genes. Set to empty for all
+subsetOfGenes = []; % only look at the first X genes. Set to empty for all
                      % genes & save a .mat file of results
 
 % GO settings
@@ -86,11 +86,16 @@ case 'uniformTopology'
         % Compute the desired edge measure:
         edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
     end
+
 case 'topology'
     numIter = 50; % (num randomizations per edge)
+    fprintf(1,'Generating %u degree (+in-strength) topological nulls using %u randomizations per edge\n',...
+                        numNulls,numIter);
+    edgeMeasures = cell(numNulls+1,1);
     for i = 1:numNulls+1
         if i == 1
             A_rand = A_bin;
+            A_wei_rand = A_wei;
         else
             A_rand = randmio_dir(A_bin,numIter);
             A_wei_rand = randmio_dir(A_wei,numIter);
@@ -103,6 +108,7 @@ case 'permutedGeneDep'
     % Permute gene profiles assigned to regions (later)
     % Edge measure stays constant using the correct topology:
     edgeMeasures = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges);
+
 case 'shuffleEdgeVals'
     % Shuffle values given to each edge
     % First compute the proper values:
@@ -170,7 +176,7 @@ for i = 1:numNulls+1
     % Compute gene scores:
     % (sometimes entrez IDs change -- e.g., when matching to distance results)
     switch randomizeHow
-    case {'uniformTopology','shuffleEdgeVals'}
+    case {'topology','uniformTopology','shuffleEdgeVals'}
         % each null has a different set of edge measures:
         theEdgeData = edgeMeasures{i};
         theGeneData = geneData;

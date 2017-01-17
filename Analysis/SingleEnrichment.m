@@ -18,6 +18,7 @@ numGenes = length(geneScores);
 % Retrieve GO annotations:
 [GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneEntrezIDs);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+
 % Add to table:
 GOTable.size = sizeGOCategories;
 numGOCategories = height(GOTable);

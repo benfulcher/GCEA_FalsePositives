@@ -1,8 +1,32 @@
 % function CompareNullDistributions()
 
 % load('connected-permutedGeneDep-biological_process-Gnone_Rnone-250nulls')
-load('connected-uniformTopology-biological_process-Gnone_Rnone-100nulls.mat')
-load('wei_communicability-uniformTopology-biological_process-Gnone_Rnone-250nulls.mat');
+% load('wei_communicability-uniformTopology-biological_process-Gnone_Rnone-250nulls.mat');
+
+matFiles = {'connected-uniformTopology-biological_process-Gnone_Rnone-100nulls.mat',...
+        'connected-topology-biological_process-Gzscore_Rnone-100nulls.mat',...
+        'connected-permutedGeneDep-biological_process-Gnone_Rnone-250nulls.mat'};
+
+% load('connected-uniformTopology-biological_process-Gnone_Rnone-500nulls.mat','meanNull')
+% load('connected-topology-biological_process-Gzscore_Rnone-100nulls.mat','meanNull')
+% load('connected-permutedGeneDep-biological_process-Gnone_Rnone-2000nulls.mat','meanNull');
+
+f = figure('color','w'); hold on
+
+for i = 1:length(matFiles)
+    load(matFiles{i},'meanNull');
+    histogram(meanNull,'normalization','probability')
+end
+% Add the real mean:
+load('connected-topology-biological_process-Gzscore_Rnone-100nulls.mat','categoryScores');
+histogram(categoryScores(:,1),'normalization','probability')
+load('connected-permutedGeneDep-biological_process-Gnone_Rnone-250nulls.mat','categoryScores');
+histogram(categoryScores(:,1),'normalization','probability')
+% plot(ones(2,1)*mean(categoryScores(:,1)),[0,max(get(gca,'YLim'))],'-r')
+legend({'uniformTopology-mean','topology-mean','permutedGeneDep-mean',...
+            'unpermuted category scores (1)','unpermuted category scores (2)'});
+
+%-------------------------------------------------------------------------------
 
 A = ([gScores{2:end}]);
 figure('color','w'); histogram(mean(A,2))
