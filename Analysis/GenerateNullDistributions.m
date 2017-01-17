@@ -10,13 +10,14 @@ connectomeSource = 'Oh';
 pThreshold = 0.05;
 whatHemispheres = 'right';
 justCortex = false;
-whatEdgeMeasure = 'connected'; % 'bin_edgeBet', 'ktot_ktot', 'wei_communicability'
-onlyOnEdges = false; % whether to put values only on existing edges
+whatEdgeWeight = 'NCD'; % 'NCD' (normalized connection density), 'CS' (connection strength)
+whatEdgeMeasure = 'wei_communicability'; % 'bin_edgeBet', 'ktot_ktot', 'wei_communicability'
+onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
 useFakeConnectome = false; % e.g., use a connectome with 50% link density
 
 % Randomization
-randomizeHow = 'topology'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
+randomizeHow = 'permutedGeneDep'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
 numNulls = 100;
 
 % Gene processing
@@ -42,8 +43,9 @@ correctDistance = true; % false,true;
 % Define a set of edge measures to compare:
 if ~useFakeConnectome
     [A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,...
-                                                whatHemispheres,justCortex);
-    A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
+                                    whatEdgeWeight,whatHemispheres,justCortex);
+    A_wei = GiveMeAdj(connectomeSource,pThreshold,false,...
+                                    whatEdgeWeight,whatHemispheres,justCortex);
 else
     % A matrix with 50% connection probability:
     numEdgesUpper = (213*212)/2;
@@ -132,9 +134,11 @@ end
 [geneData,geneInfo,structInfo] = LoadMeG({normalizationGene,normalizationRegion},energyOrDensity);
 % SUBSET FIRST X GENES:
 if ~isempty(subsetOfGenes)
-    warning('Only looking at the first %u genes',subsetOfGenes);
-    geneData = geneData(:,1:subsetOfGenes);
-    geneInfo = geneInfo(1:subsetOfGenes,:);
+    warning('Only looking at a random set of %u genes',subsetOfGenes);
+    rp = randperm(size(geneData,2));
+    rp = rp(1:subsetOfGenes);
+    geneData = geneData(:,rp);
+    geneInfo = geneInfo(rp,:);
 end
 % Check gene data matches connectome data
 if ~all([regionStruct.id]'==structInfo.id)
@@ -251,17 +255,17 @@ if isempty(subsetOfGenes)
 end
 
 %-------------------------------------------------------------------------------
-% List categories with greatest p-values, or highest mean across nulls, etc.
+% List categories with lowest p-values, or highest mean across nulls, etc.
 %-------------------------------------------------------------------------------
-numTop = 30;
+numTop = min(30,numGOCategories);
 whatStat = pValsZ; % meanNull, stdNull, pValsZ
-[~,ix] = sort(whatStat,'ascend');
+[~,ix_GO] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
-ix(isnan(whatStat(ix))) = [];
+ix_GO(isnan(whatStat(ix_GO))) = [];
 for i = 1:numTop
-    geneAcro = geneInfo.acronym(ismember(geneInfo.entrez_id,geneEntrezAnnotations{ix(i)}));
-    fprintf(1,'%u (%u genes): %s (nullmean = %.2g; p = %.2g; p_corr = %.2g) [%s]\n',i,sizeGOCategories(ix(i)),...
-                        GOTable.GOName{ix(i)},meanNull(ix(i)),pValsZ(ix(i)),pValsZ_corr(ix(i)),BF_cat(geneAcro));
+    geneAcro = geneInfo.acronym(ismember(geneInfo.entrez_id,geneEntrezAnnotations{ix_GO(i)}));
+    fprintf(1,'%u (%u genes): %s (nullmean = %.2g; p = %.2g; p_corr = %.2g) [%s]\n',i,sizeGOCategories(ix_GO(i)),...
+                        GOTable.GOName{ix_GO(i)},meanNull(ix_GO(i)),pValsZ(ix_GO(i)),pValsZ_corr(ix_GO(i)),BF_cat(geneAcro));
 end
 
 %-------------------------------------------------------------------------------
@@ -277,7 +281,7 @@ end
 subplot(121); hold on
 histogram(mean(gScoresMat,2),'FaceColor','w','EdgeColor','k')
 plot(mean(mean(gScoresMat,2))*ones(2,1),[0,max(get(gca,'YLim'))])
-xlabel('mean score across nulls')
+xlabel('mean score across nulls (should average to zero for no-bias)')
 [~,ix] = sort(abs(mean(gScoresMat,2)),'descend');
 subplot(122)
 histogram(gScoresMat(ix(1),:),'FaceColor','w','EdgeColor','k');
@@ -333,12 +337,12 @@ title(titleText,'interpreter','none')
 % Look at distribution for some top ones
 %-------------------------------------------------------------------------------
 f = figure('color','w');
-for i = 1:15
+for i = 1:min(15,numGOCategories)
     subplot(5,3,i); hold on
-    histogram(categoryScores(ix(i),nullInd),'edgeColor','k','FaceColor','w');
-    plot(categoryScores(ix(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
-    % plot(whatStat(ix(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
-    title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix(i)},...
-                        sizeGOCategories(ix(i)),pValsZ_corr(ix(i))));
+    histogram(categoryScores(ix_GO(i),nullInd),'edgeColor','k','FaceColor','w');
+    plot(categoryScores(ix_GO(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
+    % plot(whatStat(ix_GO(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
+    title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix_GO(i)},...
+                        sizeGOCategories(ix_GO(i)),pValsZ_corr(ix_GO(i))));
     % ,pValsZ(ix(i))
 end

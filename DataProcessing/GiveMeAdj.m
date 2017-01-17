@@ -1,8 +1,7 @@
-function [theAdjMat,regionInfo,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,whatHemispheres,justCortex)
+function [theAdjMat,regionInfo,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,...
+                                    whatWeightMeasure,whatHemispheres,justCortex)
 % Gives a string identifying the type of normalization to apply, then returns
 % the gene data for that normalization.
-% ------------------------------------------------------------------------------
-% Ben Fulcher, 2014-07-17
 % ------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
@@ -18,9 +17,12 @@ if nargin < 3
     doBinarize = false;
 end
 if nargin < 4
-    whatHemispheres = 'right';
+    whatWeightMeasure = 'NCD'; % normalized connection density
 end
 if nargin < 5
+    whatHemispheres = 'right';
+end
+if nargin < 6
     justCortex = false;
 end
 
@@ -48,8 +50,48 @@ case 'Oh'
     theAdjMat(logical(eye(size(theAdjMat)))) = 0;
     % Zero high-p links using the given p-threshold:
     theAdjMat = filterP(theAdjMat,adjPVals);
+
+    % Set custom edge weight measure:
+    numROIs = length(theAdjMat);
+    switch whatWeightMeasure
+    case 'NCS' % normalised connection strength
+        fprintf(1,'~~Normalized connection strength~~\n');
+        theAdjMat = theAdjMat;
+    case 'NCD' % normalized connection density
+        fprintf(1,'~~Normalized connection density~~\n');
+        % Divide by destination ROI size, Y
+        roi_volume = GetROIVolumes(C);
+        for i_target = 1:numROIs
+            theAdjMat(:,i_target) = theAdjMat(:,i_target)/roi_volume(i_target);
+        end
+    case 'CS' % connection strength
+        fprintf(1,'~~Connection strength~~\n');
+        % Multiply by source (row) by ROI volume
+        roi_volume = GetROIVolumes(C);
+        numROIs = length(theAdjMat);
+        for i_source = 1:numROIs
+            theAdjMat(i_source,:) = theAdjMat(i_source,:)*roi_volume(i_source);
+        end
+    case 'CD' % connection density
+        fprintf(1,'~~Connection density~~\n');
+        % multiply each weight by the source volume and divide by target volume
+        roi_volume = GetROIVolumes(C);
+        numROIs = length(theAdjMat);
+        % multiply by source volume:
+        for i_source = 1:numROIs
+            theAdjMat(i_source,:) = theAdjMat(i_source,:)*roi_volume(i_source);
+        end
+        % divide by target volume:
+        for i_target = 1:numROIs
+            theAdjMat(:,i_target) = theAdjMat(:,i_target)/roi_volume(i_target);
+        end
+    otherwise
+        error('Unknown edge weight type: ''%s''',whatWeights);
+    end
+
     % Get structure information:
     regionInfo = C.RegionStruct;
+
 case 'Ypma'
     [W_rect,sourceRegions,targetRegions] = ImportCorticalConnectivityWeights();
     [W,regionNames] = MakeCompleteConnectome(W_rect,sourceRegions,targetRegions);
