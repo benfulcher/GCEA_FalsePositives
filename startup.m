@@ -6,3 +6,10 @@ paths = arrayfun(@(x)fullfile(directories(x).folder,directories(x).name),1:lengt
 for j = 1:length(paths)
     addpath(genpath(paths{j}))
 end
+
+%===============================================================================
+% Add path references to dependencies:
+%===============================================================================
+% Matlab gene enrichment toolbox (github):
+addpath('/Users/benfulcher/GoogleDrive/Work/CodeToolboxes/MatlabEnrichment/')
+addpath('/Users/benfulcher/GoogleDrive/Work/CodeToolboxes/MatlabmySQL/')
