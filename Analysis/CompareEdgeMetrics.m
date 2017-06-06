@@ -10,15 +10,18 @@
 connectomeSource = 'Oh'; % 'Oh-cortex'
 pThreshold = 0.05;
 whatHemispheres = 'right';
+whatWeightMeasure = 'NCD';
 justCortex = false;
-onlyOnEdges = true; % whether to put values only on existing edges
-                    % (rather than all node pairs for some measures)
-randomizeEdges = true; % whether to randomize edges [doesn't work yet]
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
 normalizationGene = 'none'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
+
+
+onlyOnEdges = true; % whether to put values only on existing edges
+                    % (rather than all node pairs for some measures)
+randomizeEdges = true; % whether to randomize edges
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
@@ -33,8 +36,9 @@ numIterationsErmineJ = 20000; % number of iterations for GSR in ermineJ
 %-------------------------------------------------------------------------------
 
 % Define a set of edge measures to compare:
-[A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatHemispheres,justCortex);
-A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatHemispheres,justCortex);
+[A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatWeightMeasure,...
+                                            whatHemispheres,justCortex);
+A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatWeightMeasure,whatHemispheres,justCortex);
 
 
 %-------------------------------------------------------------------------------
@@ -149,7 +153,7 @@ for i = 1:numEdgeMeasures
                             BF_thetime((numEdgeMeasures-i)*(toc(timer)/i)));
 
     % Check our method:
-    GOTable = SingleEnrichment(gScore,geneEntrezIDs,'biological_process',[5,100],20000);
+    [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,'biological_process',[5,200],20000);
 
 end
 

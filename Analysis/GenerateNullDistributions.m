@@ -222,27 +222,12 @@ for i = 1:numNulls+1
                             BF_thetime((numNulls+1-i)*(toc(timer)/i)));
 end
 
-
 %-------------------------------------------------------------------------------
-% Summarize nulls, estimate p-values
+% Compute p-values
 %-------------------------------------------------------------------------------
+fprintf(1,'GO categories with correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
 whatTail = 'right';
-nullInd = 2:numNulls+1;
-meanNull = nanmean(categoryScores(:,nullInd),2); % mean score of genes in each category
-stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each category
-% We should better quantify taking into account the number of nulls:
-switch whatTail
-case 'right' % categories with higher positive correlations to the edge measure than nulls
-    fprintf(1,'Right tail: GO categories with more positive correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
-    pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),1:numGOCategories);
-    pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
-case 'left' % categories with more negative correlations to the edge measure than nulls
-    fprintf(1,'Left tail: GO categories with more negative correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
-    pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)<=categoryScores(x,1)),1:numGOCategories);
-    pValsZ = arrayfun(@(x)normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
-end
-
-pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
+[meanNull,stdNull,pValsPerm,pValsZ,pValsZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail);
 
 %-------------------------------------------------------------------------------
 % Save to mat file:
@@ -257,16 +242,7 @@ end
 %-------------------------------------------------------------------------------
 % List categories with lowest p-values, or highest mean across nulls, etc.
 %-------------------------------------------------------------------------------
-numTop = min(30,numGOCategories);
-whatStat = pValsZ; % meanNull, stdNull, pValsZ
-[~,ix_GO] = sort(whatStat,'ascend');
-fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
-ix_GO(isnan(whatStat(ix_GO))) = [];
-for i = 1:numTop
-    geneAcro = geneInfo.acronym(ismember(geneInfo.entrez_id,geneEntrezAnnotations{ix_GO(i)}));
-    fprintf(1,'%u (%u genes): %s (nullmean = %.2g; p = %.2g; p_corr = %.2g) [%s]\n',i,sizeGOCategories(ix_GO(i)),...
-                        GOTable.GOName{ix_GO(i)},meanNull(ix_GO(i)),pValsZ(ix_GO(i)),pValsZ_corr(ix_GO(i)),BF_cat(geneAcro));
-end
+ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr);
 
 %-------------------------------------------------------------------------------
 % Check that the mean null score for each gene is zero
@@ -291,47 +267,9 @@ xlabel(sprintf('scores across %u nulls',numNulls))
 %-------------------------------------------------------------------------------
 % Produce some summary plots:
 %-------------------------------------------------------------------------------
-f = figure('color','w');
 titleText = sprintf('%s-%s',whatEdgeMeasure,randomizeHow);
-% Plot distribution of p-values:
-subplot(2,3,1); hold on
-histogram(pValsZ)
-histogram(pValsZ_corr)
-xlabel('p-values')
-legend({'raw','corrected'})
-ylabel('frequency')
-title(titleText,'interpreter','none')
 
-% Plot distribution of mean nulls:
-subplot(2,3,2); hold on
-histogram(meanNull)
-histogram(categoryScores(:,1))
-plot(ones(2,1)*nanmean(categoryScores(:,1)),[0,max(get(gca,'ylim'))],'r')
-xlabel('mean corr statistic across nulls')
-ylabel('frequency')
-title(titleText,'interpreter','none')
 
-% Check dependence on GO category size
-subplot(2,3,3)
-plot(sizeGOCategories,pValsZ,'.k')
-xlabel('GO category size')
-ylabel('corrected p-value')
-title(titleText,'interpreter','none')
-
-% Relationship between null mean and real scores
-subplot(2,3,4); hold on
-plot(meanNull,categoryScores(:,1),'.k')
-plot([min(meanNull),max(meanNull)],[min(meanNull),max(meanNull)],'r')
-xlabel('mean of null distribution')
-ylabel('real scores')
-title(titleText,'interpreter','none')
-
-% Std
-subplot(2,3,5); hold on
-plot(stdNull,categoryScores(:,1),'.k')
-xlabel('std of null distribution')
-ylabel('real scores')
-title(titleText,'interpreter','none')
 
 %-------------------------------------------------------------------------------
 % Look at distribution for some top ones
