@@ -8,13 +8,17 @@ whatHemispheres = 'right';
 whatWeightMeasure = 'NCD';
 justCortex = true;
 
-[A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,...
+[A_bin,regionInfo,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,...
                                 whatWeightMeasure,whatHemispheres,justCortex);
 
 %-------------------------------------------------------------------------------
 % Gene data
 %-------------------------------------------------------------------------------
 [geneData,geneInfo,structInfo] = LoadMeG({'none','none'},'energy');
+% Match to regions:
+[~,~,isConnectome] = intersect({regionInfo.acronym},structInfo.acronym,'stable');
+geneData = geneData(isConnectome,:);
+structInfo = structInfo(isConnectome,:);
 geneDataZ = BF_NormalizeMatrix(geneData,'zscore');
 
 %-------------------------------------------------------------------------------
@@ -74,12 +78,12 @@ parfor n = 1:numNulls+1
         permVector = 1:size(geneData,1);
     else
         % permVector = randperm(size(geneData,1));
-        permVector = AnatomyShuffle(structInfo.divisionLabel);
+        permVector = AnatomyShuffle(structInfo.divisionLabel,'twoBroad');
     end
 
     gScore = zeros(height(geneInfo),1);
     for i = 1:height(geneInfo)
-        gScore(i) = corr(k,geneData(permVector,i),'type','Pearson','rows','pairwise');
+        gScore(i) = corr(k,geneData(permVector,i),'type','Spearman','rows','pairwise');
     end
 
     % Record mean scores for each category:

@@ -109,10 +109,11 @@ if doBinarize
 end
 
 %-------------------------------------------------------------------------------
-% Take just cortex?
+% Take just isocortex?
 if justCortex
     isCortex = strcmp({C.RegionStruct.MajorRegionName},'Isocortex');
     theAdjMat = theAdjMat(isCortex,isCortex);
+    regionInfo = regionInfo(isCortex);
 end
 
 % case {'Oh-brain','Oh-cortex'}
