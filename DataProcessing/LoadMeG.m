@@ -40,7 +40,6 @@ end
 %-------------------------------------------------------------------------------
 % FURTHER PROCESSING:
 %-------------------------------------------------------------------------------
-%-------------------------------------------------------------------------------
 GeneExpData = BF_NormalizeMatrix(GeneExpData,normalizationSettings{1});
 fprintf(1,'1. Normalized expression for each gene using %s\n',normalizationSettings{1});
 

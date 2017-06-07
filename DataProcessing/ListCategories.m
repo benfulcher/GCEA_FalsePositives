@@ -1,10 +1,13 @@
-function ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr)
+function ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr,numTop)
 
+if nargin < 7
+    numTop = 30;
+end
 
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = length(meanNull);
 
-numTop = min(30,numGOCategories);
+numTop = min(numTop,numGOCategories);
 whatStat = pValsZ; % meanNull, stdNull, pValsZ
 [~,ix_GO] = sort(whatStat,'ascend');
 fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));

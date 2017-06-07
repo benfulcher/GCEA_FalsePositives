@@ -268,7 +268,7 @@ xlabel(sprintf('scores across %u nulls',numNulls))
 % Produce some summary plots:
 %-------------------------------------------------------------------------------
 titleText = sprintf('%s-%s',whatEdgeMeasure,randomizeHow);
-
+NullSummaryPlots(pValsZ,pValsZ_corr,categoryScores,meanNull,stdNull,sizeGOCategories,titleText);
 
 
 %-------------------------------------------------------------------------------
