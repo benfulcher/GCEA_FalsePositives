@@ -6,19 +6,24 @@ connectomeSource = 'Oh'; % 'Oh-cortex'
 pThreshold = 0.05;
 whatHemispheres = 'right';
 whatWeightMeasure = 'NCD';
-justCortex = true;
+structureFilter = 'cortex';
 
-[A_bin,regionInfo,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,...
-                                whatWeightMeasure,whatHemispheres,justCortex);
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,...
+                                whatWeightMeasure,whatHemispheres);
 
 %-------------------------------------------------------------------------------
 % Gene data
 %-------------------------------------------------------------------------------
 [geneData,geneInfo,structInfo] = LoadMeG({'none','none'},'energy');
 % Match to regions:
-[~,~,isConnectome] = intersect({regionInfo.acronym},structInfo.acronym,'stable');
-geneData = geneData(isConnectome,:);
-structInfo = structInfo(isConnectome,:);
+if strcmp(structureFilter,'cortex')
+    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
+    geneData = geneData(keepStruct,:);
+    structInfo = structInfo(keepStruct,:);
+    A_bin = A_bin(keepStruct,keepStruct);
+end
+
+% Normalize gene expression data:
 geneDataZ = BF_NormalizeMatrix(geneData,'zscore');
 
 %-------------------------------------------------------------------------------
@@ -47,8 +52,8 @@ for i = 1:height(geneInfo)
 end
 % Plot:
 [~,iy] = sort(gScore,'descend');
-% [~,ix] = sort(k,'descend');
-ix = 1:numStructs;
+[~,ix] = sort(k,'descend');
+% ix = 1:numStructs;
 PlotGeneExpression(geneData(ix,iy),geneInfo(iy,:),structInfo(ix,:),true,k(ix))
 % Enrichment:
 [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneInfo.entrez_id,'biological_process',[5,200],20000);
@@ -102,3 +107,4 @@ end
 whatTail = 'right';
 [meanNull,stdNull,pValsPerm,pValsZ,pValsZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail);
 ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr);
+NullSummaryPlots(pValsZ,pValsZ_corr,categoryScores,meanNull,stdNull,sizeGOCategories);

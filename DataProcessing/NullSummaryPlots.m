@@ -20,9 +20,10 @@ title(titleText,'interpreter','none')
 subplot(2,3,2); hold on
 histogram(meanNull)
 histogram(categoryScores(:,1))
+legend('null','real')
 plot(ones(2,1)*nanmean(categoryScores(:,1)),[0,max(get(gca,'ylim'))],'r')
-xlabel('mean corr statistic across nulls')
-ylabel('frequency')
+xlabel('Category score')
+ylabel('Frequency')
 title(titleText,'interpreter','none')
 
 % Check dependence on GO category size

@@ -23,6 +23,10 @@ case 'left' % categories with more negative correlations to the edge measure tha
     pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)<=categoryScores(x,1)),1:numGOCategories);
     pValsZ = arrayfun(@(x)normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
 end
-pValsZ_corr = mafdr(pValsZ,'BHFDR','true');
+
+
+pValsZ_corr = mafdr(pValsZ,'BHFDR',true,'showPlot',false);
+% q-values of Storey, 2002
+% [~,pValsZ_corr] = mafdr(pValsZ);
 
 end

@@ -1,5 +1,5 @@
-function [theAdjMat,regionInfo,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,...
-                                    whatWeightMeasure,whatHemispheres,justCortex)
+function [theAdjMat,regionAcronyms,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,...
+                                    whatWeightMeasure,whatHemispheres)
 % Gives a string identifying the type of normalization to apply, then returns
 % the gene data for that normalization.
 % ------------------------------------------------------------------------------
@@ -22,9 +22,6 @@ end
 if nargin < 5
     whatHemispheres = 'right';
 end
-if nargin < 6
-    justCortex = false;
-end
 
 %-------------------------------------------------------------------------------
 % Load in and minimally preprocess the data:
@@ -35,7 +32,7 @@ end
 switch whatData
 case 'Oh'
     if ~exist('C','var')
-        C = load('Mouse_Connectivity_Data.mat','Conn_W','Conn_p','RegionStruct');
+        C = load('Mouse_Connectivity_Data.mat','Conn_W','Conn_p','regionAcronyms');
     end
     % Ipsi:
     switch whatHemispheres
@@ -89,8 +86,7 @@ case 'Oh'
         error('Unknown edge weight type: ''%s''',whatWeights);
     end
 
-    % Get structure information:
-    regionInfo = C.RegionStruct;
+    regionAcronyms = C.regionAcronyms;
 
 case 'Ypma'
     [W_rect,sourceRegions,targetRegions] = ImportCorticalConnectivityWeights();
@@ -107,21 +103,6 @@ if doBinarize
     theAdjMat = theAdjMat;
     theAdjMat(theAdjMat > 0) = 1;
 end
-
-%-------------------------------------------------------------------------------
-% Take just isocortex?
-if justCortex
-    isCortex = strcmp({C.RegionStruct.MajorRegionName},'Isocortex');
-    theAdjMat = theAdjMat(isCortex,isCortex);
-    regionInfo = regionInfo(isCortex);
-end
-
-% case {'Oh-brain','Oh-cortex'}
-%     % Oh et al. ipsilateral weighted connectome
-%
-% case 'Oh-cortex'
-%
-% end
 
 % ------------------------------------------------------------------------------
 function AdjThresh = filterP(AdjIn,pValues)

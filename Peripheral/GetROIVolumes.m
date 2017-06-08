@@ -5,7 +5,7 @@ function ROIVolume = GetROIVolumes(C)
 %-------------------------------------------------------------------------------
 
 % get acronyms of 213 ROIs that we have
-orig_acrons = {C.RegionStruct.acronym};
+orig_acrons = C.regionAcronyms;
 
 % prepend "l_" so they can match with Valerio's
 orig_acrons = strcat({'l_'},orig_acrons);

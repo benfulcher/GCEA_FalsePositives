@@ -46,12 +46,12 @@ ratNum = 2.2;
 % Add regions:
 for j = 1:numStructs
     colorHere = rgbconv(structInfo.color_hex_triplet{j});
-    rectangle('Position',[-(numGenes/ratNum+1)*structScores(j),j,(numGenes/ratNum+1)*structScores(j),1], ...
+    rectangle('Position',[-(numGenes/ratNum+1)*structScores(j),-0.5+j,(numGenes/ratNum+1)*structScores(j),1], ...
                 'FaceColor',colorHere,'EdgeColor',colorHere)
 end
 % Add text:
 for j = 1:numStructs
-    text(-numGenes/(ratNum*1.2),j+0.5,structInfo.acronym(j),'FontSize',9)
+    text(-numGenes/(ratNum*1.2),j,structInfo.acronym(j),'FontSize',9)
 end
 
 xlim([-numGenes/ratNum,numGenes+1])
