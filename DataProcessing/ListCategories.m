@@ -1,4 +1,4 @@
-function ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr,numTop)
+function ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr,numTop)
 
 if nargin < 7
     numTop = 30;

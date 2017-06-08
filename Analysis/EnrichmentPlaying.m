@@ -71,7 +71,7 @@ end
 %-------------------------------------------------------------------------------
 % Get region-based anatomical nulls:
 %-------------------------------------------------------------------------------
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData('biological_process',[5,200],geneInfo.entrez_id);
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData('biological_process',[5,100],geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 numNulls = 200;
@@ -106,5 +106,6 @@ end
 %-------------------------------------------------------------------------------
 whatTail = 'right';
 [meanNull,stdNull,pValsPerm,pValsZ,pValsZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail);
-ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr);
+ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr);
 NullSummaryPlots(pValsZ,pValsZ_corr,categoryScores,meanNull,stdNull,sizeGOCategories);
+SpecificNullPlots(categoryScores,GOTable,sizeGOCategories,pValsZ_corr,ix_GO);
