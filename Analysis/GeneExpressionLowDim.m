@@ -14,10 +14,5 @@ fprintf(1,'\n');
 RegionScatterPlot(structInfo,pcScore(:,1),pcScore(:,2),'geneExp-PC1','geneExp-PC2','Pearson',true);
 
 %-------------------------------------------------------------------------------
-% Enrichment?
+% Enrichment? -> NodeEnrichment.m
 %-------------------------------------------------------------------------------
-gScore = zeros(height(geneInfo),1);
-for i = 1:height(geneInfo)
-    gScore(i) = corr(pcScore(:,1),geneData(:,i),'type','Pearson','rows','pairwise');
-end
-[GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneInfo.entrez_id,'biological_process',[5,200],20000);

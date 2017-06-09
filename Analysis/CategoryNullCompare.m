@@ -60,10 +60,10 @@ end
 
 %-------------------------------------------------------------------------------
 f = figure('color','w'); ax = gca; hold on
-h1 = histogram(categoryScores(2:end,1)); h1.FaceColor = [0.2157    0.4941    0.7216];
 plot(ones(2,1)*mean(categoryScores(2:end,1)),ax.YLim,'color',h1.FaceColor);
-h3 = histogram(categoryScores(:,3)); h3.FaceColor = [0.5961    0.3059    0.6392];
 plot(ones(2,1)*mean(categoryScores(:,3)),ax.YLim,'color',h3.FaceColor);
+h1 = histogram(categoryScores(2:end,1)); h1.FaceColor = [0.2157    0.4941    0.7216];
+h3 = histogram(categoryScores(:,3)); h3.FaceColor = [0.5961    0.3059    0.6392];
 h2 = histogram(categoryScores(:,2)); h2.FaceColor = [0.3020    0.6863    0.2902];
 plot(ones(2,1)*mean(categoryScores(:,2)),ax.YLim,'color',h2.FaceColor);
 plot(ones(2,1)*categoryScores(1,1),ax.YLim,'r')
