@@ -51,6 +51,8 @@ case 'signalCount'
 % WEIGHTED:
 case 'weight'
     edgeMeasure = A_wei;
+case 'log10_weight'
+    edgeMeasure = log10(A_wei);
 case 'pValue'
     if isempty(A_p)
         error('Did not give edge-based p-value info, you dummy');

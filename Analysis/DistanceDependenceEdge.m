@@ -21,21 +21,26 @@ numQuantiles = 11;
 C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
 d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
 
+A_bin = GiveMeAdj('Oh',pThreshold,true,'NCD','right');
+A_wei = GiveMeAdj('Oh',pThreshold,false,'NCD','right');
+
 switch connectomeType
 case 'Oh-brain'
-    A_bin = GiveMeAdj('Oh',pThreshold,true,'NCD','right');
-    A_wei = GiveMeAdj('Oh',pThreshold,false,'NCD','right');
+    % nothing to do
 case 'Oh-cortex'
-    A_bin = GiveMeAdj('Oh',pThreshold,true,'NCD','right');
-    A_wei = GiveMeAdj('Oh',pThreshold,false,'NCD','right');
+    [~,~,structInfo] = LoadMeG({'none','none'},'energy');
+    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
+    structInfo = structInfo(keepStruct,:);
+    A_bin = A_bin(keepStruct,keepStruct);
+    d = d(keepStruct,keepStruct);
 otherwise
-    error('Unknown connectome: %s',connectomeTypes);
+    error('Unknown connectome type: %s',connectomeType);
 end
 
 % Compute the edge data:
 onlyOnEdges = true;
 if strcmp(whatEdgeProperty,'distance')
-    edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    edgeData = d; % ipsilateral distances in the right hemisphere
 else
     edgeData = GiveMeEdgeMeasure(whatEdgeProperty,A_bin,A_wei,onlyOnEdges);
 end
