@@ -13,8 +13,9 @@ energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
 normalizationSettings = {'none','none'}; % normalization by gene/region
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-doAbs = false;
+absType = 'neg';
 onlyConnections = false; % only look where there are connections
+structureFilter = 'cortex';
 
 %-------------------------------------------------------------------------------
 % Load in and process data:
@@ -23,20 +24,8 @@ onlyConnections = false; % only look where there are connections
 C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
 % Pairwise ipsilateral Euclidean distance data:
 d = C.Dist_Matrix{1,1}/1000;
-
-% Make vector of distances
-if onlyConnections
-    pThreshold = 0.05;
-    A_bin = GiveMeAdj('Oh',pThreshold,true);
-    dData = d;
-    dData(A_bin == 0) = 0;
-    % Only symmetric?:
-    dData(tril(true(size(dData)),-1)) = 0;
-else
-    % Convert to vector of upper diagonal
-    dData = d;
-    dData(tril(true(size(d)),-1)) = 0;
-end
+% Binary connectome:
+A_bin = GiveMeAdj('Oh',pThreshold,true);
 
 %-------------------------------------------------------------------------------
 % Gene expression data:
@@ -47,13 +36,46 @@ entrezIDs = geneInfo.entrez_id;
 numGenes = size(geneData,2);
 
 %-------------------------------------------------------------------------------
+% Filter to subregions
+%-------------------------------------------------------------------------------
+if strcmp(structureFilter,'cortex')
+    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
+    geneData = geneData(keepStruct,:);
+    structInfo = structInfo(keepStruct,:);
+    A_bin = A_bin(keepStruct,keepStruct);
+    d = d(keepStruct,keepStruct);
+end
+
+%-------------------------------------------------------------------------------
+% Make vector of distances
+%-------------------------------------------------------------------------------
+if onlyConnections
+    pThreshold = 0.05;
+    dData = d;
+    dData(A_bin == 0) = 0;
+    % Only symmetric?:
+    dData(tril(true(size(dData)),-1)) = 0;
+else
+    % Convert to vector of upper diagonal
+    dData = d;
+    dData(tril(true(size(d)),-1)) = 0;
+end
+
+
+%-------------------------------------------------------------------------------
 % Score genes:
 %-------------------------------------------------------------------------------
 fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
 
 [geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,whatCorr,...
-                                false,doAbs,thresholdGoodGene,pValOrStat);
+                                [],absType,thresholdGoodGene,pValOrStat);
 
+%-------------------------------------------------------------------------------
+% Do the enrichment
+%-------------------------------------------------------------------------------
+[GOTable,geneEntrezAnnotations] = SingleEnrichment(geneScores,geneEntrezIDs,'biological_process',[5,200],20000);
+
+%-------------------------------------------------------------------------------
 textLabel = sprintf('dScores_%s_%s-%s_%s_abs%u_conn%u',whatCorr,normalizationSettings{1},...
                         normalizationSettings{2},pValOrStat,doAbs,onlyConnections);
 %-------------------------------------------------------------------------------

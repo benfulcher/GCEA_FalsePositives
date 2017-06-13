@@ -61,6 +61,7 @@ fprintf(1,'Comparing %u different processing parameters\n',numProcessingTypes);
 %-------------------------------------------------------------------------------
 % Get edge data:
 %-------------------------------------------------------------------------------
+% ~~~~~Plotting now -> DistanceDependenceEdge.m~~~~~~~~~~
 C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
 f = figure('color','w');
 edgeData = cell(length(pThresholds),2);
@@ -75,20 +76,15 @@ for p = 1:length(pThresholds)
     otherwise
         error('Unknown connectome: %s',connectomeTypes);
     end
-    switch whatEdgeProperty
-    case 'wei-communicability'
-        edgeData{p,1} = communicability(A_wei);
-        edgeData{p,1}(A_wei==0) = 0; % only put on real edges
-    case 'bin-communicability'
-        edgeData{p,1} = communicability(A_bin);
-        edgeData{p,1}(~A_bin) = 0; % only put on real edges
-    case 'bin-betweenness'
-        edgeData{p,1} = edge_betweenness_bin(A_bin);
-    case 'wei-betweenness'
-        edgeData{p,1} = edge_betweenness_wei(A_bin);
-    case 'distance'
+
+    % Compute the edge data:
+    onlyOnEdges = true;
+    if strcmp(whatEdgeProperty,'distance')
         edgeData{p,1} = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
+    else
+        edgeData{p,1} = GiveMeEdgeMeasure(whatEdgeProperty,A_bin,A_wei,onlyOnEdges);
     end
+
     %---------------------------------------------------------------------------
     subplot(2,length(pThresholds),2*(p-1)+1);
     histogram(edgeData{p,1}(edgeData{p,1}~=0));

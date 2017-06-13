@@ -1,4 +1,5 @@
 % Extract edge-based measures to correlate with gene coexpression
+%-------------------------------------------------------------------------------
 % Ben Fulcher 23-2-2016
 
 pThreshold = 0.05;
@@ -14,7 +15,7 @@ Corrs.corrected = GiveMeRegionCorrs(G,'norm','energy',C,'distance','expFitAll');
 
 %-------------------------------------------------------------------------------
 % Get the adjacency matrix:
-A = logical(GiveMeAdj('Oh',pThreshold,true));
+A = logical(GiveMeAdj('Oh',pThreshold,true,'','right'));
 PlotColorMatrix(A,C.RegionStruct,[],[],'',0);
 colormap(gray)
 

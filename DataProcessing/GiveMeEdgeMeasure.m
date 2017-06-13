@@ -38,6 +38,8 @@ case 'kout_kin'
     edgeMeasure = kout*kin';
 case 'bin_edgeBet'
     edgeMeasure = edge_betweenness_bin(A_bin);
+case 'log10_bin_edgeBet'
+    edgeMeasure = log10(edge_betweenness_bin(A_bin));
 case 'bin_communicability'
     edgeMeasure = communicability(A_bin);
 case 'signalTraffic'

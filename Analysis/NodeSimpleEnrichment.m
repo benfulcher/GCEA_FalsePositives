@@ -9,8 +9,7 @@ enrichWhat = 'meanExpression';
 structureFilter = 'cortex';
 
 % Binary connectome data:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj('Oh',0.05,true,...
-                                'NCD','right');
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj('Oh',0.05,true,'NCD','right');
 % Gene data:
 [geneData,geneInfo,structInfo] = LoadMeG({'none','none'},'energy');
 
@@ -73,7 +72,7 @@ case 'cortex'
 case 'genePC'
     % Genes that vary with gene expression PCs
     % Original analysis done for isocortex region filter
-    geneDataNorm = BF_NormalizeMatrix(geneData,'scaledSigmoid');
+    geneDataNorm = BF_NormalizeMatrix(geneData,'zscore');
     fprintf(1,'Computing PCs for %ux%u matrix...',size(geneDataNorm,1),size(geneDataNorm,2));
     [pcCoeff, pcScore, ~, ~, ~] = pca(geneDataNorm,'NumComponents',2,'algorithm','als');
     fprintf(1,'\n');
