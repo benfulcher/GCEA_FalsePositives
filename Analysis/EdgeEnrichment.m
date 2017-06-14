@@ -1,4 +1,9 @@
-function [GOTable,gScore,geneEntrezIDs] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,correctDistance,absType)
+function [GOTable,gScore,geneEntrezIDs] = EdgeEnrichment(whatEdgeMeasure,...
+                                            onlyOnEdges,correctDistance,absType)
+% Computes correlation between a pairwise measure and gene expression outer
+% product
+%-------------------------------------------------------------------------------
+
 %-------------------------------------------------------------------------------
 % Fixed processing parameters:
 %-------------------------------------------------------------------------------
@@ -26,7 +31,7 @@ whatFilter = 'all'; % 'cortex', 'all'
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
-normalizationGene = 'none'; % 'none', 'mixedSigmoid'
+normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
 
 % Null model:
@@ -77,20 +82,33 @@ end
 
 %-------------------------------------------------------------------------------
 % Compute gene scores:
+%-------------------------------------------------------------------------------
 [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
 
-% Filter first:
+% Filter:
 filterMe = isnan(gScore);
-gScore(filterMe) = [];
-geneEntrezIDs(filterMe) = [];
+if any(filterMe)
+    warning('What? NaNs? Should have been filtered within GiveMeGCC...')
+    keyboard
+    % fprintf(1,'%u genes had NaN scores and are being filtered out before enrichment\n',...
+    %                         sum(filterMe));
+    % gScore(filterMe) = [];
+    % geneEntrezIDs(filterMe) = [];
+end
 
+%-------------------------------------------------------------------------------
 % Enrichment using our in-house random-gene null method:
+%-------------------------------------------------------------------------------
 [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,...
                                     'biological_process',[5,200],numIterations);
 
+%-------------------------------------------------------------------------------
 % ANALYSIS:
+%-------------------------------------------------------------------------------
 numSig = sum(GOTable.pVal_corr < 0.05);
 fprintf(1,'%u significant categories at p_corr < 0.05\n',numSig);
 display(GOTable(1:numSig,:));
+
+end
