@@ -1,10 +1,22 @@
+function [GOTable,gScore,geneEntrezIDs] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,correctDistance,absType)
 %-------------------------------------------------------------------------------
 % Fixed processing parameters:
 %-------------------------------------------------------------------------------
 
-whatEdgeMeasure = 'distance';
-onlyOnEdges = true;
+if nargin < 1
+    whatEdgeMeasure = 'distance';
+end
+if nargin < 2
+    onlyOnEdges = false;
+end
+if nargin < 3
+    correctDistance = false; % false,true;
+end
+if nargin < 4
+    absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
+end
 
+%===============================================================================
 % Connectome processing
 connectomeSource = 'Oh'; % 'Oh-cortex'
 pThreshold = 0.05;
@@ -23,11 +35,9 @@ normalizationRegion = 'none'; % 'none', 'zscore'
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
 corrType = 'Spearman'; % {'Spearman','Pearson'};
 pValOrStat = 'stat'; % 'pval','stat'
-absType = 'neg'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
-correctDistance = false; % false,true;
 
 % Enrichment parameters:
-numIterations = 10000; % number of iterations for GSR
+numIterations = 20000; % number of iterations for GSR
 enrichmentSigThresh = 0.05;
 
 %===============================================================================
@@ -47,6 +57,8 @@ if strcmp(whatEdgeMeasure,'distance')
     edgeData = C.Dist_Matrix{1,1};
     if onlyOnEdges
         edgeData(A_bin==0) = 0;
+    else
+        edgeData(tril(true(size(edgeData)))) = 0;
     end
 else
     edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,A_p);
