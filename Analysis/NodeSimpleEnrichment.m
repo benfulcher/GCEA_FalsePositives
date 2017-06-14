@@ -13,13 +13,8 @@ structureFilter = 'cortex';
 % Gene data:
 [geneData,geneInfo,structInfo] = LoadMeG({'none','none'},'energy');
 
-% Match to regions:
-if strcmp(structureFilter,'cortex')
-    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
-    geneData = geneData(keepStruct,:);
-    structInfo = structInfo(keepStruct,:);
-    A_bin = A_bin(keepStruct,keepStruct);
-end
+% Filter structures:
+[A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData)
 numStructs = height(structInfo);
 
 %===============================================================================
@@ -95,5 +90,5 @@ end
 
 % ANALYSIS:
 numSig = sum(GOTable.pVal_corr < 0.05);
-fprintf(1,'%u significant categories at p_corr < 0.05\n');
+fprintf(1,'%u significant categories at p_corr < 0.05\n',numSig);
 display(GOTable(1:numSig,:));

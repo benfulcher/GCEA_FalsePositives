@@ -1,5 +1,5 @@
 function [theAdjMat,regionAcronyms,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,...
-                                    whatWeightMeasure,whatHemispheres)
+                                    whatWeightMeasure,whatHemispheres,whatFilter)
 % Gives a string identifying the type of normalization to apply, then returns
 % the gene data for that normalization.
 % ------------------------------------------------------------------------------
@@ -21,6 +21,9 @@ if nargin < 4
 end
 if nargin < 5
     whatHemispheres = 'right';
+end
+if nargin < 6
+    whatFilter = 'all';
 end
 
 %-------------------------------------------------------------------------------
@@ -102,6 +105,17 @@ end
 if doBinarize
     theAdjMat = theAdjMat;
     theAdjMat(theAdjMat > 0) = 1;
+end
+
+%-------------------------------------------------------------------------------
+% Filter structures
+switch whatFilter
+case 'isocortex'
+    % Need to load in structInfo (pretty inefficient -- throw out large loaded gene data)
+    [~,~,structInfo] = LoadMeG();
+    % Match to regions:
+    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
+    theAdjMat = theAdjMat(keepStruct,keepStruct);
 end
 
 % ------------------------------------------------------------------------------

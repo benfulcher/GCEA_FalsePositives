@@ -11,17 +11,16 @@ connectomeSource = 'Oh'; % 'Oh-cortex'
 pThreshold = 0.05;
 whatHemispheres = 'right';
 whatWeightMeasure = 'NCD';
-justCortex = false;
+whatFilter = 'all'; % 'cortex','all'
 
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
 normalizationGene = 'none'; % 'none', 'mixedSigmoid'
 normalizationRegion = 'none'; % 'none', 'zscore'
 
-
 onlyOnEdges = true; % whether to put values only on existing edges
                     % (rather than all node pairs for some measures)
-randomizeEdges = true; % whether to randomize edges
+randomizeEdges = false; % whether to randomize edges
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
@@ -31,15 +30,16 @@ absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution i
 correctDistance = false; % false,true;
 
 % Enrichment settings:
-numIterationsErmineJ = 20000; % number of iterations for GSR in ermineJ
+numIterations = 20000; % number of iterations for GSR
 
 %-------------------------------------------------------------------------------
 
 % Define a set of edge measures to compare:
-[A_bin,regionStruct,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatWeightMeasure,...
-                                            whatHemispheres,justCortex);
-A_wei = GiveMeAdj(connectomeSource,pThreshold,false,whatWeightMeasure,whatHemispheres,justCortex);
-
+% [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,true,whatWeightMeasure,...
+%                                             whatHemispheres,whatFilter);
+[A_wei,regionAcronyms,adjPVals] = GiveMeAdj(connectomeSource,pThreshold,false,...
+                                    whatWeightMeasure,whatHemispheres,whatFilter);
+A_bin = (A_wei~=0);
 
 %-------------------------------------------------------------------------------
 % Randomize to isolate the driving effect:
@@ -69,7 +69,7 @@ if randomizeEdges
 
             weightVector = A_wei(A_wei > 0);
             A_wei_rand = A_rand;
-            A_wei_rand(A_wei_rand>0) = weightVector;
+            A_wei_rand(A_wei_rand > 0) = weightVector;
             % fprintf(1,'RANDOMIZING THE ASSIGNMENT OF GENE DATA TO REGIONS!!\n');
             % ix = randperm(length(A_bin));
             % geneData = geneData(ix,:);
@@ -95,7 +95,7 @@ if randomizeEdges
     A_wei = A_wei_rand;
 end
 
-% edgeMeasures = GiveMeAllEdgeMeasures(A_bin,A_wei,onlyOnEdges,adjPVals);
+edgeMeasures = GiveMeAllEdgeMeasures(A_bin,A_wei,onlyOnEdges,adjPVals);
 edgeMeasureNames = fieldnames(edgeMeasures);
 numEdgeMeasures = length(edgeMeasureNames);
 fprintf(1,'Comparing %u edge measures\n',numEdgeMeasures);
@@ -103,14 +103,8 @@ fprintf(1,'Comparing %u edge measures\n',numEdgeMeasures);
 %-------------------------------------------------------------------------------
 % Get, and match gene data
 [geneData,geneInfo,structInfo] = LoadMeG({normalizationGene,normalizationRegion},energyOrDensity);
-% Check gene data matches connectome data
-if ~all([regionStruct.id]'==structInfo.id)
-    % Take subset
-    [~,ia,ib] = intersect([regionStruct.id]',structInfo.id,'stable');
-    geneData = geneData(ib,:);
-    structInfo = structInfo(ib,:);
-    fprintf(1,'Gene data matched to subset of %u Allen regions\n',length(ib));
-end
+[A_bin,geneData,structInfo,keepInd] = filterStructures(structFilter,structInfo,A_bin,geneData);
+A_wei = A_wei(keepInd,keepInd);
 
 %-------------------------------------------------------------------------------
 % Get distance to use for regressor?:
@@ -143,17 +137,19 @@ for i = 1:numEdgeMeasures
     gScore(filterMe) = [];
     geneEntrezIDs(filterMe) = [];
 
-    % Do enrichment:
-    fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,edgeMeasureNames{i});
-    ermineJResults = RunErmineJ(fileNameWrite,numIterationsErmineJ);
-    % <<<Keep ermineJResults for p-values under (e.g., 0.1)>>>
-    enrichmentTables{i} = ermineJResults(ermineJResults.pVal_corr < enrichmentSigThresh,:);
+    % % Do enrichment:
+    % fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,edgeMeasureNames{i});
+    % ermineJResults = RunErmineJ(fileNameWrite,numIterationsErmineJ);
+    % % <<<Keep ermineJResults for p-values under (e.g., 0.1)>>>
+    % enrichmentTables{i} = ermineJResults(ermineJResults.pVal_corr < enrichmentSigThresh,:);
     % Give user feedback
+
+    % Enrichment using our in-house method:
+    [enrichmentTables{i},geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,...
+                                        'biological_process',[5,200],numIterations);
+
     fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numEdgeMeasures,...
                             BF_thetime((numEdgeMeasures-i)*(toc(timer)/i)));
-
-    % Check our method:
-    [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,'biological_process',[5,200],20000);
 
 end
 

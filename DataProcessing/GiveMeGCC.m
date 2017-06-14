@@ -35,7 +35,7 @@ if any(size(edgeData)==1)
     error('edgeData must be a square matrix');
 end
 isEdge = (edgeData~=0);
-fprintf(1,'%u edges in the data\n',sum(isEdge(:)));
+fprintf(1,'computing scores only across %u edges in the data\n',sum(isEdge(:)));
 edgeVector = edgeData(isEdge);
 
 %-------------------------------------------------------------------------------
@@ -47,8 +47,8 @@ if ~isempty(distanceRegressor)
 else
     fprintf(1,'***COMPUTING CORRELATIONS (WITHOUT ANY REGRESSORS)^^^\n');
 end
-fprintf(1,'Looping over %u genes, computing correlations across %u edges...\n',...
-                                                numGenes,length(edgeVector));
+fprintf(1,'Looping over %u genes, computing %s correlations across %u edges...\n',...
+                                            numGenes,whatCorr,length(edgeVector));
 parfor i = 1:numGenes
     g = geneData(:,i);
     GCC = g*g';

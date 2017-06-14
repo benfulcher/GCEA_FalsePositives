@@ -20,15 +20,15 @@ end
 %-------------------------------------------------------------------------------
 % Get NEW DATA FROM SDK RETRIEVALS:
 %-------------------------------------------------------------------------------
-try
-    dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/AllenGeneDataset_19419.mat';
-    load(dataFile,'GeneExpData','geneInfo','structInfo');
-    fprintf(1,'New Allen SDK-data from %s\n',dataFile);
-catch
-    dataFile = which('AllenGeneDataset_19419.mat');
-    fprintf(1,'New Allen SDK-data from %s\n',dataFile);
-    load(dataFile,'GeneExpData','geneInfo','structInfo');
-end
+% try
+dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/AllenGeneDataset_19419.mat';
+fprintf(1,'New Allen SDK-data from %s\n',dataFile);
+load(dataFile,'GeneExpData','geneInfo','structInfo');
+% catch
+    % dataFile = which('AllenGeneDataset_19419.mat');
+    % fprintf(1,'New Allen SDK-data from %s\n',dataFile);
+    % load(dataFile,'GeneExpData','geneInfo','structInfo');
+% end
 
 switch energyOrDensity
 case 'energy'
