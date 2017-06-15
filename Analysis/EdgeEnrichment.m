@@ -1,5 +1,5 @@
 function [GOTable,gScore,geneEntrezIDs] = EdgeEnrichment(whatEdgeMeasure,...
-                                            onlyOnEdges,correctDistance,absType)
+                                            onlyOnEdges,correctDistance,absType,corrType)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
@@ -20,6 +20,9 @@ end
 if nargin < 4
     absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 end
+if nargin < 5
+    corrType = 'Spearman'; % {'Spearman','Pearson'};
+end
 
 %===============================================================================
 % Connectome processing
@@ -32,13 +35,12 @@ whatFilter = 'all'; % 'cortex', 'all'
 % Gene processing
 energyOrDensity = 'energy'; % what gene expression data to use
 normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-normalizationRegion = 'none'; % 'none', 'zscore'
+normalizationRegion = 'zscore'; % 'none', 'zscore'
 
 % Null model:
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-corrType = 'Spearman'; % {'Spearman','Pearson'};
 pValOrStat = 'stat'; % 'pval','stat'
 
 % Enrichment parameters:
@@ -87,12 +89,10 @@ end
 % Compute gene scores:
 %-------------------------------------------------------------------------------
 if strcmp(whatEdgeMeasure,'connected')
-    [gScore,geneEntrezIDs] = ConnectedGCC(edgeData,geneData,geneInfo.entrez_id,corrType,...
-                            distanceRegressor,absType,thresholdGoodGene,pValOrStat)
-else
-    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,corrType,...
-                            distanceRegressor,absType,thresholdGoodGene,pValOrStat);
+    corrType = 'ttest';
 end
+[gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,corrType,...
+                        distanceRegressor,absType,thresholdGoodGene,pValOrStat);
 
 % Filter:
 filterMe = isnan(gScore);
