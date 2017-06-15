@@ -1,5 +1,5 @@
 function [GOTable,gScore,geneEntrezIDs] = EdgeEnrichment(whatEdgeMeasure,...
-                                            onlyOnEdges,correctDistance,absType,corrType)
+                onlyOnEdges,correctDistance,absType,corrType,whatNull,numNulls)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
@@ -22,19 +22,21 @@ end
 if nargin < 5
     corrType = 'Spearman'; % {'Spearman','Pearson'};
 end
+if nargin < 6
+    whatNull = 'randomGene'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
+end
+if nargin < 7
+    numNulls = 100; % not used for 'randomGene'
+end
 
 %===============================================================================
-% Connectome processing
+% Connectome data processing:
 cParam = GiveMeDefaultParams('conn');
 
-% Gene processing
+% Gene data processing:
 gParam = GiveMeDefaultParams('gene');
 gParam.subsetOfGenes = []; % only look at the first X genes. Set to empty for all
                          % genes & save a .mat file of results
-
-% Null model:
-whatNull = 'randomGene'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
-numNulls = 100;
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
@@ -110,7 +112,7 @@ otherwise
     %-------------------------------------------------------------------------------
     % Get GO data
     % (include only annotations for genes with entrez IDs that are in our dataset)
-    [GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
+    [GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
     sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
     numGOCategories = height(GOTable);
 
@@ -124,10 +126,7 @@ otherwise
 
         % Compute gene scores:
         % (sometimes entrez IDs change -- e.g., when matching to distance results)
-        theEdgeData = edgeMeasures{i};
-
-        % Compute the score:
-        [gScores{i},entrezIDsKept{i}] = GiveMeGCC(theEdgeData,theGeneData,...
+        [gScores{i},entrezIDsKept{i}] = GiveMeGCC(edgeMeasures{i},geneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
 
