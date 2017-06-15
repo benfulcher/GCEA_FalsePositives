@@ -56,7 +56,7 @@ case 'topology'
         edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
     end
 
-case {'shuffleStructAll','shuffleStructTwo'}
+case {'shuffleStructAll','shuffleStructTwo','shuffleStructFive'}
     % Permute gene profiles assigned to regions (later)
     % Edge measure stays constant using the correct topology:
     edgeMeasures0 = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges);
@@ -68,7 +68,10 @@ case {'shuffleStructAll','shuffleStructTwo'}
         shuffle_fn = @()randperm(N);
     case 'shuffleStructTwo'
         fprintf(1,'Shuffling within and outside of cerebral cortex separately...\n');
-        shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'twoBroad');
+        shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'twoBroad',false);
+    case 'shuffleStructFive'
+        fprintf(1,'Shuffling within five brain divisions...\n');
+        shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'fiveByEye',false);
     end
     for i = 2:numNulls+1
         % Compute the desired edge measure:

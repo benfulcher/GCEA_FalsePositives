@@ -149,6 +149,12 @@ otherwise
     GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
 
     %-------------------------------------------------------------------------------
+    % List categories with lowest p-values, or highest mean across nulls, etc.
+    %-------------------------------------------------------------------------------
+    ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
+    GOTable = GOTable(ix_GO,:);
+
+    %-------------------------------------------------------------------------------
     % Save to mat file:
     %-------------------------------------------------------------------------------
     if isempty(gParam.subsetOfGenes)
@@ -157,11 +163,6 @@ otherwise
         save(fullfile('DataOutputs',fileName));
         fprintf(1,'Saved %s\n',fileName);
     end
-
-    %-------------------------------------------------------------------------------
-    % List categories with lowest p-values, or highest mean across nulls, etc.
-    %-------------------------------------------------------------------------------
-    ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
 
     %-------------------------------------------------------------------------------
     % Check whether the mean null score for each gene is zero:
