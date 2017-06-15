@@ -66,7 +66,7 @@ if strcmp(whatNull,'randomGene')
     edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,A_p);
 else
     % Compute edge measures (+nulls):
-    edgeMeasures = GiveMeNullEdgeMeasures(whatNull,whatEdgeMeasure,A_bin,A_wei,numNulls,onlyOnEdges);
+    edgeMeasures = GiveMeNullEdgeMeasures(whatNull,whatEdgeMeasure,A_bin,A_wei,numNulls,onlyOnEdges,structInfo);
 end
 
 %-------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ otherwise
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);
-    gScores = cell(numNulls+1,1);
+    gScore = cell(numNulls+1,1);
     entrezIDsKept = cell(numNulls+1,1);
     fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',eParam.enrichmentSigThresh);
     timer = tic;
@@ -123,7 +123,7 @@ otherwise
 
         % Compute gene scores:
         % (sometimes entrez IDs change -- e.g., when matching to distance results)
-        [gScores{i},entrezIDsKept{i}] = GiveMeGCC(edgeMeasures{i},geneData,...
+        [gScore{i},entrezIDsKept{i}] = GiveMeGCC(edgeMeasures{i},geneData,...
                             geneInfo.entrez_id,corrType,distanceRegressor,absType,...
                             thresholdGoodGene,pValOrStat);
 
@@ -133,7 +133,7 @@ otherwise
             if sum(matchMe) <= 1
                 continue
             end
-            categoryScores(j,i) = nanmean(gScores{i}(matchMe));
+            categoryScores(j,i) = nanmean(gScore{i}(matchMe));
         end
 
         % Give user feedback (not so useful for parfor... :-/)
@@ -170,7 +170,7 @@ otherwise
     gScoresMat = nan(length(allKeptEntrez),numNulls);
     for i = 1:numNulls
         [~,~,perm] = intersect(allKeptEntrez,entrezIDsKept{i+1},'stable');
-        gScoresMat(:,i) = gScores{i+1}(perm);
+        gScoresMat(:,i) = gScore{i+1}(perm);
     end
     subplot(121); hold on
     histogram(mean(gScoresMat,2),'FaceColor','w','EdgeColor','k')
@@ -191,7 +191,5 @@ otherwise
     % Look at distribution for some top ones:
     SpecificNullPlots(categoryScores,GOTable,ix_GO);
 end
-
-
 
 end

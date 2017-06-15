@@ -1,5 +1,6 @@
-function edgeMeasure = GiveMeEdgeMeasure(whatMeasure,A_bin,A_wei,onlyOnEdges,A_p)
+function edgeMeasure = GiveMeEdgeMeasure(whatMeasure,A_bin,A_wei,onlyOnEdges,A_p,structInfo)
 % Computes a single specified edge measure
+% structInfo required for division-based differences
 %-------------------------------------------------------------------------------
 
 if nargin < 4

@@ -19,12 +19,12 @@ case 'gene'
     params.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
     params.normalizationRegion = 'none'; % 'none', 'zscore'
     params.subsetOfGenes = []; %[]; only look at the first X genes.
-                                % Set to empty for all genes
+                                % Set to empty, [], to use all genes
 
 case 'enrichment'
     % GO enrichment processing
     params.processFilter = 'biological_process';
-    params.sizeFilter = [5,200];
+    params.sizeFilter = [5,100];
     params.numIterations = 20000; % number of iterations for GSR
     params.enrichmentSigThresh = 0.05;
 

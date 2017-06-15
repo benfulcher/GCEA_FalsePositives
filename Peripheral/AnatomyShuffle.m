@@ -1,8 +1,11 @@
-function permVector = AnatomyShuffle(divisionLabels,whatLevel)
+function permVector = AnatomyShuffle(divisionLabels,whatLevel,beVocal)
 % Shuffles regions based on anatomy
 
 if nargin < 2
     whatLevel = 'fiveByEye';
+end
+if nargin < 3
+    beVocal = true;
 end
 
 numRegions = length(divisionLabels);
@@ -10,7 +13,9 @@ groups = zeros(numRegions,1);
 
 switch whatLevel
 case 'fiveByEye'
-    fprintf(1,'SHUFFLING USING FIVE ANATOMICAL GROUPS\n');
+    if beVocal
+        fprintf(1,'SHUFFLING USING FIVE ANATOMICAL GROUPS\n');
+    end
     % CTX:
     isCTX = ismember(divisionLabels,{'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
     groups(isCTX) = 1;
@@ -31,7 +36,9 @@ case 'fiveByEye'
     isCerebellum = ismember(divisionLabels,{'Cerebellar Cortex','Cerebellar Nuclei'});
     groups(isCerebellum) = 5;
 case 'twoBroad'
-    fprintf(1,'SHUFFLING USING TWO ANATOMICAL GROUPS\n');
+    if beVocal
+        fprintf(1,'SHUFFLING USING TWO ANATOMICAL GROUPS\n');
+    end
     isCTX = ismember(divisionLabels,{'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
     groups(isCTX) = 1;
     groups(~isCTX) = 2;
