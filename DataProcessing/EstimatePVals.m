@@ -1,4 +1,4 @@
-function [meanNull,stdNull,pValsPerm,pValsZ,pValsZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail)
+function GOTable = EstimatePVals(categoryScores,whatTail,GOTable)
 
 if nargin < 3
     whatTail = 'right';
@@ -8,6 +8,7 @@ end
 % Summarize nulls, estimate p-values
 %-------------------------------------------------------------------------------
 numGOCategories = size(categoryScores,1);
+numNulls = size(categoryScores,2)-1;
 
 nullInd = 2:numNulls+1;
 meanNull = nanmean(categoryScores(:,nullInd),2); % mean score of genes in each category
@@ -24,9 +25,21 @@ case 'left' % categories with more negative correlations to the edge measure tha
     pValsZ = arrayfun(@(x)normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),1:numGOCategories);
 end
 
-
+%-------------------------------------------------------------------------------
+% Corrected p-values using Benjamini-Hochberg
+pValsPerm_corr = mafdr(pValsPerm,'BHFDR',true,'showPlot',false);
 pValsZ_corr = mafdr(pValsZ,'BHFDR',true,'showPlot',false);
 % q-values of Storey, 2002
 % [~,pValsZ_corr] = mafdr(pValsZ);
+
+%-------------------------------------------------------------------------------
+% Assign values to categories of GOTable:
+%-------------------------------------------------------------------------------
+GOTable.pValsZ = pValsZ;
+GOTable.pValsZ_corr = pValsZ_corr;
+GOTable.pValsPerm = pValsPerm;
+GOTable.pValsPerm_corr = pValsPerm_corr;
+GOTable.meanNull = meanNull;
+GOTable.stdNull = stdNull;
 
 end

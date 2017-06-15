@@ -18,6 +18,7 @@ case 'gene'
     params.energyOrDensity = 'energy'; % what gene expression data to use
     params.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
     params.normalizationRegion = 'none'; % 'none', 'zscore'
+    params.subsetOfGenes = [];
 
 case 'enrichment'
     % GO enrichment processing

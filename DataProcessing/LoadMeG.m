@@ -1,4 +1,4 @@
-function [GeneExpData,geneInfo,structInfo] = LoadMeG(normalizationSettings,energyOrDensity)
+function [geneData,geneInfo,structInfo] = LoadMeG(gParam)
 % Load in the gene data as G from new, SDK results
 % Gets the gene_energy or gene_density matrix, and the matching geneInfo table
 % Along with the structInfo table.
@@ -8,13 +8,14 @@ function [GeneExpData,geneInfo,structInfo] = LoadMeG(normalizationSettings,energ
 %-------------------------------------------------------------------------------
 % Check inputs:
 %-------------------------------------------------------------------------------
-if nargin < 1 || isempty(normalizationSettings)
-    normalizationSettings = {'none','none'};
-    % In the format: {howToNormalizeGenesAcrossRegions,howToNormalizeRegionsAcrossGenes}
+if nargin < 1 || isempty(gParam)
+    gParam = GiveMeDefaultParams('gene');
 end
-if nargin < 2
-    energyOrDensity = 'energy';
-end
+% normalizationSettings = {'none','none'};
+% In the format: {howToNormalizeGenesAcrossRegions,howToNormalizeRegionsAcrossGenes}
+% if nargin < 2
+%     energyOrDensity = 'energy';
+% end
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
@@ -30,20 +31,31 @@ load(dataFile,'GeneExpData','geneInfo','structInfo');
     % load(dataFile,'GeneExpData','geneInfo','structInfo');
 % end
 
-switch energyOrDensity
+switch gParam.energyOrDensity
 case 'energy'
-    GeneExpData = GeneExpData.gene_energy;
+    geneData = GeneExpData.gene_energy;
 case 'density'
-    GeneExpData = GeneExpData.gene_density;
+    geneData = GeneExpData.gene_density;
 end
 
 %-------------------------------------------------------------------------------
 % FURTHER PROCESSING:
 %-------------------------------------------------------------------------------
-GeneExpData = BF_NormalizeMatrix(GeneExpData,normalizationSettings{1});
-fprintf(1,'1. Normalized expression for each gene using %s\n',normalizationSettings{1});
+geneData = BF_NormalizeMatrix(geneData,gParam.normalizationGene);
+fprintf(1,'1. Normalized expression for each gene using %s\n',gParam.normalizationGene);
 
-GeneExpData = BF_NormalizeMatrix(GeneExpData',normalizationSettings{2})';
-fprintf(1,'2. Normalized expression across each brain region using %s\n',normalizationSettings{2});
+geneData = BF_NormalizeMatrix(geneData',gParam.normalizationRegion)';
+fprintf(1,'2. Normalized expression across each brain region using %s\n',gParam.normalizationRegion);
+
+%-------------------------------------------------------------------------------
+% Subset:
+%-------------------------------------------------------------------------------
+if ~isempty(gParam.subsetOfGenes)
+    warning('Only looking at a random set of %u genes',subsetOfGenes);
+    rp = randperm(size(geneData,2));
+    rp = rp(1:gParam.subsetOfGenes);
+    geneData = geneData(:,rp);
+    geneInfo = geneInfo(rp,:);
+end
 
 end

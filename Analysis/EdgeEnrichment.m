@@ -56,7 +56,7 @@ end
 [A_wei,regionAcronyms,A_p] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,false,...
                                     cParam.whatWeightMeasure,cParam.whatHemispheres,'all');
 A_bin = (A_wei~=0);
-[geneData,geneInfo,structInfo] = LoadMeG({gParam.normalizationGene,gParam.normalizationRegion},gParam.energyOrDensity);
+[geneData,geneInfo,structInfo] = LoadMeG(gParam);
 [A_bin,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,structInfo,A_bin,geneData);
 A_wei = A_wei(keepInd,keepInd);
 A_p = A_p(keepInd,keepInd);
@@ -139,24 +139,24 @@ otherwise
             categoryScores(j,i) = nanmean(gScores{i}(matchMe));
         end
 
-        % Give user feedback
+        % Give user feedback (not so useful for parfor... :-/)
         % fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numNulls+1,...
         %                         BF_thetime((numNulls+1-i)*(toc(timer)/i)));
     end
 
     %-------------------------------------------------------------------------------
-    % Compute p-values
+    % Compute p-values (+ corrected) and annotate GOTable
     %-------------------------------------------------------------------------------
-    fprintf(1,'GO categories with correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
-    whatTail = 'right';
-    [meanNull,stdNull,pValsPerm,pValsZ,pValsZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail);
+    fprintf(1,'GO categories with correlations to %s than %s nulls\n',whatEdgeMeasure,whatNull);
+    whatTail = 'right'; % right-tailed p-values
+    GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
 
     %-------------------------------------------------------------------------------
     % Save to mat file:
     %-------------------------------------------------------------------------------
-    if isempty(subsetOfGenes)
-        fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,randomizeHow,...
-                        processFilter,normalizationGene,normalizationRegion,numNulls);
+    if isempty(gParam.subsetOfGenes)
+        fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,whatNull,...
+                eParam.processFilter,gParam.normalizationGene,gParam.normalizationRegion,numNulls);
         save(fullfile('DataOutputs',fileName));
         fprintf(1,'Saved %s\n',fileName);
     end
@@ -164,7 +164,7 @@ otherwise
     %-------------------------------------------------------------------------------
     % List categories with lowest p-values, or highest mean across nulls, etc.
     %-------------------------------------------------------------------------------
-    ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr);
+    ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
 
     %-------------------------------------------------------------------------------
     % Check that the mean null score for each gene is zero
@@ -189,8 +189,8 @@ otherwise
     %-------------------------------------------------------------------------------
     % Produce some summary plots:
     %-------------------------------------------------------------------------------
-    titleText = sprintf('%s-%s',whatEdgeMeasure,randomizeHow);
-    NullSummaryPlots(pValsZ,pValsZ_corr,categoryScores,meanNull,stdNull,sizeGOCategories,titleText);
+    titleText = sprintf('%s-%s',whatEdgeMeasure,whatNull);
+    NullSummaryPlots(GOTable,categoryScores,titleText);
 
     %-------------------------------------------------------------------------------
     % Look at distribution for some top ones
@@ -202,7 +202,7 @@ otherwise
         plot(categoryScores(ix_GO(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
         % plot(whatStat(ix_GO(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
         title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix_GO(i)},...
-                            sizeGOCategories(ix_GO(i)),pValsZ_corr(ix_GO(i))));
+                            GOTable.size(ix_GO(i)),GOTable.pValsZ_corr(ix_GO(i))));
         % ,pValsZ(ix(i))
     end
 end

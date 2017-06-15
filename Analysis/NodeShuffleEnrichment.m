@@ -12,14 +12,15 @@ cParam = GiveMeDefaultParams('conn');
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
                                     cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
 gParam = GiveMeDefaultParams('gene');
-[geneData,geneInfo,structInfo] = LoadMeG({gParam.normalizationGene,gParam.normalizationRegion},gParam.energyOrDensity);
+[geneData,geneInfo,structInfo] = LoadMeG(gParam);
 if strcmp(structureFilter,'cortex')
     keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
     geneData = geneData(keepStruct,:);
     structInfo = structInfo(keepStruct,:);
     A_bin = A_bin(keepStruct,keepStruct);
 end
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData('biological_process',[5,100],geneInfo.entrez_id);
+eParam = GiveMeDefaultParams('enrichment');
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 
