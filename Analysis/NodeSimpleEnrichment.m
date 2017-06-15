@@ -9,9 +9,12 @@ enrichWhat = 'meanExpression';
 structureFilter = 'cortex';
 
 % Binary connectome data:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj('Oh',0.05,true,'NCD','right');
+cParam = GiveMeDefaultParams('conn');
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
+                                    cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
 % Gene data:
-[geneData,geneInfo,structInfo] = LoadMeG({'none','none'},'energy');
+gParam = GiveMeDefaultParams('gene');
+[geneData,geneInfo,structInfo] = LoadMeG({gParam.normalizationGene,gParam.normalizationRegion},gParam.energyOrDensity);
 
 % Filter structures:
 [A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData)

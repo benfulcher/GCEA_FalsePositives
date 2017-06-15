@@ -8,8 +8,11 @@ structureFilter = 'cortex';
 %-------------------------------------------------------------------------------
 % Load data:
 %-------------------------------------------------------------------------------
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj('Oh',0.05,true,'NCD','right');
-[geneData,geneInfo,structInfo] = LoadMeG({'none','none'},'energy');
+cParam = GiveMeDefaultParams('conn');
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
+                                    cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
+gParam = GiveMeDefaultParams('gene');
+[geneData,geneInfo,structInfo] = LoadMeG({gParam.normalizationGene,gParam.normalizationRegion},gParam.energyOrDensity);
 if strcmp(structureFilter,'cortex')
     keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
     geneData = geneData(keepStruct,:);

@@ -12,6 +12,18 @@ end
 
 
 switch whatMeasure
+case 'distance'
+    warning('Distances only work at the moment for whole-brain data')
+    C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+    edgeData = C.Dist_Matrix{1,1};
+    if onlyOnEdges
+        edgeData(A_bin==0) = 0;
+    else
+        edgeData(tril(true(size(edgeData)))) = 0;
+    end
+case 'connections'
+    edgeMeasure = double(A_bin);
+    edgeMeasure(eye(size(edgeMeasure))) = NaN; % exclude diagonal
 case 'connected'
     % pairwise binary measure of connectivity
     edgeMeasure = double(A_bin | A_bin');
