@@ -77,7 +77,7 @@ end
 % Estimate p-values:
 %-------------------------------------------------------------------------------
 whatTail = 'right';
-[meanNull,stdNull,pValsPerm,pValsZ,pValsZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail);
-ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValsZ,pValsZ_corr);
-NullSummaryPlots(pValsZ,pValsZ_corr,categoryScores,meanNull,stdNull,sizeGOCategories);
-SpecificNullPlots(categoryScores,GOTable,sizeGOCategories,pValsZ_corr,ix_GO);
+GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
+ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
+NullSummaryPlots(GOTable,categoryScores)
+SpecificNullPlots(categoryScores,GOTable,ix_GO)

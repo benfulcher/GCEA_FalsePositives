@@ -5,15 +5,15 @@ if nargin < 7
 end
 
 % Sort GO categories according to this:
-whatStat = pValsZ; % meanNull, stdNull, pValsZ
+whatStat = 'pValsZ'; % meanNull, stdNull, pValsZ
 
 %-------------------------------------------------------------------------------
 numGOCategories = height(GOTable);
 numTop = min(numTop,numGOCategories);
 
-[~,ix_GO] = sort(whatStat,'ascend');
-fprintf(1,'%u nans removed\n',sum(isnan(whatStat)));
-ix_GO(isnan(whatStat(ix_GO))) = [];
+[~,ix_GO] = sort(GOTable.(whatStat),'ascend');
+fprintf(1,'%u nans removed\n',sum(isnan(GOTable.(whatStat))));
+ix_GO(isnan(GOTable.(whatStat)(ix_GO))) = [];
 
 for i = 1:numTop
     geneAcro = geneInfo.acronym(ismember(geneInfo.entrez_id,geneEntrezAnnotations{ix_GO(i)}));

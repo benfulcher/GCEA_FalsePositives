@@ -18,7 +18,8 @@ case 'gene'
     params.energyOrDensity = 'energy'; % what gene expression data to use
     params.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
     params.normalizationRegion = 'none'; % 'none', 'zscore'
-    params.subsetOfGenes = [];
+    params.subsetOfGenes = 100; %[]; only look at the first X genes.
+                                % Set to empty for all genes
 
 case 'enrichment'
     % GO enrichment processing

@@ -35,8 +35,6 @@ cParam = GiveMeDefaultParams('conn');
 
 % Gene data processing:
 gParam = GiveMeDefaultParams('gene');
-gParam.subsetOfGenes = []; % only look at the first X genes. Set to empty for all
-                         % genes & save a .mat file of results
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
@@ -113,7 +111,6 @@ otherwise
     % Get GO data
     % (include only annotations for genes with entrez IDs that are in our dataset)
     [GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
-    sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);
@@ -167,8 +164,7 @@ otherwise
     ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
 
     %-------------------------------------------------------------------------------
-    % Check that the mean null score for each gene is zero
-    %-------------------------------------------------------------------------------
+    % Check that the mean null score for each gene is zero:
     f = figure('color','w');
     allKeptEntrez = unique(vertcat(entrezIDsKept{:}));
     gScoresMat = nan(length(allKeptEntrez),numNulls);
@@ -188,23 +184,12 @@ otherwise
 
     %-------------------------------------------------------------------------------
     % Produce some summary plots:
-    %-------------------------------------------------------------------------------
     titleText = sprintf('%s-%s',whatEdgeMeasure,whatNull);
     NullSummaryPlots(GOTable,categoryScores,titleText);
 
     %-------------------------------------------------------------------------------
-    % Look at distribution for some top ones
-    %-------------------------------------------------------------------------------
-    f = figure('color','w');
-    for i = 1:min(15,numGOCategories)
-        subplot(5,3,i); hold on
-        histogram(categoryScores(ix_GO(i),nullInd),'edgeColor','k','FaceColor','w');
-        plot(categoryScores(ix_GO(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
-        % plot(whatStat(ix_GO(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
-        title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix_GO(i)},...
-                            GOTable.size(ix_GO(i)),GOTable.pValsZ_corr(ix_GO(i))));
-        % ,pValsZ(ix(i))
-    end
+    % Look at distribution for some top ones:
+    SpecificNullPlots(categoryScores,GOTable,ix_GO);
 end
 
 
