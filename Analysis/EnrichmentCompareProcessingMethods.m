@@ -1,22 +1,23 @@
 % EnrichmentCompareProcessingMethods()
 % Idea is to compare different preprocessing steps on the enrichment of a given
 % edge property
-whatEdgeProperty = 'bin-communicability';
+whatEdgeProperty = 'bin_communicability';
 
 %-------------------------------------------------------------------------------
 % Fixed parameters:
 energyOrDensity = 'energy'; % what gene expression data to use
 pValOrStat = 'stat'; % 'pval','stat'
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-numIterationsErmineJ = 20000; % number of iterations for GSR in ermineJ
+numIterations = 20000; % number of iterations for GSR in ermineJ
 numQuantiles = 15; % quantiles with which to learn the distance relationship
 
 %-------------------------------------------------------------------------------
 % Set up a structure array containing all of the different processing options:
 connectomeTypes = {'Oh-brain'}; % 'Oh-cortex'
+whatWeightMeasure = 'NCD';
 absTypes = {'pos'}; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 corrTypes = {'Spearman'}; % {'Spearman','Pearson'};
-normalizationGeneTypes = {'none'};
+normalizationGeneTypes = {'none','zscore'}; % {'none','zscore'}
 normalizationRegionTypes = {'none','zscore'}; % {'none','zscore'}
 correctDistanceTypes = {false,true};
 pThresholds = [0.05];
@@ -68,11 +69,11 @@ edgeData = cell(length(pThresholds),2);
 for p = 1:length(pThresholds)
     switch connectomeTypes{1}
     case 'Oh-brain'
-        A_bin = GiveMeAdj('Oh',pThresholds(p),true,'right',false);
-        A_wei = GiveMeAdj('Oh',pThresholds(p),false,'right',false);
+        A_wei = GiveMeAdj('Oh',pThresholds(p),false,whatWeightMeasure,'right','all');
+        A_bin = double(A_wei > 0);
     case 'Oh-cortex'
-        A_bin = GiveMeAdj('Oh',pThresholds(p),true,'right',true);
-        A_wei = GiveMeAdj('Oh',pThresholds(p),false,'right',true);
+        A_wei = GiveMeAdj('Oh',pThresholds(p),false,whatWeightMeasure,'right','cortex');
+        A_bin = double(A_wei > 0);
     otherwise
         error('Unknown connectome: %s',connectomeTypes);
     end
@@ -88,15 +89,15 @@ for p = 1:length(pThresholds)
     %---------------------------------------------------------------------------
     subplot(2,length(pThresholds),2*(p-1)+1);
     histogram(edgeData{p,1}(edgeData{p,1}~=0));
-    xlabel(whatEdgeProperty)
+    xlabel(whatEdgeProperty,'interpreter','none')
     d = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
     title(pThresholds(p))
     subplot(2,length(pThresholds),2*p);
     connValues = edgeData{p,1} > 0;
     edgeDataCorrected = BF_PlotQuantiles(d(connValues),edgeData{p,1}(connValues),numQuantiles,false,false);
-    title(sprintf('%s on %u edges',whatEdgeProperty,sum(connValues(:))))
+    title(sprintf('%s on %u edges',whatEdgeProperty,sum(connValues(:))),'interpreter','none')
     xlabel('d');
-    ylabel(whatEdgeProperty)
+    ylabel(whatEdgeProperty,'interpreter','none')
     edgeData{p,2} = zeros(size(edgeData{p,1}));
     edgeData{p,2}(connValues) = edgeDataCorrected;
 end
@@ -124,14 +125,14 @@ for i = 1:numProcessingTypes
     % [a quantile-based distance correction could appear here [false]; but now
     % we're doing a partial correlation-based correction]
     [edgeData,regionStruct] = GiveMeEdgeStat(processingSteps(i).connectomeType,processingSteps(i).pThreshold,...
-                            whatEdgeProperty,false,numQuantiles);
+                            whatWeightMeasure,whatEdgeProperty,false,numQuantiles);
 
     % Load in our gene data, properly processed:
     [geneData,geneInfo,structInfo] = LoadMeG({processingSteps(i).normalizationGene,...
                         processingSteps(i).normalizationRegion},energyOrDensity);
 
     % Check gene data matches connectome data
-    if ~all([regionStruct.id]'==structInfo.id)
+    if ~all(strcmp(regionAcronyms,structInfo.acronym))
         % Take subset
         [~,ia,ib] = intersect([regionStruct.id]',structInfo.id,'stable');
         geneData = geneData(ib,:);
@@ -154,11 +155,19 @@ for i = 1:numProcessingTypes
                                     processingSteps(i).corrType,distanceRegressor,...
                                     processingSteps(i).absType,thresholdGoodGene,pValOrStat);
 
-    % Do enrichment:
-    fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,whatEdgeProperty);
-    ermineJResults = RunErmineJ(fileNameWrite,numIterationsErmineJ);
-    % <<<Keep ermineJResults for p-values under 0.1>>>
-    enrichmentTables{i} = ermineJResults(ermineJResults.pVal_corr < enrichmentSigThresh,:);
+    % ---Do enrichment:
+
+    % ermineJ:
+    % fileNameWrite = writeErmineJFile('tmp',gScore,geneEntrezIDs,whatEdgeProperty);
+    % ermineJResults = RunErmineJ(fileNameWrite,numIterations);
+    % % <<<Keep ermineJResults for p-values under 0.1>>>
+    % enrichmentTables{i} = ermineJResults(ermineJResults.pVal_corr < enrichmentSigThresh,:);
+
+    % Matlab:
+    [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,...
+                                        'biological_process',[5,200],numIterations);
+    enrichmentTables{i} = GOTable(GOTable.pVal_corr < enrichmentSigThresh,:);
+
     % Give user feedback
     fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numProcessingTypes,...
                             BF_thetime((numProcessingTypes-i)*(toc(timer)/i)));
@@ -170,7 +179,7 @@ end
 %-------------------------------------------------------------------------------
 doReorder = true;
 [summaryTable,allGOLabels,allGONames,allGOIDs,ix_pMeth] = PrepareSummaryTable(enrichmentTables,doReorder);
-
+numGOIDs = length(allGOIDs);
 
 labelTable = zeros(numSwitches,numProcessingTypes);
 groupNamesAll = cell(numSwitches,1);
@@ -196,7 +205,7 @@ ax1.YLim = [0.5,0.5+numSwitches];
 ax1.YTick = 1:numSwitches;
 ax1.YTickLabel = theSwitches;
 caxis([0,maxSummaryTable*2])
-title(sprintf('%s (p_{FDR} < %.2f)',whatEdgeProperty,enrichmentSigThresh))
+title(sprintf('%s (p_{FDR} < %.2f)',whatEdgeProperty,enrichmentSigThresh),'interpreter','none')
 subplot(5,1,2:5); hold on; ax2 = gca;
 BF_imagesc(summaryTable(:,ix_pMeth));
 ax2.XLim = [0.5,numProcessingTypes+0.5];

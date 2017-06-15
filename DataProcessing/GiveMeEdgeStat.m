@@ -1,11 +1,18 @@
-function [edgeData,regionInfo] = GiveMeEdgeStat(connectomeType,pThreshold,whatEdgeProperty,correctDistance,numThresholds)
+function [edgeData,regionAcronyms] = GiveMeEdgeStat(connectomeType,pThreshold,whatWeightMeasure,...
+                                whatEdgeProperty,correctDistance,numThresholds)
 % Returns edge data for a given connectome and edge property
+% [[REDUNDANT FOR GiveMeEdgeMeasure]]
 %-------------------------------------------------------------------------------
-
-if nargin < 4
-    correctDistance = false;
+if nargin < 2
+    pThreshold = 0.05;
+end
+if nargin < 3
+    whatWeightMeasure = 'NCD';
 end
 if nargin < 5
+    correctDistance = false;
+end
+if nargin < 6
     numThresholds = 10;
 end
 
@@ -13,11 +20,11 @@ end
 % First get the adjacency matrix for the connectome shorthand specified:
 switch connectomeType
 case 'Oh-brain'
-    [A_bin,regionInfo] = GiveMeAdj('Oh',pThreshold,true,'right',false);
-    A_wei = GiveMeAdj('Oh',pThreshold,false,'right',false);
+    [A_wei,regionAcronyms] = GiveMeAdj('Oh',pThreshold,false,whatWeightMeasure,'right','all');
+    A_bin = double(A_wei > 0);
 case 'Oh-cortex'
-    [A_bin,regionInfo] = GiveMeAdj('Oh',pThreshold,true,'right',true);
-    A_wei = GiveMeAdj('Oh',pThreshold,false,'right',true);
+    [A_wei,regionAcronyms] = GiveMeAdj('Oh',pThreshold,false,whatWeightMeasure,'right','cortex');
+    A_bin = double(A_wei > 0);
 otherwise
     error('Unknown connectome: %s',connectomeTypes);
 end
@@ -29,7 +36,7 @@ A_p = [];
 if strcmp(whatEdgeProperty,'distance')
     C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
     edgeData = C.Dist_Matrix{1,1}/1000; % ipsilateral distances in the right hemisphere
-    edgeData(tril(true(size(dData)),-1)) = 0; % remove lower diagonal (symmetric)
+    edgeData(tril(true(size(dData)))) = 0; % remove lower diagonal (symmetric)
 else
     edgeData = GiveMeEdgeMeasure(whatEdgeProperty,A_bin,A_wei,onlyOnEdges);
 end

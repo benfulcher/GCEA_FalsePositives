@@ -57,7 +57,8 @@ A_p = A_p(keepInd,keepInd);
 
 %-------------------------------------------------------------------------------
 % Compute the edge measure:
-if strcmp(whatEdgeMeasure,'distance')
+switch whatEdgeMeasure
+case 'distance'
     C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
     edgeData = C.Dist_Matrix{1,1};
     if onlyOnEdges
@@ -65,7 +66,9 @@ if strcmp(whatEdgeMeasure,'distance')
     else
         edgeData(tril(true(size(edgeData)))) = 0;
     end
-else
+case 'connected'
+    edgeData = A_bin;
+otherwise
     edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,A_p);
 end
 
@@ -83,9 +86,13 @@ end
 %-------------------------------------------------------------------------------
 % Compute gene scores:
 %-------------------------------------------------------------------------------
-[gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,...
-                            geneInfo.entrez_id,corrType,distanceRegressor,absType,...
-                            thresholdGoodGene,pValOrStat);
+if strcmp(whatEdgeMeasure,'connected')
+    [gScore,geneEntrezIDs] = ConnectedGCC(edgeData,geneData,geneInfo.entrez_id,corrType,...
+                            distanceRegressor,absType,thresholdGoodGene,pValOrStat)
+else
+    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,corrType,...
+                            distanceRegressor,absType,thresholdGoodGene,pValOrStat);
+end
 
 % Filter:
 filterMe = isnan(gScore);
@@ -107,8 +114,8 @@ end
 %-------------------------------------------------------------------------------
 % ANALYSIS:
 %-------------------------------------------------------------------------------
-numSig = sum(GOTable.pVal_corr < 0.05);
-fprintf(1,'%u significant categories at p_corr < 0.05\n',numSig);
+numSig = sum(GOTable.pVal_corr < enrichmentSigThresh);
+fprintf(1,'%u significant categories at p_corr < %.1g\n',numSig,enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 
 end
