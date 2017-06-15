@@ -161,10 +161,10 @@ otherwise
     %-------------------------------------------------------------------------------
     % List categories with lowest p-values, or highest mean across nulls, etc.
     %-------------------------------------------------------------------------------
-    ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
+    ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
 
     %-------------------------------------------------------------------------------
-    % Check that the mean null score for each gene is zero:
+    % Check whether the mean null score for each gene is zero:
     f = figure('color','w');
     allKeptEntrez = unique(vertcat(entrezIDsKept{:}));
     gScoresMat = nan(length(allKeptEntrez),numNulls);

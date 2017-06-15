@@ -28,6 +28,7 @@ case 'connected'
     % pairwise binary measure of connectivity
     edgeMeasure = double(A_bin | A_bin');
     edgeMeasure(tril(true(size(edgeMeasure)))) = NaN;
+    onlyOnEdges = false;
 % BINARY:
 case 'ktot_ktot'
     kin = sum(A_bin,1)';

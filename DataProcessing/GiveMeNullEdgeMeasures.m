@@ -51,7 +51,7 @@ case 'topology'
         edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
     end
 
-case 'permutedGeneDep'
+case 'shuffleStruct'
     % Permute gene profiles assigned to regions (later)
     % Edge measure stays constant using the correct topology:
     edgeMeasures0 = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges);

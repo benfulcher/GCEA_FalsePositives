@@ -30,20 +30,20 @@ end
 % Get dimensions of gene data
 [numRegions,numGenes] = size(geneData);
 
-% Convert to vector across edges:
-if any(size(edgeData)==1)
-    error('edgeData must be a square matrix');
-end
-isEdge = (edgeData~=0);
-fprintf(1,'computing scores only across %u edges in the data\n',sum(isEdge(:)));
-edgeVector = edgeData(isEdge);
-
 %-------------------------------------------------------------------------------
 % Ok, so now we can find correlations to GCC scores across genes
 gScore = zeros(numGenes,1);
-
 if strcmp(whatCorr,'ttest') % Group based on edge data = {0,1}
-    parfor i = 1:numGenes
+    % Some info for the user:
+    if isempty(distanceRegressor)
+        fprintf(1,'***COMPUTING CORRELATIONS (WITHOUT A DISTANCE REGRESSOR)^^^\n');
+    else
+        fprintf(1,'***COMPUTING PARTIAL CORRELATIONS (WITH A LINEAR LEAST SQUARES DISTANCE REGRESSOR)***\n');
+    end
+    fprintf(1,'~~~%u (group 1) versus %u (group 2)\n',sum(edgeData(:)==1),sum(edgeData(:)==0));
+
+    % Loop over genes to compute scores:
+    for i = 1:numGenes
         g = geneData(:,i);
         GCC = g*g';
 
@@ -98,6 +98,16 @@ else
     else
         fprintf(1,'***COMPUTING CORRELATIONS (WITHOUT ANY REGRESSORS)^^^\n');
     end
+
+    % Convert to vector across edges:
+    if any(size(edgeData)==1)
+        error('edgeData must be a square matrix');
+    end
+    isEdge = (edgeData~=0);
+    fprintf(1,'computing scores only across %u edges in the data\n',sum(isEdge(:)));
+    edgeVector = edgeData(isEdge);
+
+
     fprintf(1,'Looping over %u genes, computing %s correlations across %u edges...\n',...
                                                 numGenes,whatCorr,length(edgeVector));
     parfor i = 1:numGenes

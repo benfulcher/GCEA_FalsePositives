@@ -37,7 +37,6 @@ pValsZ_corr = mafdr(pValsZ,'BHFDR',true,'showPlot',false);
 %-------------------------------------------------------------------------------
 % Assign values to categories of GOTable:
 %-------------------------------------------------------------------------------
-keyboard
 GOTable.pValsZ = pValsZ;
 GOTable.pValsZ_corr = pValsZ_corr;
 GOTable.pValsPerm = pValsPerm;

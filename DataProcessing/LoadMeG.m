@@ -51,7 +51,7 @@ fprintf(1,'2. Normalized expression across each brain region using %s\n',gParam.
 % Subset:
 %-------------------------------------------------------------------------------
 if ~isempty(gParam.subsetOfGenes)
-    warning('Only looking at a random set of %u genes',subsetOfGenes);
+    warning('Only looking at a random set of %u genes',gParam.subsetOfGenes);
     rp = randperm(size(geneData,2));
     rp = rp(1:gParam.subsetOfGenes);
     geneData = geneData(:,rp);
