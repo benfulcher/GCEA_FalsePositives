@@ -17,7 +17,7 @@ case 'gene'
     % Gene data processing
     params.energyOrDensity = 'energy'; % what gene expression data to use
     params.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-    params.normalizationRegion = 'none'; % 'none', 'zscore'
+    params.normalizationRegion = 'zscore'; % 'none', 'zscore'
     params.subsetOfGenes = []; %[]; only look at the first X genes.
                                 % Set to empty, [], to use all genes
 

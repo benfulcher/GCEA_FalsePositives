@@ -60,7 +60,7 @@ if strcmp(whatCorr,'ttest') % Group based on edge data = {0,1}
             GCC_group{1} = GCC(edgeData==1 & ~isnan(GCC)); % connected
             GCC_group{2} = GCC(edgeData==0 & ~isnan(GCC)); % unconnected
         else
-            % Distance regressed out:
+            % Distance regressed out of GCC scores:
             lookyHere = (~isnan(edgeData) & ~isnan(GCC));
             p = polyfit(distanceRegressor(lookyHere),GCC(lookyHere),1);
             GCC_fit = p(2) + p(1)*distanceRegressor; % linear fit GCC to distance

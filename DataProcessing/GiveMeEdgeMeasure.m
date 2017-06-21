@@ -11,7 +11,6 @@ if nargin < 5
               % linear regression model)
 end
 
-
 switch whatMeasure
 case 'distance'
     warning('Distances only work at the moment for whole-brain data')
