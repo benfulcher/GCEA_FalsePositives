@@ -19,8 +19,8 @@ if nargin < 1 || isempty(enrichWhat)
     enrichWhat = 'meanExpression'; % raw mean expression level
 end
 if nargin < 2 || isempty(structFilter)
-    fprintf(1,'Cortical regions only\n');
-    structFilter = 'cortex';
+    fprintf(1,'No filter: all brain regions included\n');
+    structFilter = 'all';
 end
 doRandomize = false;
 
@@ -45,6 +45,7 @@ gParam.normalizationRegion = 'none';
 % Filter structures:
 [A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData);
 numStructs = height(structInfo);
+numGenes = height(geneInfo);
 
 %===============================================================================
 %% -------------------------------SCORE THE GENES-------------------------------
@@ -67,8 +68,8 @@ case 'degree'
     % Degree enrichment: genes scored for number of connections they make to other regions
     %-------------------------------------------------------------------------------
     k = sum(A_bin,1)' + sum(A_bin,2);
-    gScore = zeros(height(geneInfo),1);
-    for i = 1:height(geneInfo)
+    gScore = zeros(numGenes,1);
+    for i = 1:numGenes
         gScore(i) = corr(k,geneData(:,i),'type','Pearson','rows','pairwise');
     end
     % Plot:
@@ -81,7 +82,7 @@ case {'cerebcortex','isocortex'}
     %-------------------------------------------------------------------------------
     % Cerebral cortex enrichment: genes more strongly expressed in the cerebral cortex
     %-------------------------------------------------------------------------------
-    whatTest = 'ttest';
+    % whatTest = 'ttest';
     whatTest = 'ranksum';
 
     % Normalize gene expression data:
@@ -94,17 +95,24 @@ case {'cerebcortex','isocortex'}
         isCTX = ismember(structInfo.divisionLabel,...
                         {'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
     end
+    fprintf(1,'%u %s, %u non-%s\n',sum(isCTX),enrichWhat,sum(~isCTX),enrichWhat);
 
-    gScore = zeros(numStructs,1);
+    gScore = zeros(numGenes,1);
     switch whatTest
     case 'ttest'
-        for i = 1:numStructs
-            [p.ChRecChUni,~,S.ChRecChUni] = ranksum(ChemicalRec,ChemicalUnidir);
+        fprintf(1,'~~TTEST P-VALUE GENE SCORES~~\n');
+        for i = 1:numGenes
             [~,gScore(i)] = ttest2(geneDataZ(isCTX,i),geneDataZ(~isCTX,i),'VarType','Unequal');
         end
     case 'ranksum'
-
+        fprintf(1,'~~RANKSUM P-VALUE GENE SCORES~~\n');
+        for i = 1:numGenes
+            gScore(i) = ranksum(geneDataZ(isCTX,i),geneDataZ(~isCTX,i));
+        end
     end
+    % Transform p-values to scores (bigger is better)
+    fprintf(1,'-log10 p-values -> gene scores\n');
+    gScore = -log10(gScore);
 
 case 'genePC'
     % Genes that vary with gene expression PCs
