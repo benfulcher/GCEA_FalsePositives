@@ -22,7 +22,7 @@ end
 % Get NEW DATA FROM SDK RETRIEVALS:
 %-------------------------------------------------------------------------------
 % try
-dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/AllenGeneDataset_19419.mat';
+dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
 fprintf(1,'New Allen SDK-data from %s\n',dataFile);
 load(dataFile,'GeneExpData','geneInfo','structInfo');
 % catch

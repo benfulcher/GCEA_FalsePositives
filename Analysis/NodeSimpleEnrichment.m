@@ -1,23 +1,44 @@
+function [gScore,GOTable,geneEntrezAnnotations] = NodeSimpleEnrichment(enrichWhat,structFilter)
+%
+% ---INPUTS:
+% enrichWhat = 'meanExpression'; % raw mean expression level
+% enrichWhat = 'varExpression'; % raw variance of expression levels
+% enrichWhat = 'cortex'; % difference in expression between cerebral cortex/others
+% enrichWhat = 'genePC'; % correlation with a PC of gene expression
+% enrichWhat = 'degree'; % correlation with structural connectivity degree across regions
+%
+% structFilter = 'cortex';
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+
 %-------------------------------------------------------------------------------
 % Name an analysis, and this script loads the data and does the enrichment
 %-------------------------------------------------------------------------------
-enrichWhat = 'meanExpression';
+if nargin < 1 || isempty(enrichWhat)
+    fprintf(1,'Mean expression by default\n');
+    enrichWhat = 'meanExpression'; % raw mean expression level
+end
+if nargin < 2 || isempty(structFilter)
+    fprintf(1,'Cortical regions only\n');
+    structFilter = 'cortex';
+end
 
 %-------------------------------------------------------------------------------
 % Connectome parameters
 %-------------------------------------------------------------------------------
-structureFilter = 'cortex';
+% Get default parameter sets:
+cParam = GiveMeDefaultParams('conn');
+eParam = GiveMeDefaultParams('enrichment');
+gParam = GiveMeDefaultParams('gene');
 
 % Binary connectome data:
-cParam = GiveMeDefaultParams('conn');
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
-                                    cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
+                                cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
 % Gene data:
-gParam = GiveMeDefaultParams('gene');
-[geneData,geneInfo,structInfo] = LoadMeG({gParam.normalizationGene,gParam.normalizationRegion},gParam.energyOrDensity);
+[geneData,geneInfo,structInfo] = LoadMeG(gParam);
 
 % Filter structures:
-[A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData)
+[A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData);
 numStructs = height(structInfo);
 
 %===============================================================================
@@ -89,9 +110,13 @@ end
 %-------------------------------------------------------------------------------
 % Do the enrichment
 %-------------------------------------------------------------------------------
-[GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneInfo.entrez_id,'biological_process',[5,200],20000);
+[GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneInfo.entrez_id,...
+                                    eParam.processFilter,eParam.sizeFilter,...
+                                    eParam.numIterations);
 
 % ANALYSIS:
-numSig = sum(GOTable.pVal_corr < 0.05);
-fprintf(1,'%u significant categories at p_corr < 0.05\n',numSig);
+numSig = sum(GOTable.pVal_corr < eParam.enrichmentSigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,eParam.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
+
+end

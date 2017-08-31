@@ -1,7 +1,7 @@
 function [A,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A,geneData)
 
 if isempty(structInfo)
-    dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/AllenGeneDataset_19419.mat';
+    dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
     load(dataFile,'structInfo');
 end
 
