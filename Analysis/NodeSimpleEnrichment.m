@@ -22,6 +22,7 @@ if nargin < 2 || isempty(structFilter)
     fprintf(1,'Cortical regions only\n');
     structFilter = 'cortex';
 end
+doRandomize = false;
 
 %-------------------------------------------------------------------------------
 % Connectome parameters
@@ -30,6 +31,10 @@ end
 cParam = GiveMeDefaultParams('conn');
 eParam = GiveMeDefaultParams('enrichment');
 gParam = GiveMeDefaultParams('gene');
+% Ensure no normalization:
+gParam.normalizationGene = 'none';
+gParam.normalizationRegion = 'none';
+
 
 % Binary connectome data:
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
@@ -50,14 +55,12 @@ case 'meanExpression'
     % Mean expression enrichment: genes scored for mean expression across the brain
     %-------------------------------------------------------------------------------
     gScore = nanmean(geneData,1);
-    % gScore = gScore(randperm(length(gScore))); % test for scores under randomization=
 
 case 'varExpression'
     %-------------------------------------------------------------------------------
     % Expression variance enrichment: genes scored for variance of expression across brain
     %-------------------------------------------------------------------------------
     gScore = nanstd(geneData,1);
-    % gScore = gScore(randperm(length(gScore)));
 
 case 'degree'
     %-------------------------------------------------------------------------------
@@ -74,18 +77,33 @@ case 'degree'
     % ix = 1:numStructs;
     PlotGeneExpression(geneData(ix,iy),geneInfo(iy,:),structInfo(ix,:),true,k(ix))
 
-case 'cortex'
+case {'cerebcortex','isocortex'}
     %-------------------------------------------------------------------------------
     % Cerebral cortex enrichment: genes more strongly expressed in the cerebral cortex
     %-------------------------------------------------------------------------------
+    whatTest = 'ttest';
+    whatTest = 'ranksum';
+
     % Normalize gene expression data:
     geneDataZ = BF_NormalizeMatrix(geneData,'zscore');
 
-    gScore = zeros(height(geneInfo),1);
-    isCTX = ismember(structInfo.divisionLabel,...
-                    {'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
-    for i = 1:height(geneInfo)
-        gScore(i) = ttest2(geneDataZ(isCTX,i),geneDataZ(~isCTX,i),'VarType','Unequal');
+    switch enrichWhat
+    case 'isocortex'
+        isCTX = ismember(structInfo.divisionLabel,'Isocortex');
+    case 'cerebCortex'
+        isCTX = ismember(structInfo.divisionLabel,...
+                        {'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
+    end
+
+    gScore = zeros(numStructs,1);
+    switch whatTest
+    case 'ttest'
+        for i = 1:numStructs
+            [p.ChRecChUni,~,S.ChRecChUni] = ranksum(ChemicalRec,ChemicalUnidir);
+            [~,gScore(i)] = ttest2(geneDataZ(isCTX,i),geneDataZ(~isCTX,i),'VarType','Unequal');
+        end
+    case 'ranksum'
+
     end
 
 case 'genePC'
@@ -100,11 +118,15 @@ case 'genePC'
                         'geneExp-PC1','geneExp-PC2','Pearson',true);
 
     % Score genes for correlation with the leading expression PC:
-    gScore = zeros(height(geneInfo),1);
-    for i = 1:height(geneInfo)
+    gScore = zeros(numStructs,1);
+    for i = 1:numStructs
         gScore(i) = corr(pcScore(:,1),geneData(:,i),'type','Pearson','rows','pairwise');
     end
+end
 
+if doRandomize
+    warning('RANDOMIZING gene scores!!!')
+    gScore = gScore(randperm(length(gScore))); % test for scores under randomization=
 end
 
 %-------------------------------------------------------------------------------
