@@ -92,20 +92,20 @@ if strcmp(whatCorr,'ttest') % Group based on edge data = {0,1}
     end
 else
     % Correlations with the outer product and the edge vector computed across edges
+    if any(size(edgeData)==1)
+        error('edgeData must be a square matrix');
+    end
+
+    isEdge = (edgeData~=0);
+    % Convert to vector across edges:
+    fprintf(1,'Computing scores only across %u edges in the data\n',sum(isEdge(:)));
+    edgeVector = edgeData(isEdge);
     if ~isempty(distanceRegressor)
         fprintf(1,'***COMPUTING PARTIAL CORRELATIONS USING DISTANCE AS A REGRESSOR***\n');
         distanceRegressor = distanceRegressor(isEdge);
     else
         fprintf(1,'***COMPUTING CORRELATIONS (WITHOUT ANY REGRESSORS)^^^\n');
     end
-
-    % Convert to vector across edges:
-    if any(size(edgeData)==1)
-        error('edgeData must be a square matrix');
-    end
-    isEdge = (edgeData~=0);
-    fprintf(1,'computing scores only across %u edges in the data\n',sum(isEdge(:)));
-    edgeVector = edgeData(isEdge);
 
 
     fprintf(1,'Looping over %u genes, computing %s correlations across %u edges...\n',...

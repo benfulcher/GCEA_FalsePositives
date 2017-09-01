@@ -17,6 +17,7 @@ pValOrStat = 'stat'; % 'pval','stat'
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
 absType = 'neg';
 onlyConnections = false; % only look where there are connections
+% regressDistance = true; % whether to regress distance
 
 %-------------------------------------------------------------------------------
 % Get default parameter sets:
@@ -75,10 +76,16 @@ end
 %-------------------------------------------------------------------------------
 % Score genes:
 %-------------------------------------------------------------------------------
+% if regressDistance
+%     fprintf(1,'Scoring %u genes on coexpression with distance (AND regressing out distance?!)\n',numGenes);
+%     [geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,whatCorr,...
+%                                 dData,absType,thresholdGoodGene,pValOrStat);
+% else
 fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
-
 [geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,whatCorr,...
-                                [],absType,thresholdGoodGene,pValOrStat);
+                            [],absType,thresholdGoodGene,pValOrStat);
+% end
+fprintf(1,'Scoring done. Enrichment time\n');
 
 %-------------------------------------------------------------------------------
 % Do the enrichment:
@@ -107,10 +114,11 @@ title(textLabel,'interpreter','none')
 %-------------------------------------------------------------------------------
 % Save result to .mat file
 %-------------------------------------------------------------------------------
-geneEntrez = geneEntrezIDs;
-geneDistanceScores = geneScores;
-save([textLabel,'.mat'],'geneEntrez','geneDistanceScores');
-fprintf(1,'Saved info to %s\n',fileNameMat);
+% geneEntrez = geneEntrezIDs;
+% geneDistanceScores = geneScores;
+% fileNameMat = [textLabel,'.mat'];
+% save(fileNameMat,'geneEntrez','geneDistanceScores');
+% fprintf(1,'Saved info to %s\n',fileNameMat);
 
 %-------------------------------------------------------------------------------
 % Do enrichment using ermine J:
