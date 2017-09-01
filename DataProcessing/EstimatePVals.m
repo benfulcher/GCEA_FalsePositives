@@ -41,6 +41,7 @@ GOTable.pValZ = pValZ;
 GOTable.pValZ_corr = pValZ_corr;
 GOTable.pValPerm = pValPerm;
 GOTable.pValPerm_corr = pValPerm_corr;
+GOTable.meanScore = categoryScores(:,1);
 GOTable.meanNull = meanNull;
 GOTable.stdNull = stdNull;
 

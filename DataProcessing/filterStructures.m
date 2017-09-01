@@ -6,7 +6,7 @@ if isempty(structInfo)
 end
 
 switch structFilter
-case 'cortex'
+case 'isocortex'
     keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
     geneData = geneData(keepStruct,:);
     structInfo = structInfo(keepStruct,:);

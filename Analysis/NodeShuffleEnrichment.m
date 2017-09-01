@@ -12,13 +12,17 @@ if nargin < 3
     numNulls = 200;
 end
 if nargin < 4 || isempty(structFilter)
-    structFilter = 'all';
+    structFilter = 'all'; % 'isocortex','all'
 end
 
 %-------------------------------------------------------------------------------
 % Retrieve defaults:
 cParam = GiveMeDefaultParams('conn');
+% Gene parameters, enforcing no normalization:
 gParam = GiveMeDefaultParams('gene');
+gParam.normalizationGene = 'none';
+gParam.normalizationRegion = 'none';
+% Enrichment parameters:
 eParam = GiveMeDefaultParams('enrichment');
 
 %-------------------------------------------------------------------------------
@@ -27,7 +31,7 @@ eParam = GiveMeDefaultParams('enrichment');
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
                                     cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
 [geneData,geneInfo,structInfo] = LoadMeG(gParam);
-if strcmp(structFilter,'cortex')
+if strcmp(structFilter,'isocortex')
     keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
     geneData = geneData(keepStruct,:);
     structInfo = structInfo(keepStruct,:);
@@ -100,12 +104,13 @@ end
 whatTail = 'right';
 GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
 ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
+GOTable = GOTable(ix_GO,:);
 
 numSig = sum(GOTable.pValZ_corr < eParam.enrichmentSigThresh);
 fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,eParam.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 
-NullSummaryPlots(GOTable,categoryScores)
-SpecificNullPlots(categoryScores,GOTable,ix_GO)
+NullSummaryPlots(GOTable,categoryScores);
+SpecificNullPlots(categoryScores,GOTable,ix_GO);
 
 end

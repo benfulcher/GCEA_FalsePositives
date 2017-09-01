@@ -20,7 +20,7 @@ if nargin < 1 || isempty(enrichWhat)
 end
 if nargin < 2 || isempty(structFilter)
     fprintf(1,'No filter: all brain regions included\n');
-    structFilter = 'all';
+    structFilter = 'all'; % 'all', 'isocortex'
 end
 doRandomize = false;
 
