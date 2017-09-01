@@ -35,6 +35,13 @@ case 'fiveByEye'
     % Cerebellum:
     isCerebellum = ismember(divisionLabels,{'Cerebellar Cortex','Cerebellar Nuclei'});
     groups(isCerebellum) = 5;
+case 'twoIsocortex'
+    if beVocal
+        fprintf(1,'SHUFFLING SEPARATELY WITHIN ISOCORTEX & NON-ISOCORTEX\n');
+    end
+    isCTX = strcmp(divisionLabels,'Isocortex');
+    groups(isCTX) = 1;
+    groups(~isCTX) = 2;
 case 'twoBroad'
     if beVocal
         fprintf(1,'SHUFFLING USING TWO ANATOMICAL GROUPS\n');

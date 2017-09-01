@@ -1,4 +1,4 @@
-function [gScore,GOTable,geneEntrezAnnotations] = NodeSimpleEnrichment(enrichWhat,structFilter)
+function [GOTable,gScore,geneEntrezAnnotations] = NodeSimpleEnrichment(enrichWhat,structFilter)
 %
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
@@ -70,7 +70,7 @@ case 'degree'
     k = sum(A_bin,1)' + sum(A_bin,2);
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
-        gScore(i) = corr(k,geneData(:,i),'type','Pearson','rows','pairwise');
+        gScore(i) = corr(k,geneData(:,i),'type','Spearman','rows','pairwise');
     end
     % Plot:
     [~,iy] = sort(gScore,'descend');
@@ -82,7 +82,6 @@ case {'cerebcortex','isocortex'}
     %-------------------------------------------------------------------------------
     % Cerebral cortex enrichment: genes more strongly expressed in the cerebral cortex
     %-------------------------------------------------------------------------------
-    % whatTest = 'ttest';
     whatTest = 'ranksum';
 
     % Normalize gene expression data:

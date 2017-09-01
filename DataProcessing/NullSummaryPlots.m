@@ -9,8 +9,8 @@ f = figure('color','w');
 
 % Plot distribution of p-values:
 subplot(2,3,1); hold on
-histogram(GOTable.pValsZ)
-histogram(GOTable.pValsZ_corr)
+histogram(GOTable.pValZ)
+histogram(GOTable.pValZ_corr)
 xlabel('p-values')
 legend({'raw','corrected'})
 ylabel('frequency')
@@ -28,7 +28,7 @@ title(titleText,'interpreter','none')
 
 % Check dependence on GO category size
 subplot(2,3,3)
-plot(GOTable.size,GOTable.pValsZ,'.k')
+plot(GOTable.size,GOTable.pValZ,'.k')
 xlabel('GO category size')
 ylabel('corrected p-value')
 title(titleText,'interpreter','none')

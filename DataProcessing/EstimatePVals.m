@@ -15,32 +15,32 @@ stdNull = nanstd(categoryScores(:,nullInd),[],2); % std of genes in each categor
 switch whatTail
 case 'right' % categories with higher positive correlations to the edge measure than nulls
     fprintf(1,'Right tail: GO categories with more positive scores than nulls\n');
-    pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),...
+    pValPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)>=categoryScores(x,1)),...
                                     (1:numGOCategories)');
-    pValsZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),...
+    pValZ = arrayfun(@(x)1-normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),...
                                     (1:numGOCategories)');
 case 'left' % categories with more negative correlations to the edge measure than nulls
     fprintf(1,'Left tail: GO categories with more negative scores than nulls\n');
-    pValsPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)<=categoryScores(x,1)),...
+    pValPerm = arrayfun(@(x)mean(categoryScores(x,nullInd)<=categoryScores(x,1)),...
                                     (1:numGOCategories)');
-    pValsZ = arrayfun(@(x)normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),...
+    pValZ = arrayfun(@(x)normcdf(categoryScores(x,1),mean(categoryScores(x,nullInd)),std(categoryScores(x,nullInd))),...
                                     (1:numGOCategories)');
 end
 
 %-------------------------------------------------------------------------------
 % Corrected p-values using Benjamini-Hochberg
-pValsPerm_corr = mafdr(pValsPerm,'BHFDR',true,'showPlot',false);
-pValsZ_corr = mafdr(pValsZ,'BHFDR',true,'showPlot',false);
+pValPerm_corr = mafdr(pValPerm,'BHFDR',true,'showPlot',false);
+pValZ_corr = mafdr(pValZ,'BHFDR',true,'showPlot',false);
 % q-values of Storey, 2002
-% [~,pValsZ_corr] = mafdr(pValsZ);
+% [~,pValZ_corr] = mafdr(pValZ);
 
 %-------------------------------------------------------------------------------
 % Assign values to categories of GOTable:
 %-------------------------------------------------------------------------------
-GOTable.pValsZ = pValsZ;
-GOTable.pValsZ_corr = pValsZ_corr;
-GOTable.pValsPerm = pValsPerm;
-GOTable.pValsPerm_corr = pValsPerm_corr;
+GOTable.pValZ = pValZ;
+GOTable.pValZ_corr = pValZ_corr;
+GOTable.pValPerm = pValPerm;
+GOTable.pValPerm_corr = pValPerm_corr;
 GOTable.meanNull = meanNull;
 GOTable.stdNull = stdNull;
 

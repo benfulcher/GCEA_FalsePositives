@@ -14,7 +14,7 @@ for i = 1:min(15,numGOCategories)
     plot(categoryScores(ix_GO(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix_GO(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix_GO(i)},...
-                        GOTable.size(ix_GO(i)),GOTable.pValsZ_corr(ix_GO(i))));
+                        GOTable.size(ix_GO(i)),GOTable.pValZ_corr(ix_GO(i))));
 end
 
 end

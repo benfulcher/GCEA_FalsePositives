@@ -5,7 +5,7 @@ if nargin < 7
 end
 
 % Sort GO categories according to this:
-whatStat = 'pValsZ'; % meanNull, stdNull, pValsZ
+whatStat = 'pValZ'; % meanNull, stdNull, pValZ
 
 %-------------------------------------------------------------------------------
 numGOCategories = height(GOTable);
@@ -20,7 +20,7 @@ for i = 1:numTop
     fprintf(1,'%u (%u genes): %s (nullmean = %.2g; p = %.2g; p_corr = %.2g) [%s]\n',...
                 i,GOTable.size(ix_GO(i)),...
                 GOTable.GOName{ix_GO(i)},GOTable.meanNull(ix_GO(i)),...
-                GOTable.pValsZ(ix_GO(i)),GOTable.pValsZ_corr(ix_GO(i)),...
+                GOTable.pValZ(ix_GO(i)),GOTable.pValZ_corr(ix_GO(i)),...
                 BF_cat(geneAcro));
 end
 
