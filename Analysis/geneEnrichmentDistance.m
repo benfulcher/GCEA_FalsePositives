@@ -36,7 +36,7 @@ C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
 d = C.Dist_Matrix{1,1}/1000;
 % Binary connectome:
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
-                                cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
+            cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
 
 %-------------------------------------------------------------------------------
 % Gene expression data:

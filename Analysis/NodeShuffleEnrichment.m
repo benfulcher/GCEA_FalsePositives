@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter)
+function [GOTable,categoryScores] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter)
 % Idea is to shuffle node properties across nodes, generating a null
 % distribution for each category separately
 
@@ -6,7 +6,7 @@ if nargin < 1
     whatEnrichment = 'degree';
 end
 if nargin < 2
-    whatShuffle = 'anatomyIsocortex'; % 'anatomy', 'anatomyTwo', 'anatomyIsocortex', 'all'
+    whatShuffle = 'twoIsocortex'; % 'anatomy', 'anatomyTwo', 'twoIsocortex', 'all'
 end
 if nargin < 3
     numNulls = 200;
@@ -50,7 +50,6 @@ case 'degree'
     k = sum(A_bin,1)' + sum(A_bin,2);
     score_fn = @(x) corr(k,x,'type','Spearman','rows','pairwise');
 case 'isocortex'
-    % gScore = GiveMeScores(geneData,structInfo,whatEnrichment);
     isCTX = ismember(structInfo.divisionLabel,'Isocortex');
     score_fn = @(x) -log10(ranksum(x(isCTX),x(~isCTX)));
 end
@@ -59,7 +58,7 @@ end
 % Define shuffle function
 %-------------------------------------------------------------------------------
 switch whatShuffle
-case 'anatomyIsocortex'
+case 'twoIsocortex'
     shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'twoIsocortex');
 case 'anatomyTwo'
     shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'twoBroad');

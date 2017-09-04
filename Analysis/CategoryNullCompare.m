@@ -13,6 +13,8 @@ whatShuffle = 'twoIsocortex';
 % Load defaults:
 cParam = GiveMeDefaultParams('conn');
 gParam = GiveMeDefaultParams('gene');
+gParam.normalizationGene = 'none';
+gParam.normalizationRegion = 'none';
 eParam = GiveMeDefaultParams('enrichment');
 
 % Get gene data:
@@ -43,7 +45,7 @@ for n = 1:numNulls+1
         permVectorAll = 1:size(geneData,1);
         permVectorCustom = 1:size(geneData,1);
     else
-        fprintf(1,'Null %u/%u\n',n+1,numNulls+1);
+        fprintf(1,'Null %u/%u\n',n,numNulls+1);
         permVectorAll = randperm(size(geneData,1));
         permVectorCustom = AnatomyShuffle(structInfo.divisionLabel,whatShuffle);
     end
