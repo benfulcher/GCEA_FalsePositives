@@ -12,17 +12,25 @@ numManual = height(TableGOBPs);
 
 % Try to match GO Categories by name:
 eParam = GiveMeDefaultParams('enrichment');
-eParam.sizeFilter = [1,2000];
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
+eParam.sizeFilter = [1,1e10];
+gParam = GiveMeDefaultParams('gene');
+[geneData,geneInfo,structInfo] = LoadMeG(gParam); % just need it for the entrez_ids
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
+                    eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 
+fprintf(1,'Matching %u manually-compiled GO categories to full list of GO BPs by name\n',numManual);
 matchMe = zeros(numManual,1);
 for i = 1:numManual
-    matchMe(i) = find(strcmp(TableGOBPs.GOCategory{i},GOTable.GOName));
+    itsHere = find(strcmp(TableGOBPs.GOCategory{i},GOTable.GOName));
+    if isempty(itsHere)
+        matchMe(i) = NaN;
+        warning('No match found for %s',TableGOBPs.GOCategory{i})
+    else
+        matchMe(i) = itsHere;
+    end
 end
-
-
 
 
 %-------------------------------------------------------------------------------
