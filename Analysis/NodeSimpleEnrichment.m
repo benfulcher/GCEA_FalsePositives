@@ -1,4 +1,4 @@
-function [GOTable,gScore,geneEntrezAnnotations] = NodeSimpleEnrichment(enrichWhat,structFilter)
+function [GOTable,gScore,geneEntrezAnnotations] = NodeSimpleEnrichment(enrichWhat,structFilter,whatSpecies)
 %
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
