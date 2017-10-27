@@ -1,36 +1,57 @@
-% function ImportLiteratureEnrichment()
+function ImportLiteratureEnrichment()
 % Loads in a table of enrichment results for all prior studies using GO
 % enrichment
 %-------------------------------------------------------------------------------
 
-% --1-- First is to load in the manual one:
+% Whether to only look at categories with annotations for genes in our set:
+filterOnOurGenes = true;
+
+%-------------------------------------------------------------------------------
+% Load in the file in which I've manually annotated GO terms:
 manualDataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/GeneExpressionEnrichment/TableGOBPs.csv';
 TableGOBPs = ImportGOBPs(manualDataFile);
 emptyGO = cellfun(@isempty,TableGOBPs.GOCategory);
 TableGOBPs = TableGOBPs(~emptyGO,:);
 numManual = height(TableGOBPs);
+fprintf(1,'Loaded manual annotations for %u GO Terms from %s\n',numManual,manualDataFile);
 
-% Try to match GO Categories by name:
+%-------------------------------------------------------------------------------
+% Load in general gene info data:
 eParam = GiveMeDefaultParams('enrichment');
-eParam.sizeFilter = [1,1e10];
+eParam.sizeFilter = [1,1e5];
 gParam = GiveMeDefaultParams('gene');
 [geneData,geneInfo,structInfo] = LoadMeG(gParam); % just need it for the entrez_ids
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
-                    eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
-numGOCategories = height(GOTable);
 
+% Load in annoated GO Table
+[GOTerms,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
+                    eParam.processFilter,eParam.sizeFilter,restrictEntrez);
+sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+numGOCategories = height(GOTerms);
+
+%-------------------------------------------------------------------------------
+% Only look at categories with annotations for genes in our set
+if filterOnOurGenes
+    restrictEntrez = geneInfo.entrez_id;
+else
+    restrictEntrez = [];
+end
+
+%-------------------------------------------------------------------------------
+% Try to match GO categories by name:
 fprintf(1,'Matching %u manually-compiled GO categories to full list of GO BPs by name\n',numManual);
 matchMe = zeros(numManual,1);
 for i = 1:numManual
-    itsHere = find(strcmp(TableGOBPs.GOCategory{i},GOTable.GOName));
+    itsHere = find(strcmp(TableGOBPs.GOCategory{i},GOTerms.GOName));
     if isempty(itsHere)
         matchMe(i) = NaN;
-        warning('No match found for %s',TableGOBPs.GOCategory{i})
+        warning('No match found for ''%s''',TableGOBPs.GOCategory{i})
     else
         matchMe(i) = itsHere;
     end
 end
+
+%-------------------------------------------------------------------------------
+% Now we need to load in the continuous data:
 
 
 %-------------------------------------------------------------------------------
@@ -166,4 +187,4 @@ TableGOBPs.VarName32 = rawCellColumns(:, 5);
 end
 
 
-% end
+end
