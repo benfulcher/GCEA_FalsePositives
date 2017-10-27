@@ -70,7 +70,39 @@ French2011 = ImportFrench2011()
 % (GO-IDs as numeric)
 French2015Consistent = ImportFrench2015Consistent();
 
-%
+% ---French2015-InconsistentGOGroups.csv
+% (GO-IDs as numeric)
+French2015Inconsistent = ImportFrench2015Inconsistent();
+
+% ---Parkes et al.:
+PCs = [1,2,5,9];
+numPCs = length(PCs);
+GOtoNumber = @(x)str2num(x(4:end));
+for i = 1:numPCs
+    fileName = sprintf('/Users/benfulcher/GoogleDrive/Work/CurrentProjects/GeneExpressionEnrichment/DataSets/Parkes2017/PC%u.txt',...
+                        PCs(i));
+    ResultsTable = ReadInErmineJ(fileName);
+    GOID = cellfun(GOtoNumber,ResultsTable.GOID);
+    pValCorr = ResultsTable.pVal_corr;
+    switch i
+    case 1
+        ParkesPC1 = table(GOID,pValCorr);
+    case 2
+        ParkesPC2 = table(GOID,pValCorr);
+    case 3
+        ParkesPC5 = table(GOID,pValCorr);
+    case 4
+        ParkesPC9 = table(GOID,pValCorr);
+    end
+end
+
+% ---Tan2013-table-s6-david-200pos-transport.csv
+% (results from DAVID)
+Tan2013 = ImportTan2013();
+
+% ---Vertes-rstb20150362supp1.xlsx
+
+
 
 %-------------------------------------------------------------------------------
 function TableGOBP = importfile(filename, startRow, endRow)
