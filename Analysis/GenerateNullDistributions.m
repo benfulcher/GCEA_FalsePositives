@@ -28,8 +28,7 @@ subsetOfGenes = []; % only look at the first X genes. Set to empty for all
                      % genes & save a .mat file of results
 
 % GO settings
-processFilter = 'biological_process';
-sizeFilter = [5,200];
+eParam = GiveMeDefaultParams('enrichment');
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
@@ -91,7 +90,7 @@ end
 %-------------------------------------------------------------------------------
 % Get GO data
 % (include only annotations for genes with entrez IDs that are in our dataset)
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 
