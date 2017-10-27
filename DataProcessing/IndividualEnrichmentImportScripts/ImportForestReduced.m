@@ -43,7 +43,8 @@ ResultsTable = ResultsTable(isBP,:);
 
 % Now just take the necessary columns
 pValCorr = ResultsTable.TermPValueCorrectedwithBenjaminiHochberg;
-GOID = ResultsTable.GOID;
+GOtoNumber = @(x)str2num(x(4:end));
+GOID = cellfun(GOtoNumber,ResultsTable.GOID);
 FilteredTable = sortrows(table(GOID,pValCorr),'pValCorr');
 
 end

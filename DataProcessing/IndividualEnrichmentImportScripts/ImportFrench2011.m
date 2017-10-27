@@ -40,7 +40,8 @@ ResultsTable.GeneMembers = stringVectors(:,4);
 
 %-------------------------------------------------------------------------------
 % Generate filtered output table with just relevant bits:
-GOID = ResultsTable.ID;
+GOtoNumber = @(x)str2num(x(4:end));
+GOID = cellfun(GOtoNumber,ResultsTable.ID);
 pValCorr_NE = ResultsTable.PatternNEcorrectedPvalue;
 pValCorr_OE = ResultsTable.PatternOEcorrectedPvalue;
 FilteredTable = table(GOID,pValCorr_NE,pValCorr_OE);
