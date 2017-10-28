@@ -22,19 +22,17 @@ eParam.sizeFilter = [1,1e5];
 gParam = GiveMeDefaultParams('gene');
 [geneData,geneInfo,structInfo] = LoadMeG(gParam); % just need it for the entrez_ids
 
-% Load in annoated GO Table
-[GOTerms,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
-                    eParam.processFilter,eParam.sizeFilter,restrictEntrez);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
-numGOCategories = height(GOTerms);
-
-%-------------------------------------------------------------------------------
-% Only look at categories with annotations for genes in our set
+% ---Load in annoated GO Table---
+% (Only look at categories with annotations for genes in our set)
 if filterOnOurGenes
     restrictEntrez = geneInfo.entrez_id;
 else
     restrictEntrez = [];
 end
+[GOTerms,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
+                    eParam.processFilter,eParam.sizeFilter,restrictEntrez);
+sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+numGOCategories = height(GOTerms);
 
 %-------------------------------------------------------------------------------
 % Try to match GO categories by name:
@@ -56,25 +54,24 @@ end
 % In each case, we want GOID, p-value
 resultsTables = struct();
 
-
 % --- Forest2017-TableS8-PathwayEnrichment_ReducedModel.xlsx
 % (GOID (string) + corrected p-value)
-ForestReduced = ImportForestReduced();
+resultsTables.ForestReduced = ImportForestReduced();
 
 % --- Forest2017_TableS3-PathwayEnrichment_FullModel.xlsx
-ForestFull = ImportForestFullModel();
+resultsTables.ForestFull = ImportForestFullModel();
 
 % ---French2011 (nothing much here -- different enrichment for NE and OL)
 % -(neurons vs oligodendrocytes)-
-French2011 = ImportFrench2011()
+resultsTables.French2011 = ImportFrench2011();
 
 % ---French2015-ConsistentGOGroups.csv
 % (GO-IDs as numeric)
-French2015Consistent = ImportFrench2015Consistent();
+resultsTables.French2015Consistent = ImportFrench2015Consistent();
 
 % ---French2015-InconsistentGOGroups.csv
 % (GO-IDs as numeric)
-French2015Inconsistent = ImportFrench2015Inconsistent();
+resultsTables.French2015Inconsistent = ImportFrench2015Inconsistent();
 
 % ---Parkes et al.:
 PCs = [1,2,5,9];
@@ -86,43 +83,38 @@ for i = 1:numPCs
     ResultsTable = ReadInErmineJ(fileName);
     GOID = cellfun(GOtoNumber,ResultsTable.GOID);
     pValCorr = ResultsTable.pVal_corr;
-    switch i
-    case 1
-        ParkesPC1 = table(GOID,pValCorr);
-    case 2
-        ParkesPC2 = table(GOID,pValCorr);
-    case 3
-        ParkesPC5 = table(GOID,pValCorr);
-    case 4
-        ParkesPC9 = table(GOID,pValCorr);
-    end
+    resultsTables.(sprintf('ParkesPC%u',PCs(i))) = table(GOID,pValCorr);
 end
 
 % ---Tan2013-table-s6-david-200pos-transport.csv
 % (results from DAVID)
-Tan2013 = ImportTan2013();
+resultsTables.Tan2013 = ImportTan2013();
 
 % ---Vertes-rstb20150362supp1.xlsx
 % (note that Vertes actually excluded many categories using exclude column,
 % but we keep all) [excluded are very general terms, >1000 gene annotations,
 % or those considered 'redundant'?]
-Vertes2015_PLS1pos = ImportVertes2015('PLS1 pos');
-Vertes2015_PLS2pos = ImportVertes2015('PLS2 pos');
-Vertes2015_PLS3pos = ImportVertes2015('PLS3 pos');
-Vertes2015_PLS1neg = ImportVertes2015('PLS1 neg');
-Vertes2015_PLS2neg = ImportVertes2015('PLS2 neg');
-Vertes2015_PLS3neg = ImportVertes2015('PLS3 neg');
+resultsTables.Vertes2015_PLS1pos = ImportVertes2015('PLS1 pos');
+resultsTables.Vertes2015_PLS2pos = ImportVertes2015('PLS2 pos');
+resultsTables.Vertes2015_PLS3pos = ImportVertes2015('PLS3 pos');
+resultsTables.Vertes2015_PLS1neg = ImportVertes2015('PLS1 neg');
+resultsTables.Vertes2015_PLS2neg = ImportVertes2015('PLS2 neg');
+resultsTables.Vertes2015_PLS3neg = ImportVertes2015('PLS3 neg');
 
 % ---Whitaker:
-WhitakerCompletePLS2pos = ImportWhitaker('Complete_PLS2pos');
-WhitakerCompletePLS2neg = ImportWhitaker('Complete_PLS2neg');
-WhitakerDiscoveryPLS2pos = ImportWhitaker('Discovery_PLS2pos');
-WhitakerDiscoveryPLS2neg = ImportWhitaker('Discovery_PLS2neg');
-WhitakerValidationPLS2pos = ImportWhitaker('Validation_PLS2pos');
-WhitakerValidationPLS2neg = ImportWhitaker('Validation_PLS2neg');
+resultsTables.WhitakerCompletePLS2pos = ImportWhitaker('Complete_PLS2pos');
+resultsTables.WhitakerCompletePLS2neg = ImportWhitaker('Complete_PLS2neg');
+resultsTables.WhitakerDiscoveryPLS2pos = ImportWhitaker('Discovery_PLS2pos');
+resultsTables.WhitakerDiscoveryPLS2neg = ImportWhitaker('Discovery_PLS2neg');
+resultsTables.WhitakerValidationPLS2pos = ImportWhitaker('Validation_PLS2pos');
+resultsTables.WhitakerValidationPLS2neg = ImportWhitaker('Validation_PLS2neg');
 
 %-------------------------------------------------------------------------------
-function TableGOBP = importfile(filename, startRow, endRow)
+% Ok, so now we have resultsTables from raw data, and TableGOBP from manual data
+% next is to combine them...
+
+%-------------------------------------------------------------------------------
+function TableGOBP = ImportGOBPs(filename, startRow, endRow)
 %IMPORTFILE Import numeric data from a text file as a matrix.
 %   TABLEGOBPS1 = IMPORTFILE(FILENAME) Reads data from text file FILENAME
 %   for the default selection.
