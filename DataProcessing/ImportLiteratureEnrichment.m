@@ -54,6 +54,8 @@ end
 % Now we need to load in the quantitative data:
 %-------------------------------------------------------------------------------
 % In each case, we want GOID, p-value
+resultsTables = struct();
+
 
 % --- Forest2017-TableS8-PathwayEnrichment_ReducedModel.xlsx
 % (GOID (string) + corrected p-value)
@@ -101,8 +103,23 @@ end
 Tan2013 = ImportTan2013();
 
 % ---Vertes-rstb20150362supp1.xlsx
+% (note that Vertes actually excluded many categories using exclude column,
+% but we keep all) [excluded are very general terms, >1000 gene annotations,
+% or those considered 'redundant'?]
+Vertes2015_PLS1pos = ImportVertes2015('PLS1 pos');
+Vertes2015_PLS2pos = ImportVertes2015('PLS2 pos');
+Vertes2015_PLS3pos = ImportVertes2015('PLS3 pos');
+Vertes2015_PLS1neg = ImportVertes2015('PLS1 neg');
+Vertes2015_PLS2neg = ImportVertes2015('PLS2 neg');
+Vertes2015_PLS3neg = ImportVertes2015('PLS3 neg');
 
-
+% ---Whitaker:
+WhitakerCompletePLS2pos = ImportWhitaker('Complete_PLS2pos');
+WhitakerCompletePLS2neg = ImportWhitaker('Complete_PLS2neg');
+WhitakerDiscoveryPLS2pos = ImportWhitaker('Discovery_PLS2pos');
+WhitakerDiscoveryPLS2neg = ImportWhitaker('Discovery_PLS2neg');
+WhitakerValidationPLS2pos = ImportWhitaker('Validation_PLS2pos');
+WhitakerValidationPLS2neg = ImportWhitaker('Validation_PLS2neg');
 
 %-------------------------------------------------------------------------------
 function TableGOBP = importfile(filename, startRow, endRow)
