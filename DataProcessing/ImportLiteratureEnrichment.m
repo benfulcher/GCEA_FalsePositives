@@ -76,15 +76,15 @@ for i = 1:numManualResults
     theData = theData(hasHits);
 
     isValid = ~isnan(theGOIDs);
-    theGOIDs = theGOIDs(isValid);
+    GOID = theGOIDs(isValid);
     pValCorr = theData(isValid);
 
     hasPVals = any(theData < 1);
     if hasPVals
-        resultsTables.(theManualResultNames{i}) = table(theGOIDs,pValCorr);
+        resultsTables.(theManualResultNames{i}) = table(GOID,pValCorr);
     else
         pValCorr = zeros(size(pValCorr));
-        resultsTables.(theManualResultNames{i}) = table(theGOIDs,pValCorr);
+        resultsTables.(theManualResultNames{i}) = table(GOID,pValCorr);
     end
 end
 
@@ -102,7 +102,7 @@ resultsTables.ForestFull = ImportForestFullModel();
 
 % ---French2011 (nothing much here -- different enrichment for NE and OL)
 % -(neurons vs oligodendrocytes)-
-resultsTables.French2011 = ImportFrench2011();
+[resultsTables.French2011NE,resultsTables.French2011OE] = ImportFrench2011();
 
 % ---French2015-ConsistentGOGroups.csv
 % (GO-IDs as numeric)
@@ -171,7 +171,7 @@ mouseOrHuman = categorical(mouseOrHuman);
 
 %-------------------------------------------------------------------------------
 % Save?
-fileNameSave = 'LiteratureEnrichmentLoaded.mat';
+fileNameSave = fullfile('DataOutputs','LiteratureEnrichmentLoaded.mat');
 if doSave
     save(fileNameSave,'resultsTables','mouseOrHuman');
 end

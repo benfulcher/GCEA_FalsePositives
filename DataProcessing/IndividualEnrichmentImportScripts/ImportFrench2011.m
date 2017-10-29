@@ -1,4 +1,4 @@
-function FilteredTable = ImportFrench2011()
+function [FilteredTableNE,FilteredTableOE] = ImportFrench2011()
 %% Import data from spreadsheet
 % Script for importing data from the following spreadsheet:
 %
@@ -44,6 +44,7 @@ GOtoNumber = @(x)str2num(x(4:end));
 GOID = cellfun(GOtoNumber,ResultsTable.ID);
 pValCorr_NE = ResultsTable.PatternNEcorrectedPvalue;
 pValCorr_OE = ResultsTable.PatternOEcorrectedPvalue;
-FilteredTable = table(GOID,pValCorr_NE,pValCorr_OE);
+FilteredTableNE = table(GOID,pValCorr_NE);
+FilteredTableOE = table(GOID,pValCorr_OE);
 
 end
