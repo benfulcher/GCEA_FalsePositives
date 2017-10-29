@@ -33,4 +33,36 @@ for i = 1:numSpecies
     rowVectorResults(i,ia) = resultsTablesSpecies.(speciesTableNames{i}).pValCorr(ib);
 end
 
+% Filter max:
+theThreshold = 0.1;
+underThreshold = @(x) 1-(1-x)*double(x < theThreshold); % results over threshold are set to 1
+rowVectorResultsTh = arrayfun(underThreshold,rowVectorResults);
+rowVectorResultsTh(rowVectorResultsTh==1) = NaN;
+
+% Sort:
+meansGO = nanmean(~isnan(rowVectorResultsTh),1);
+meansDatasets = nanmean(~isnan(rowVectorResultsTh),2);
+
+[~,ix] = sort(meansGO,'descend');
+allGOIDsSort = allGOIDs(ix);
+[~,iy] = sort(meansDatasets,'descend');
+speciesTableNamesSort = speciesTableNames(iy);
+
+rowVectorResultsThSort = rowVectorResultsTh(iy,ix);
+
+% Trim:
+hasNoAnnotations = (meansGO(ix)==0);
+allGOIDsSort(hasNoAnnotations) = [];
+rowVectorResultsThSort(:,hasNoAnnotations) = [];
+
+% Plot:
+f = figure('color','w'); ax = gca;
+BF_imagesc(rowVectorResultsThSort);
+ax.YTick = 1:numSpecies;
+ax.YTickLabel = flipud(speciesTableNamesSort);
+ax.XTick = 1:sum(~hasNoAnnotations);
+ax.XTickLabel = allGOIDsSort;
+colormap([flipud(BF_getcmap('blues',9))])
+title(whatSpecies);
+
 % end
