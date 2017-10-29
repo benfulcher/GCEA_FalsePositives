@@ -42,9 +42,11 @@ ResultsTable.GeneMembers = stringVectors(:,4);
 % Generate filtered output table with just relevant bits:
 GOtoNumber = @(x)str2num(x(4:end));
 GOID = cellfun(GOtoNumber,ResultsTable.ID);
-pValCorr_NE = ResultsTable.PatternNEcorrectedPvalue;
-pValCorr_OE = ResultsTable.PatternOEcorrectedPvalue;
-FilteredTableNE = table(GOID,pValCorr_NE);
-FilteredTableOE = table(GOID,pValCorr_OE);
+% NE:
+pValCorr = ResultsTable.PatternNEcorrectedPvalue;
+FilteredTableNE = table(GOID,pValCorr);
+% OE:
+pValCorr = ResultsTable.PatternOEcorrectedPvalue;
+FilteredTableOE = table(GOID,pValCorr);
 
 end
