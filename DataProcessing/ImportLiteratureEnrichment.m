@@ -1,10 +1,15 @@
-% function ImportLiteratureEnrichment()
+function [resultsTables,mouseOrHuman] = ImportLiteratureEnrichment(filterOnOurGenes,doSave)
 % Loads in a table of enrichment results for all prior studies using GO
 % enrichment
 %-------------------------------------------------------------------------------
 
 % Whether to only look at categories with annotations for genes in our set:
-filterOnOurGenes = true;
+if nargin < 1
+    filterOnOurGenes = true;
+end
+if nargin < 2
+    doSave = true;
+end
 
 %-------------------------------------------------------------------------------
 % Load in the file in which I've manually annotated GO terms:
@@ -15,7 +20,9 @@ TableGOBPs = TableGOBPs(~emptyGO,:);
 numManual = height(TableGOBPs);
 fprintf(1,'Loaded manual annotations for %u GO Terms from %s\n',numManual,manualDataFile);
 
-%-------------------------------------------------------------------------------
+%===============================================================================
+% MATCH CATEGORIES TO OUR BP INFORMATION
+%===============================================================================
 % Load in general gene info data:
 eParam = GiveMeDefaultParams('enrichment');
 eParam.sizeFilter = [1,1e5];
@@ -37,14 +44,47 @@ numGOCategories = height(GOTerms);
 %-------------------------------------------------------------------------------
 % Try to match GO categories by name:
 fprintf(1,'Matching %u manually-compiled GO categories to full list of GO BPs by name\n',numManual);
-matchMe = zeros(numManual,1);
+matchMe = nan(numManual,1);
+GOIDsMatches = nan(numManual,1);
 for i = 1:numManual
     itsHere = find(strcmp(TableGOBPs.GOCategory{i},GOTerms.GOName));
     if isempty(itsHere)
-        matchMe(i) = NaN;
         warning('No match found for ''%s''',TableGOBPs.GOCategory{i})
     else
         matchMe(i) = itsHere;
+        GOIDsMatches(i) = GOTerms.GOID(matchMe(i));
+    end
+end
+
+%-------------------------------------------------------------------------------
+% Convert each entry to an element in resultsTables (of the form GOID [numeric], p-value)
+resultsTables = struct();
+
+theManualResultNames = TableGOBPs.Properties.VariableNames;
+% exclude GOCategory, ID:
+theManualResultNames = setxor(theManualResultNames,{'GOCategory','ID'});
+% Ignore some results that are elsewhere:
+ignoreThese = {'ParkesPC1','ParkesPC2','ParkesPC5','ParkesPC9'};
+theManualResultNames = setxor(theManualResultNames,ignoreThese);
+numManualResults = length(theManualResultNames);
+fprintf(1,'%u manual result tables\n',numManualResults);
+
+for i = 1:numManualResults
+    theData = TableGOBPs.(theManualResultNames{i});
+    hasHits = ~isnan(theData);
+    theGOIDs = GOIDsMatches(hasHits);
+    theData = theData(hasHits);
+
+    isValid = ~isnan(theGOIDs);
+    theGOIDs = theGOIDs(isValid);
+    pValCorr = theData(isValid);
+
+    hasPVals = any(theData < 1);
+    if hasPVals
+        resultsTables.(theManualResultNames{i}) = table(theGOIDs,pValCorr);
+    else
+        pValCorr = zeros(size(pValCorr));
+        resultsTables.(theManualResultNames{i}) = table(theGOIDs,pValCorr);
     end
 end
 
@@ -52,7 +92,6 @@ end
 % Now we need to load in the quantitative data:
 %-------------------------------------------------------------------------------
 % In each case, we want GOID, p-value
-resultsTables = struct();
 
 % --- Forest2017-TableS8-PathwayEnrichment_ReducedModel.xlsx
 % (GOID (string) + corrected p-value)
@@ -110,8 +149,33 @@ resultsTables.WhitakerValidationPLS2pos = ImportWhitaker('Validation_PLS2pos');
 resultsTables.WhitakerValidationPLS2neg = ImportWhitaker('Validation_PLS2neg');
 
 %-------------------------------------------------------------------------------
-% Ok, so now we have resultsTables from raw data, and TableGOBP from manual data
-% next is to combine them...
+% Ok, so now we have resultsTables from all data combined :-D
+% Now we need to separate into human and mouse studies
+% Read in annotations of studies:
+fid = fopen('AnnotateStudies.csv');
+S = textscan(fid,'%s%s');
+fclose(fid);
+% Match to names:
+allTableNames = fieldnames(resultsTables);
+mouseOrHuman = cell(length(allTableNames),1);
+for i = 1:length(allTableNames)
+    isHere = strcmp(S{1},allTableNames{i});
+    if ~any(isHere)
+        warning('No annotation found for %s',allTableNames{i})
+        mouseOrHuman(i) = NaN;
+    else
+        mouseOrHuman(i) = S{2}(isHere);
+    end
+end
+mouseOrHuman = categorical(mouseOrHuman);
+
+%-------------------------------------------------------------------------------
+% Save?
+fileNameSave = 'LiteratureEnrichmentLoaded.mat';
+if doSave
+    save(fileNameSave,'resultsTables','mouseOrHuman');
+end
+fprintf(1,'Saved to %s\n',fileNameSave);
 
 %-------------------------------------------------------------------------------
 function TableGOBP = ImportGOBPs(filename, startRow, endRow)
@@ -249,4 +313,4 @@ TableGOBP.French2011FrontN = cell2mat(rawNumericColumns(:, 33));
 
 end
 
-% end
+end
