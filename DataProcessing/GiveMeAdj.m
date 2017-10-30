@@ -114,10 +114,8 @@ case 'human-HCP'
         error('Unknown weight measure: ''%s''',whatWeightMeasure);
     end
     % Get ROI names (regionAcronyms):
-    fid = fopen('ROInames_aparcasegBen.txt');
-    S = textscan(fid,'%u%s');
-    fclose(fid)
-    regionAcronyms = S{2};
+    regionStruct = GiveMeAPARCNames();
+    regionAcronyms = regionStruct.Label;
 otherwise
     error('Unknown data source, ''%s''',whatData);
 end
@@ -139,8 +137,9 @@ if ismember(whatFilter,{'isocortex','cortex'})
         keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
         theAdjMat = theAdjMat(keepStruct,keepStruct);
     elseif strcmp(whatData(1:5),'human')
-        isCTX = strcmp(@(x)strcmp(x(1:3),'ctx'),regionAcronyms);
+        isCTX = regionStruct.isCortex;
         theAdjMat = theAdjMat(isCTX,isCTX);
+        regionStruct = regionStruct(isCTX,:);
         regionAcronyms = regionAcronyms(isCTX);
     else
         error('Unknown label for organism -- are you a human or are you a mouse?');
@@ -151,19 +150,17 @@ if strcmp(whatData(1:5),'human')
     switch whatHemispheres
     case 'right'
         % Keep right hemisphere only (human data)
-        isRightCortex = cellfun(@(x)strcmp(x(1:6),'ctx-rh'),regionAcronyms);
-        isRightSubcortex = cellfun(@(x)strcmp(x(1:6),'Right-'),regionAcronyms);
-        isRight = (isRightCortex | isRightSubcortex);
+        isRight = regionStruct.isRight;
         theAdjMat = theAdjMat(isRight,isRight);
         regionAcronyms = regionAcronyms(isRight);
+        regionStruct = regionStruct(isRight,:);
         fprintf(1,'Filtered to %u right-hemisphere ROIs\n',sum(isRight));
     case 'left'
         % Keep left hemisphere only (human data)
-        isLeftCortex = cellfun(@(x)strcmp(x(1:6),'ctx-lh'),regionAcronyms);
-        isLeftSubcortex = cellfun(@(x)strcmp(x(1:5),'Left-'),regionAcronyms);
-        isLeft = (isLeftCortex | isLeftSubcortex);
+        isLeft = regionStruct.isLeft;
         theAdjMat = theAdjMat(isLeft,isLeft);
         regionAcronyms = regionAcronyms(isLeft);
+        regionStruct = regionStruct(isLeft,:);
         fprintf(1,'Filtered to %u left-hemisphere ROIs\n',sum(isLeft));
     case 'both'
         % yeah
