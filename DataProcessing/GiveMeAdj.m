@@ -101,7 +101,7 @@ case 'mouse-Ypma'
     adjPVals = [];
 
 case 'human-HCP'
-    % Get the HCP adjacency matrix [Group connectomes are made by removing least
+    % Get the 100-HCP group connectome [Group connectomes are made by removing least
     % consistent (in terms of weight) links to reach the average density of
     % individual connectomes.]
     C = load('HCPgroupConnectomesAparcaseg.mat');
@@ -110,6 +110,8 @@ case 'human-HCP'
         theAdjMat = C.AdjCount;
     case 'density'
         theAdjMat = C.AdjDens;
+    otherwise
+        error('Unknown weight measure: ''%s''',whatWeightMeasure);
     end
     % Get ROI names (regionAcronyms):
     fid = fopen('ROInames_aparcasegBen.txt');
@@ -129,7 +131,7 @@ end
 
 %-------------------------------------------------------------------------------
 % Filter structures
-if ismember(whatFilter,{'isocortex','cortex','leftCortex','rightCortex'})
+if ismember(whatFilter,{'isocortex','cortex'})
     if strcmp(whatData(1:5),'mouse')
         % Need to load in structInfo (pretty inefficient -- throw out large loaded gene data)
         [~,~,structInfo] = LoadMeG();
@@ -144,21 +146,30 @@ if ismember(whatFilter,{'isocortex','cortex','leftCortex','rightCortex'})
         error('Unknown label for organism -- are you a human or are you a mouse?');
     end
 end
-if ismember(whatFilter,{'rightCortex','right'})
-    % Keep right hemisphere only (human data)
-    isRightCortex = strcmp(@(x)strcmp(x(1:6),'ctx-rh'),regionAcronyms);
-    isRightSubcortex = strcmp(@(x)strcmp(x(1:6),'Right-'),regionAcronyms);
-    isRight = (isRightCortex | isRightSubcortex);
-    theAdjMat = theAdjMat(isRight,isRight);
-    regionAcronyms = regionAcronyms(isRight);
-end
-if ismember(whatFilter,{'leftCortex','left'})
-    % Keep left hemisphere only (human data)
-    isLeftCortex = strcmp(@(x)strcmp(x(1:6),'ctx-lh'),regionAcronyms);
-    isLeftSubcortex = strcmp(@(x)strcmp(x(1:5),'Left-'),regionAcronyms);
-    isLeft = (isLeftCortex | isLeftSubcortex);
-    theAdjMat = theAdjMat(isLeft,isLeft);
-    regionAcronyms = regionAcronyms(isLeft);
+
+if strcmp(whatData(1:5),'human')
+    switch whatHemispheres
+    case 'right'
+        % Keep right hemisphere only (human data)
+        isRightCortex = cellfun(@(x)strcmp(x(1:6),'ctx-rh'),regionAcronyms);
+        isRightSubcortex = cellfun(@(x)strcmp(x(1:6),'Right-'),regionAcronyms);
+        isRight = (isRightCortex | isRightSubcortex);
+        theAdjMat = theAdjMat(isRight,isRight);
+        regionAcronyms = regionAcronyms(isRight);
+        fprintf(1,'Filtered to %u right-hemisphere ROIs\n',sum(isRight));
+    case 'left'
+        % Keep left hemisphere only (human data)
+        isLeftCortex = cellfun(@(x)strcmp(x(1:6),'ctx-lh'),regionAcronyms);
+        isLeftSubcortex = cellfun(@(x)strcmp(x(1:5),'Left-'),regionAcronyms);
+        isLeft = (isLeftCortex | isLeftSubcortex);
+        theAdjMat = theAdjMat(isLeft,isLeft);
+        regionAcronyms = regionAcronyms(isLeft);
+        fprintf(1,'Filtered to %u left-hemisphere ROIs\n',sum(isLeft));
+    case 'both'
+        % yeah
+    otherwise
+        error('What do you mean %s hemisphere?!',whatHemispheres);
+    end
 end
 
 % ------------------------------------------------------------------------------
