@@ -8,7 +8,8 @@ function [theAdjMat,regionAcronyms,adjPVals] = GiveMeAdj(whatData,pThreshold,doB
 % Check Inputs
 %-------------------------------------------------------------------------------
 if nargin < 1
-    whatData = 'Oh';
+    whatData = 'mouse-Oh';
+    % whatData = 'human-HCP';
 end
 if nargin < 2 || isempty(pThreshold)
     pThreshold = 0.05;
@@ -30,10 +31,10 @@ end
 % Load in and minimally preprocess the data:
 if isstruct(whatData)
     C = whatData;
-    whatData = 'Oh';
+    whatData = 'mouse-Oh';
 end
 switch whatData
-case 'Oh'
+case 'mouse-Oh'
     if ~exist('C','var')
         C = load('Mouse_Connectivity_Data.mat','Conn_W','Conn_p','regionAcronyms');
     end
@@ -91,13 +92,32 @@ case 'Oh'
 
     regionAcronyms = C.regionAcronyms;
 
-case 'Ypma'
+case 'mouse-Ypma'
     [W_rect,sourceRegions,targetRegions] = ImportCorticalConnectivityWeights();
     [W,regionNames] = MakeCompleteConnectome(W_rect,sourceRegions,targetRegions);
     [regionStruct,ia] = MatchRegionsOh([],regionNames);
     W = W(ia,ia);
     theAdjMat = W;
     adjPVals = [];
+
+case 'human-HCP'
+    % Get the HCP adjacency matrix [Group connectomes are made by removing least
+    % consistent (in terms of weight) links to reach the average density of
+    % individual connectomes.]
+    C = load('HCPgroupConnectomesAparcaseg.mat');
+    switch  whatWeightMeasure
+    case 'count'
+        theAdjMat = C.AdjCount;
+    case 'density'
+        theAdjMat = C.AdjDens;
+    end
+    % Get ROI names (regionAcronyms):
+    fid = fopen('ROInames_aparcasegBen.txt');
+    S = textscan(fid,'%u%s');
+    fclose(fid)
+    regionAcronyms = S{2};
+otherwise
+    error('Unknown data source, ''%s''',whatData);
 end
 
 %-------------------------------------------------------------------------------
@@ -109,13 +129,36 @@ end
 
 %-------------------------------------------------------------------------------
 % Filter structures
-switch whatFilter
-case 'isocortex'
-    % Need to load in structInfo (pretty inefficient -- throw out large loaded gene data)
-    [~,~,structInfo] = LoadMeG();
-    % Match to regions:
-    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
-    theAdjMat = theAdjMat(keepStruct,keepStruct);
+if ismember(whatFilter,{'isocortex','cortex','leftCortex','rightCortex'})
+    if strcmp(whatData(1:5),'mouse')
+        % Need to load in structInfo (pretty inefficient -- throw out large loaded gene data)
+        [~,~,structInfo] = LoadMeG();
+        % Match to regions:
+        keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
+        theAdjMat = theAdjMat(keepStruct,keepStruct);
+    elseif strcmp(whatData(1:5),'human')
+        isCTX = strcmp(@(x)strcmp(x(1:3),'ctx'),regionAcronyms);
+        theAdjMat = theAdjMat(isCTX,isCTX);
+        regionAcronyms = regionAcronyms(isCTX);
+    else
+        error('Unknown label for organism -- are you a human or are you a mouse?');
+    end
+end
+if ismember(whatFilter,{'rightCortex','right'})
+    % Keep right hemisphere only (human data)
+    isRightCortex = strcmp(@(x)strcmp(x(1:6),'ctx-rh'),regionAcronyms);
+    isRightSubcortex = strcmp(@(x)strcmp(x(1:6),'Right-'),regionAcronyms);
+    isRight = (isRightCortex | isRightSubcortex);
+    theAdjMat = theAdjMat(isRight,isRight);
+    regionAcronyms = regionAcronyms(isRight);
+end
+if ismember(whatFilter,{'leftCortex','left'})
+    % Keep left hemisphere only (human data)
+    isLeftCortex = strcmp(@(x)strcmp(x(1:6),'ctx-lh'),regionAcronyms);
+    isLeftSubcortex = strcmp(@(x)strcmp(x(1:5),'Left-'),regionAcronyms);
+    isLeft = (isLeftCortex | isLeftSubcortex);
+    theAdjMat = theAdjMat(isLeft,isLeft);
+    regionAcronyms = regionAcronyms(isLeft);
 end
 
 % ------------------------------------------------------------------------------

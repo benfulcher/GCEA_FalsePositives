@@ -1,13 +1,18 @@
-function params = GiveMeDefaultParams(whatParamSet)
+function params = GiveMeDefaultParams(whatParamSet,humanOrMouse)
 % Idea is to give a parameter vector of defaults
 %-------------------------------------------------------------------------------
+
+if nargin < 2
+    humanOrMouse = 'mouse';
+    fprintf(1,'Mouse by default. Cute.\n');
+end
 
 params = struct();
 
 switch whatParamSet
 case 'conn'
     % Connectome processing
-    params.connectomeSource = 'Oh'; % 'Oh-cortex'
+    params.connectomeSource = 'mouse-Oh'; % 'Oh-cortex'
     params.pThreshold = 0.05;
     params.whatHemispheres = 'right';
     params.whatWeightMeasure = 'NCD';
