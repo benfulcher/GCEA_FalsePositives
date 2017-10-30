@@ -23,6 +23,8 @@ case 'gene'
 
 case 'enrichment'
     % GO enrichment processing
+    params.whatSource = 'direct'; % 'direct' (Direct annotations from GO)
+                                  % 'GEMMA' (Annotations inferred from GEMMA)
     params.processFilter = 'biological_process';
     params.sizeFilter = [5,100];
     params.numIterations = 20000; % number of iterations for GSR

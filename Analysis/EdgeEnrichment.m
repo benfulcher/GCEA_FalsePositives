@@ -110,7 +110,7 @@ otherwise
     %-------------------------------------------------------------------------------
     % Get GO data
     % (include only annotations for genes with entrez IDs that are in our dataset)
-    [GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
+    [GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,Param.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);

@@ -21,7 +21,7 @@ eParam = GiveMeDefaultParams('enrichment');
 [geneData,geneInfo,structInfo] = LoadMeG(gParam);
 
 % Load in GO annotations:
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.processFilter,eParam.sizeFilter,...
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter,...
                                     geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
