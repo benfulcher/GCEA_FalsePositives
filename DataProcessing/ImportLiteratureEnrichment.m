@@ -36,9 +36,8 @@ if filterOnOurGenes
 else
     restrictEntrez = [];
 end
-[GOTerms,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
-                    eParam.processFilter,eParam.sizeFilter,restrictEntrez);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+GOTerms = GetFilteredGOData(eParam.whatSource,eParam.processFilter,...
+                                eParam.sizeFilter,restrictEntrez);
 numGOCategories = height(GOTerms);
 
 %-------------------------------------------------------------------------------

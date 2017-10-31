@@ -12,15 +12,14 @@ normalizationRegion = 'none'; % 'none', 'zscore'
 
 processFilter = 'biological_process';
 sizeFilter = [5,200];
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+GOTable = GetFilteredGOData(processFilter,sizeFilter,geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
 % Go through and compute pairwise correlations within each category:
 PC = cell(numGOCategories,1);
 parfor i = 1:numGOCategories
-    matchMe = ismember(geneInfo.entrez_id,geneEntrezAnnotations{i});
+    matchMe = ismember(geneInfo.entrez_id,GOTable.annotations{i});
     if sum(matchMe) <= 1;
         continue
     end
@@ -60,7 +59,7 @@ ix(isnan(meanCorrs(ix))) = [];
 numTopCategories = 100;
 for i = 1:numTopCategories
     % Match to table:
-    fprintf(1,'%u (%u genes): %s (%.2f)\n',i,sizeGOCategories(ix(i)),GOTable.GOName{ix(i)},meanCorrs(ix(i)));
+    fprintf(1,'%u (%u genes): %s (%.2f)\n',i,GOTable.size(ix(i)),GOTable.GOName{ix(i)},meanCorrs(ix(i)));
 end
 
 %-------------------------------------------------------------------------------

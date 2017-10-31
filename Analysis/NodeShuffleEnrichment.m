@@ -41,9 +41,8 @@ if strcmp(structFilter,'isocortex')
     structInfo = structInfo(keepStruct,:);
     A_bin = A_bin(keepStruct,keepStruct);
 end
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(sprintf('%s-%s',whatSpecies,eParam.whatSource),...
+GOTable = GetFilteredGOData(sprintf('%s-%s',whatSpecies,eParam.whatSource),...
                     eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -94,7 +93,7 @@ parfor n = 1:numNulls+1
 
     % Record mean scores for each category:
     for j = 1:numGOCategories
-        matchMe = ismember(geneInfo.entrez_id,geneEntrezAnnotations{j});
+        matchMe = ismember(geneInfo.entrez_id,GOTable.annotations{j});
         if sum(matchMe) <= 1
             continue
         end
@@ -107,7 +106,7 @@ end
 %-------------------------------------------------------------------------------
 whatTail = 'right';
 GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
-ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
+ix_GO = ListCategories(geneInfo,GOTable);
 GOTable = GOTable(ix_GO,:);
 
 numSig = sum(GOTable.pValZ_corr < eParam.enrichmentSigThresh);

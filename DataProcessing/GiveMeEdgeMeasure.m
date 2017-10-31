@@ -1,4 +1,4 @@
-function edgeMeasure = GiveMeEdgeMeasure(whatMeasure,A_bin,A_wei,onlyOnEdges,A_p,structInfo)
+function edgeMeasure = GiveMeEdgeMeasure(whatMeasure,A_bin,A_wei,onlyOnEdges,whatSpecies,A_p)
 % Computes a single specified edge measure
 % structInfo required for division-based differences
 %-------------------------------------------------------------------------------
@@ -7,15 +7,28 @@ if nargin < 4
     onlyOnEdges = true; % only measure edge metrics on edges that exist
 end
 if nargin < 5
+    whatSpecies = 'mouse';
+end
+if nargin < 6
     A_p = []; % p-values assigned to each edge (in the case of the Oh et al.
               % linear regression model)
 end
 
+%-------------------------------------------------------------------------------
+% Infer species from structInfo
+%-------------------------------------------------------------------------------
+
 switch whatMeasure
 case 'distance'
-    warning('Distances only work at the moment for whole-brain data')
-    C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
-    edgeData = C.Dist_Matrix{1,1};
+    % Load in distance information from file:
+    switch whatSpecies
+    case 'mouse'
+        warning('Distances only work at the moment for whole-brain data')
+        C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+        edgeData = C.Dist_Matrix{1,1};
+    case 'human'
+        C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+    end
     if onlyOnEdges
         edgeData(A_bin==0) = 0;
     else

@@ -1,7 +1,7 @@
 % function LiteratureLook(whatSpecies)
 
 % if nargin < 1
-    whatSpecies = 'human';
+    whatSpecies = 'mouse';
     theThreshold = 0.2;
 % end
 
@@ -30,7 +30,7 @@ fprintf(1,'Annotations span %u GO categories\n',length(allGOIDs));
 % Match to names
 eParam = GiveMeDefaultParams('enrichment');
 eParam.sizeFilter = [0,1e6];
-[GOTerms,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,...
+GOTerms = GetFilteredGOData(sprintf('mouse-%s',eParam.whatSource),...
                     eParam.processFilter,eParam.sizeFilter);
 
 % Convert each dataset to a vector across GOIDs:

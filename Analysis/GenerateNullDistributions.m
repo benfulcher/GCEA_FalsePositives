@@ -90,8 +90,8 @@ end
 %-------------------------------------------------------------------------------
 % Get GO data
 % (include only annotations for genes with entrez IDs that are in our dataset)
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
-sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
+GOTable = GetFilteredGOData(eParam.whatSource,eParam.processFilter,...
+                                    eParam.sizeFilter,geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -197,7 +197,7 @@ xlabel(sprintf('scores across %u nulls',numNulls))
 % Produce some summary plots:
 %-------------------------------------------------------------------------------
 titleText = sprintf('%s-%s',whatEdgeMeasure,randomizeHow);
-NullSummaryPlots(pValZ,pValZ_corr,categoryScores,meanNull,stdNull,sizeGOCategories,titleText);
+NullSummaryPlots(pValZ,pValZ_corr,categoryScores,meanNull,stdNull,GOTable.size,titleText);
 
 
 %-------------------------------------------------------------------------------
@@ -210,6 +210,6 @@ for i = 1:min(15,numGOCategories)
     plot(categoryScores(ix_GO(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix_GO(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix_GO(i)},...
-                        sizeGOCategories(ix_GO(i)),pValZ_corr(ix_GO(i))));
+                        GOTable.size(ix_GO(i)),pValZ_corr(ix_GO(i))));
     % ,pValZ(ix(i))
 end

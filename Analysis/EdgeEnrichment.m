@@ -1,5 +1,5 @@
 function [GOTable,gScore,geneEntrezAnnotations] = EdgeEnrichment(whatEdgeMeasure,...
-                onlyOnEdges,correctDistance,absType,corrType,whatNull,numNulls)
+                onlyOnEdges,correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
@@ -28,20 +28,24 @@ end
 if nargin < 7
     numNulls = 100; % not used for 'randomGene'
 end
+if nargin < 8
+    whatSpecies = 'mouse';
+    fprintf(1,'Mouse by default\n');
+end
 
 %===============================================================================
 % Connectome data processing:
-cParam = GiveMeDefaultParams('conn');
+cParam = GiveMeDefaultParams('conn',whatSpecies);
 
 % Gene data processing:
-gParam = GiveMeDefaultParams('gene');
+gParam = GiveMeDefaultParams('gene',whatSpecies);
 
 % Correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
 pValOrStat = 'stat'; % 'pval','stat'
 
 % Enrichment parameters:
-eParam = GiveMeDefaultParams('enrichment');
+eParam = GiveMeDefaultParams('enrichment',whatSpecies);
 
 %-------------------------------------------------------------------------------
 % Checks:
@@ -57,7 +61,9 @@ A_bin = (A_wei~=0);
 [geneData,geneInfo,structInfo] = LoadMeG(gParam);
 [A_bin,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,structInfo,A_bin,geneData);
 A_wei = A_wei(keepInd,keepInd);
-A_p = A_p(keepInd,keepInd);
+if ~isempty(A_p)
+    A_p = A_p(keepInd,keepInd);
+end
 
 %-------------------------------------------------------------------------------
 % Compute the edge measure:
@@ -110,13 +116,15 @@ otherwise
     %-------------------------------------------------------------------------------
     % Get GO data
     % (include only annotations for genes with entrez IDs that are in our dataset)
-    [GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,Param.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
+    GOTable = GetFilteredGOData(eParam.whatSource,Param.processFilter,...
+                                    eParam.sizeFilter,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);
     gScore = cell(numNulls+1,1);
     entrezIDsKept = cell(numNulls+1,1);
-    fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',eParam.enrichmentSigThresh);
+    fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',...
+                        eParam.enrichmentSigThresh);
     timer = tic;
     parfor i = 1:numNulls+1
         fprintf(1,'%u/%u\n\n',i,numNulls+1);
@@ -129,7 +137,7 @@ otherwise
 
         % Record mean scores for each category:
         for j = 1:numGOCategories
-            matchMe = ismember(entrezIDsKept{i},geneEntrezAnnotations{j});
+            matchMe = ismember(entrezIDsKept{i},GOTable.annotations{j});
             if sum(matchMe) <= 1
                 continue
             end
@@ -151,7 +159,7 @@ otherwise
     %-------------------------------------------------------------------------------
     % List categories with lowest p-values, or highest mean across nulls, etc.
     %-------------------------------------------------------------------------------
-    ix_GO = ListCategories(geneInfo,GOTable,geneEntrezAnnotations);
+    ix_GO = ListCategories(geneInfo,GOTable);
     GOTable = GOTable(ix_GO,:);
 
     %-------------------------------------------------------------------------------
