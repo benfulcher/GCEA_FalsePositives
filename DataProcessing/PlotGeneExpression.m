@@ -45,7 +45,11 @@ ratNum = 2.2;
 
 % Add regions:
 for j = 1:numStructs
-    colorHere = rgbconv(structInfo.color_hex_triplet{j});
+    if ismember(structInfo.Properties.VariableNames,'color_hex_triplet');
+        colorHere = rgbconv(structInfo.color_hex_triplet{j});
+    else
+        colorHere = 'k';
+    end
     rectangle('Position',[-(numGenes/ratNum+1)*structScores(j),-0.5+j,(numGenes/ratNum+1)*structScores(j),1], ...
                 'FaceColor',colorHere,'EdgeColor',colorHere)
 end

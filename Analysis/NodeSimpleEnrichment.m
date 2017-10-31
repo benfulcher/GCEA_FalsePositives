@@ -22,19 +22,23 @@ if nargin < 2 || isempty(structFilter)
     fprintf(1,'No filter: all brain regions included\n');
     structFilter = 'all'; % 'all', 'isocortex'
 end
+if nargin < 3
+    whatSpecies = 'mouse';
+    fprintf(1,'Mouse by default\n');
+end
 doRandomize = false;
 
 %-------------------------------------------------------------------------------
 % Connectome parameters
 %-------------------------------------------------------------------------------
 % Get default parameter sets:
-cParam = GiveMeDefaultParams('conn');
-eParam = GiveMeDefaultParams('enrichment');
-gParam = GiveMeDefaultParams('gene');
+cParam = GiveMeDefaultParams('conn',whatSpecies);
+eParam = GiveMeDefaultParams('enrichment',whatSpecies);
+gParam = GiveMeDefaultParams('gene',whatSpecies);
+
 % Ensure no normalization:
 gParam.normalizationGene = 'none';
 gParam.normalizationRegion = 'none';
-
 
 % Binary connectome data:
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
@@ -87,12 +91,17 @@ case {'cerebcortex','isocortex'}
     % Normalize gene expression data:
     geneDataZ = BF_NormalizeMatrix(geneData,'zscore');
 
-    switch enrichWhat
-    case 'isocortex'
-        isCTX = ismember(structInfo.divisionLabel,'Isocortex');
-    case 'cerebCortex'
-        isCTX = ismember(structInfo.divisionLabel,...
-                        {'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
+    switch whatSpecies
+    case 'mouse'
+        switch enrichWhat
+        case 'isocortex'
+            isCTX = ismember(structInfo.divisionLabel,'Isocortex');
+        case 'cerebCortex'
+            isCTX = ismember(structInfo.divisionLabel,...
+                            {'Isocortex','Olfactory Areas','Hippocampal Formation','Cortical Subplate'});
+        end
+    case 'human'
+        isCTX = structInfo.isCortex;
     end
     fprintf(1,'%u %s, %u non-%s\n',sum(isCTX),enrichWhat,sum(~isCTX),enrichWhat);
 
@@ -140,6 +149,7 @@ end
 % Do the enrichment
 %-------------------------------------------------------------------------------
 [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneInfo.entrez_id,...
+                                    sprintf('%s-direct',whatSpecies),...
                                     eParam.processFilter,eParam.sizeFilter,...
                                     eParam.numIterations);
 

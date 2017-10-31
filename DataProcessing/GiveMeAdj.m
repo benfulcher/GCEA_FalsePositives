@@ -113,9 +113,10 @@ case 'human-HCP'
     otherwise
         error('Unknown weight measure: ''%s''',whatWeightMeasure);
     end
+    adjPVals = []; % Just to fill this output (not used for human data)
     % Get ROI names (regionAcronyms):
     regionStruct = GiveMeAPARCNames();
-    regionAcronyms = regionStruct.Label;
+    regionAcronyms = regionStruct.acronym;
 otherwise
     error('Unknown data source, ''%s''',whatData);
 end

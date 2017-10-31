@@ -1,4 +1,4 @@
-function [geneData,geneInfo,structInfo] = LoadMeG(gParam,humanOrMouse)
+function [geneData,geneInfo,structInfo] = LoadMeG(gParam)
 % Load in the gene data as G from new, SDK results
 % Gets the gene_energy or gene_density matrix, and the matching geneInfo table
 % Along with the structInfo table.
@@ -8,9 +8,6 @@ function [geneData,geneInfo,structInfo] = LoadMeG(gParam,humanOrMouse)
 %-------------------------------------------------------------------------------
 % Check inputs:
 %-------------------------------------------------------------------------------
-if nargin < 2
-    humanOrMouse = 'mouse';
-end
 if nargin < 1 || isempty(gParam)
     gParam = GiveMeDefaultParams('gene',humanOrMouse);
 end
@@ -20,7 +17,7 @@ end
 % Get NEW DATA FROM SDK RETRIEVALS:
 %-------------------------------------------------------------------------------
 % try
-switch humanOrMouse
+switch gParam.humanOrMouse
 case 'mouse'
     dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
     fprintf(1,'New Allen SDK-data from %s\n',dataFile);
@@ -41,11 +38,11 @@ case 'human'
     sampleExpression = G.SampleGeneExpression(:,2:end);
 
     % Format geneInfo into table:
-    EntrezID = G.probeInformation.EntrezID;
+    entrez_id = G.probeInformation.EntrezID;
     Symbol = G.probeInformation.GeneSymbol;
     Name = G.probeInformation.GeneName;
     DSscore = G.probeInformation.DS;
-    geneInfo = table(EntrezID,Symbol,Name,DSscore);
+    geneInfo = table(entrez_id,Symbol,Name,DSscore);
 
     % Get ROI information:
     structInfo = GiveMeAPARCNames();
@@ -59,7 +56,7 @@ case 'human'
     % Match ROIs to structInfo:
     [~,ia,ib] = intersect(ROIs,structInfo.ID);
     structInfo = structInfo(ib,:);
-    if length(ia)<numROIs
+    if length(ia) < numROIs
         error('ROIs not labeled according to APARC text file IDs...?');
     end
     fprintf(1,'Trimmed structure info to match %u structures\n',height(structInfo));

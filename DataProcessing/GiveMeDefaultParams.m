@@ -12,20 +12,27 @@ params = struct();
 switch whatParamSet
 case 'conn'
     % Connectome processing
-    params.connectomeSource = 'mouse-Oh'; % 'Oh-cortex'
+    switch humanOrMouse
+    case 'mouse'
+        params.connectomeSource = 'mouse-Oh'; % 'Oh-cortex'
+        params.whatWeightMeasure = 'NCD';
+        params.whatHemispheres = 'right';
+    case 'human'
+        params.connectomeSource = 'human-HCP'; % 'Oh-cortex'
+        params.whatWeightMeasure = 'density';
+        params.whatHemispheres = 'left';
+    end
     params.pThreshold = 0.05;
-    params.whatHemispheres = 'right';
-    params.whatWeightMeasure = 'NCD';
     params.structFilter = 'all'; % 'cortex', 'all'
 
 case 'gene'
     % Gene data processing
     params.energyOrDensity = 'energy'; % what gene expression data to use
     params.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-    params.normalizationRegion = 'zscore'; % 'none', 'zscore'
+    params.normalizationRegion = 'none'; % 'none', 'zscore'
     params.subsetOfGenes = []; %[]; only look at the first X genes.
                                 % Set to empty, [], to use all genes
-
+    params.humanOrMouse = humanOrMouse;
 case 'enrichment'
     % GO enrichment processing
     params.whatSource = 'direct'; % 'direct' (Direct annotations from GO)
