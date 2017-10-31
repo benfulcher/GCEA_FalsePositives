@@ -1,4 +1,4 @@
-function [GOTable,categoryScores] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter)
+function [GOTable,categoryScores] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies)
 % Idea is to shuffle node properties across nodes, generating a null
 % distribution for each category separately
 
@@ -14,16 +14,20 @@ end
 if nargin < 4 || isempty(structFilter)
     structFilter = 'all'; % 'isocortex','all'
 end
+if nargin < 5 || isempty(whatSpecies)
+    whatSpecies = 'mouse';
+    fprintf(1,'Mouse by default\n');
+end
 
 %-------------------------------------------------------------------------------
 % Retrieve defaults:
-cParam = GiveMeDefaultParams('conn');
+cParam = GiveMeDefaultParams('conn',whatSpecies);
 % Gene parameters, enforcing no normalization:
-gParam = GiveMeDefaultParams('gene');
+gParam = GiveMeDefaultParams('gene',whatSpecies);
 gParam.normalizationGene = 'none';
 gParam.normalizationRegion = 'none';
 % Enrichment parameters:
-eParam = GiveMeDefaultParams('enrichment');
+eParam = GiveMeDefaultParams('enrichment',whatSpecies);
 
 %-------------------------------------------------------------------------------
 % Load data using default settings:
@@ -37,7 +41,8 @@ if strcmp(structFilter,'isocortex')
     structInfo = structInfo(keepStruct,:);
     A_bin = A_bin(keepStruct,keepStruct);
 end
-[GOTable,geneEntrezAnnotations] = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
+[GOTable,geneEntrezAnnotations] = GetFilteredGOData(sprintf('%s-%s',whatSpecies,eParam.whatSource),...
+                    eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
 sizeGOCategories = cellfun(@length,geneEntrezAnnotations);
 numGOCategories = height(GOTable);
 

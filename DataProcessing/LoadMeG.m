@@ -39,10 +39,10 @@ case 'human'
 
     % Format geneInfo into table:
     entrez_id = G.probeInformation.EntrezID;
-    Symbol = G.probeInformation.GeneSymbol;
+    acronym = G.probeInformation.GeneSymbol;
     Name = G.probeInformation.GeneName;
     DSscore = G.probeInformation.DS;
-    geneInfo = table(entrez_id,Symbol,Name,DSscore);
+    geneInfo = table(entrez_id,acronym,Name,DSscore);
 
     % Get ROI information:
     structInfo = GiveMeAPARCNames();
