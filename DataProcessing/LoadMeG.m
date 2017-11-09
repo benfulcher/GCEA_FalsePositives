@@ -113,11 +113,14 @@ end
 %-------------------------------------------------------------------------------
 % Further normalization:
 %-------------------------------------------------------------------------------
-geneData = BF_NormalizeMatrix(geneData,gParam.normalizationGene);
-fprintf(1,'1. Normalized expression for each gene using %s\n',gParam.normalizationGene);
-
-geneData = BF_NormalizeMatrix(geneData',gParam.normalizationRegion)';
-fprintf(1,'2. Normalized expression across each brain region using %s\n',gParam.normalizationRegion);
+if ~strcmp(gParam.normalizationGene,'none')
+    geneData = BF_NormalizeMatrix(geneData,gParam.normalizationGene);
+    fprintf(1,'--Normalized expression for each gene using %s\n',gParam.normalizationGene);
+end
+if ~strcmp(gParam.normalizationRegion,'none')
+    geneData = BF_NormalizeMatrix(geneData',gParam.normalizationRegion)';
+    fprintf(1,'2. Normalized expression across each brain region using %s\n',gParam.normalizationRegion);
+end
 
 %-------------------------------------------------------------------------------
 % Subset:
