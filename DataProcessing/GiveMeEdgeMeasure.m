@@ -27,7 +27,20 @@ case 'distance'
         C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
         edgeData = C.Dist_Matrix{1,1};
     case 'human'
-        C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+        warning('ASSUMING HCP LEFT CORTICAL PARCELLATION!!! :-O')
+        fileName = '360parcellationLcortex_ProbeMean.mat';
+        fprintf(1,'Loading data from ''%s''\n',fileName);
+        load(fileName,'coordinatesROI');
+        fprintf(1,'%u ROIs\n',size(coordinatesROI,1));
+        ROIIDs = coordinatesROI(:,1);
+        % Check that they match the expression data
+        load(fileName,'geneROI');
+        expression_ROI_IDs = geneROI(:,1);
+        if ~all(ROIIDs==expression_ROI_IDs)
+            error('Error matching ROI IDs for %s',fileName);
+        end
+        coOrds = coordinatesROI(:,2:end);
+        edgeData = squareform(pdist(coOrds,'Euclidean'));
     end
     if onlyOnEdges
         edgeData(A_bin==0) = 0;

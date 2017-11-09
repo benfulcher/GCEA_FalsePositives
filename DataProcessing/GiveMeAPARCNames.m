@@ -15,9 +15,15 @@ isLeftSubcortex = cellfun(@(x)strcmp(x(1:5),'Left-'),acronym);
 
 isRight = (isRightCortex | isRightSubcortex);
 isLeft = (isLeftCortex | isLeftSubcortex);
+if ~all(~isRight==isLeft)
+    error('Error assigning left/right');
+end
 isCortex = (isRightCortex | isLeftCortex);
 isSubcortex = (isRightSubcortex | isLeftSubcortex);
+if ~all(~isCortex==isSubcortex)
+    error('Error assigning cortex/subcortex');
+end
 
-regionStruct = table(ID,acronym,isLeft,isRight,isCortex,isSubcortex);
+regionStruct = table(ID,acronym,isLeft,isCortex);
 
 end

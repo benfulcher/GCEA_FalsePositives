@@ -30,47 +30,89 @@ case 'mouse'
         geneData = GeneExpData.gene_density;
     end
 case 'human'
-    dataFile = 'geneSample_aparcaseg.mat'; % APARC parcellation
-    % dataFile = 'geneROI_HCP.mat'; % HCP parcellation
-    G = load(dataFile,'SampleGeneExpression','probeInformation');
-    fprintf(1,'Loaded human expression data from %s\n',which(dataFile));
-    whatROI = G.SampleGeneExpression(:,1);
-    sampleExpression = G.SampleGeneExpression(:,2:end);
+    % Piece together filename from parameters:
+    switch gParam.whatParcellation
+    case 'APARC'
+        dataFileBase = 'aparcaseg_'; % APARC parcellation
+    case 'HCP'
+        dataFileBase = '360parcellationLcortex_'; % HCP parcellation
+    end
+    switch gParam.probeSelection
+    case 'mean'
+        dataFileProbe = '_ProbeMean';
+    case 'variance'
+        dataFileProbe = '_ProbeVariance';
+    end
+    switch gParam.normalizationInternal
+    case 'robustSigmoid'
+        dataFileNorm = '_RobustSigmoid';
+    case 'none'
+        dataFileNorm = '';
+    end
+    % Piece together the filename (renamed from files provided by Aurina):
+    dataFile = sprintf('%s%s%s',dataFileBase,dataFileProbe,dataFileNorm);
 
-    % Format geneInfo into table:
-    entrez_id = G.probeInformation.EntrezID;
-    acronym = G.probeInformation.GeneSymbol;
-    Name = G.probeInformation.GeneName;
-    DSscore = G.probeInformation.DS;
+    % (1) Load probe information and reformat into a table:
+    load(dataFile,'probeInformation');
+    entrez_id = probeInformation.EntrezID;
+    acronym = probeInformation.GeneSymbol;
+    Name = probeInformation.GeneName;
+    DSscore = probeInformation.DS;
     geneInfo = table(entrez_id,acronym,Name,DSscore);
 
-    % Get ROI information:
-    structInfo = GiveMeAPARCNames();
-    % Go through ROI labels and average each:
-    ROIs = sort(unique(whatROI),'ascend');
-    if ~all(diff(ROIs)==1)
-        error('error matching ROIs??')
+    switch gParam.whatParcellation
+    case 'APARC'
+        load(dataFile,'SampleGeneExpression');
+        fprintf(1,'Loaded human expression data from %s\n',which(dataFile));
+        whatROI = SampleGeneExpression(:,1);
+        sampleExpression = SampleGeneExpression(:,2:end);
+
+        % Get ROI information:
+        structInfo = GiveMeAPARCNames();
+        % Go through ROI labels and average each:
+        ROIs = sort(unique(whatROI),'ascend');
+        if ~all(diff(ROIs)==1)
+            error('error matching ROIs??')
+        end
+        numROIs = length(ROIs);
+        fprintf(1,'%u ROIs\n',numROIs);
+        % Match ROIs to structInfo:
+        [~,ia,ib] = intersect(ROIs,structInfo.ID);
+        structInfo = structInfo(ib,:);
+        if length(ia) < numROIs
+            error('ROIs not labeled according to APARC text file IDs...?');
+        end
+        fprintf(1,'Trimmed structure info to match %u structures\n',...
+                                                    height(structInfo));
+
+        fprintf(1,['Matching ROIs to structure info & meaning expression ',...
+                        'levels of samples in each ROI\n']);
+        numGenes = size(sampleExpression,2);
+        geneData = zeros(numROIs,numGenes);
+        for i = 1:numROIs
+            geneData(i,:) = mean(sampleExpression(whatROI==ROIs(i),:),1);
+        end
+        fprintf(1,'Done.\n');
+
+    case 'HCP'
+        load(dataFile,'geneROI');
+        fprintf(1,'Loaded human expression data from %s\n',which(dataFile));
+        whatROI = geneROI(:,1);
+        geneData = geneROI(:,2:end);
+        % Now we need to get the structure info
+        ID = whatROI;
+        numROIs = length(ID);
+        acronym = arrayfun(@(x)sprintf('parcel-%u',ID),ID,'UniformOutput',false);
+        % (see Table 1 of the following supplementary info for more information on parcels:
+        % https://images-nature-com.ezproxy.lib.monash.edu.au/full/nature-assets/nature/journal/v536/n7615/extref/nature18933-s3.pdf)
+        isLeft = true(numROIs,1);
+        isCortex = true(numROIs,1);
+        structInfo = table(ID,acronym,isLeft,isCortex);
     end
-    numROIs = length(ROIs);
-    fprintf(1,'%u ROIs\n',numROIs);
-    % Match ROIs to structInfo:
-    [~,ia,ib] = intersect(ROIs,structInfo.ID);
-    structInfo = structInfo(ib,:);
-    if length(ia) < numROIs
-        error('ROIs not labeled according to APARC text file IDs...?');
-    end
-    fprintf(1,'Trimmed structure info to match %u structures\n',height(structInfo));
-    fprintf(1,'Matching ROIs to structure info & meaning expression levels of samples in each ROI\n');
-    numGenes = size(sampleExpression,2);
-    geneData = zeros(numROIs,numGenes);
-    for i = 1:numROIs
-        geneData(i,:) = mean(sampleExpression(whatROI==ROIs(i),:),1);
-    end
-    fprintf(1,'Done.\n');
 end
 
 %-------------------------------------------------------------------------------
-% FURTHER PROCESSING:
+% Further normalization:
 %-------------------------------------------------------------------------------
 geneData = BF_NormalizeMatrix(geneData,gParam.normalizationGene);
 fprintf(1,'1. Normalized expression for each gene using %s\n',gParam.normalizationGene);

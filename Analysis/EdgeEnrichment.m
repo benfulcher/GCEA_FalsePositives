@@ -1,5 +1,5 @@
 function [GOTable,gScore,geneEntrezAnnotations] = EdgeEnrichment(whatEdgeMeasure,...
-                onlyOnEdges,correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
+            onlyOnEdges,correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
