@@ -63,7 +63,7 @@ case 'human'
     switch gParam.whatParcellation
     case 'APARC'
         load(dataFile,'SampleGeneExpression');
-        fprintf(1,'Loaded human expression data from %s\n',which(dataFile));
+        fprintf(1,'Loaded sample-wise APARC human expression data from %s\n',which(dataFile));
         whatROI = SampleGeneExpression(:,1);
         sampleExpression = SampleGeneExpression(:,2:end);
 
@@ -96,7 +96,7 @@ case 'human'
 
     case 'HCP'
         load(dataFile,'geneROI');
-        fprintf(1,'Loaded human expression data from %s\n',which(dataFile));
+        fprintf(1,'Loaded ROI-wise HCP human expression data from %s\n',which(dataFile));
         whatROI = geneROI(:,1);
         geneData = geneROI(:,2:end);
         % Now we need to get the structure info

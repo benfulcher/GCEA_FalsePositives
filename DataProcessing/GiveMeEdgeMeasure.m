@@ -21,11 +21,11 @@ end
 switch whatMeasure
 case 'distance'
     % Load in distance information from file:
-    edgeData = GiveMeDistanceMatrix(whatSpecies);
+    edgeMeasure = GiveMeDistanceMatrix(whatSpecies);
     if onlyOnEdges
-        edgeData(A_bin==0) = 0;
+        edgeMeasure(A_bin==0) = 0;
     else
-        edgeData(tril(true(size(edgeData)))) = 0;
+        edgeMeasure(tril(true(size(edgeMeasure)))) = 0;
     end
 case 'connections'
     edgeMeasure = double(A_bin);

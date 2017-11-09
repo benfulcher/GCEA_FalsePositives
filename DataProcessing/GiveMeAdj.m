@@ -127,7 +127,18 @@ case {'human-HCP-HCP','human-HCP-APARC'}
         error('Unknown weight measure: ''%s''',whatWeightMeasure);
     end
 
+    % Take just left hemisphere:
+    if strcmp(whatData,'human-HCP-HCP')
+        % Left cortex is 1:180 (180)
+        % Left subcortex 181:190 (10)
+        % Right cortex 191:370 (180)
+        % Right subcortex 371:380 (10)
+        isLeftCortex = 1:180;
+        theAdjMat = theAdjMat(isLeftCortex,isLeftCortex);
+    end
+
     adjPVals = []; % Just to fill this output (not used for human data)
+
     % Get ROI names (regionAcronyms):
     regionAcronyms = structInfo.acronym;
 

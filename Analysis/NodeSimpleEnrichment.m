@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,whatSpecies)
+function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,whatCorr,whatSpecies)
 %
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
@@ -23,6 +23,10 @@ if nargin < 2 || isempty(structFilter)
     structFilter = 'all'; % 'all', 'isocortex'
 end
 if nargin < 3
+    whatCorr = 'Pearson';
+    fprintf(1,'Pearson correlations by default\n');
+end
+if nargin < 4
     whatSpecies = 'mouse';
     fprintf(1,'Mouse by default\n');
 end
@@ -41,11 +45,11 @@ gParam.normalizationGene = 'none';
 gParam.normalizationRegion = 'none';
 
 % Binary connectome data:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
+doBinarize = true;
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,doBinarize,...
                                 cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
 % Gene data:
 [geneData,geneInfo,structInfo] = LoadMeG(gParam);
-
 % Filter structures:
 [A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData);
 numStructs = height(structInfo);
@@ -69,13 +73,15 @@ case 'varExpression'
 
 case 'degree'
     %-------------------------------------------------------------------------------
-    % Degree enrichment: genes scored for number of connections they make to other regions
+    % Degree enrichment: genes scored for the correlation of their expression to
+    % the number of connections each region makes to other regions
     %-------------------------------------------------------------------------------
     k = sum(A_bin,1)' + sum(A_bin,2);
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
-        gScore(i) = corr(k,geneData(:,i),'type','Spearman','rows','pairwise');
+        gScore(i) = corr(k,geneData(:,i),'type',whatCorr,'rows','pairwise');
     end
+
     % Plot:
     [~,iy] = sort(gScore,'descend');
     [~,ix] = sort(k,'descend');
@@ -126,17 +132,21 @@ case 'genePC'
     % Genes that vary with gene expression PCs
     % Original analysis done for isocortex region filter
     geneDataNorm = BF_NormalizeMatrix(geneData,'zscore');
-    fprintf(1,'Computing PCs for %ux%u matrix...',size(geneDataNorm,1),size(geneDataNorm,2));
+    fprintf(1,'Computing PCs for %ux%u matrix using the als algorithm...',...
+                                size(geneDataNorm,1),size(geneDataNorm,2));
     [pcCoeff, pcScore, ~, ~, ~] = pca(geneDataNorm,'NumComponents',2,'algorithm','als');
     fprintf(1,'\n');
 
-    RegionScatterPlot(structInfo,pcScore(:,1),pcScore(:,2),...
-                        'geneExp-PC1','geneExp-PC2','Pearson',true);
+    if strcmp(whatSpecies,'mouse')
+        RegionScatterPlot(structInfo,pcScore(:,1),pcScore(:,2),...
+                        'geneExp-PC1','geneExp-PC2',whatCorr,true);
+    end
 
     % Score genes for correlation with the leading expression PC:
-    gScore = zeros(numStructs,1);
-    for i = 1:numStructs
-        gScore(i) = corr(pcScore(:,1),geneData(:,i),'type','Pearson','rows','pairwise');
+    fprintf(1,'Scoring genes by their correlation to PC1\n');
+    gScore = zeros(numGenes,1);
+    for i = 1:numGenes
+        gScore(i) = corr(pcScore(:,1),geneData(:,i),'type',whatCorr,'rows','pairwise');
     end
 end
 

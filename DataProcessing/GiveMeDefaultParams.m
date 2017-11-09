@@ -36,7 +36,7 @@ case 'gene'
         params.subsetOfGenes = []; %[]; only look at the first X genes.
                                 % Set to empty, [], to use all genes
     case 'human'
-        params.whatParcellation = 'APARC'; % 'APARC', 'HCP'
+        params.whatParcellation = 'HCP'; % 'APARC', 'HCP'
         params.probeSelection = 'variance'; % 'mean, 'variance'
         params.normalizationInternal = 'robustSigmoid'; % 'robustSigmoid', 'none'
         % Additional 'in-house' normalization:
@@ -47,13 +47,20 @@ case 'gene'
     end
 case 'enrichment'
     % GO enrichment processing
-    params.whatSource = 'direct'; % 'direct' (Direct annotations from GO)
-                                  % 'GEMMA' (Annotations inferred from GEMMA)
+
+    % 1) Specify a data source: % 'direct' (Direct annotations from GO)
+                                % 'GEMMA' (Annotations inferred from GEMMA)
+    switch humanOrMouse
+    case 'mouse'
+        params.whatSource = 'mouse-direct'; % 'mouse-direct', 'mouse-GEMMA'
+    case 'human'
+        params.whatSource = 'human-direct';
+    end
+
     params.processFilter = 'biological_process';
-    params.sizeFilter = [5,100];
+    params.sizeFilter = [5,200];
     params.numIterations = 20000; % number of iterations for GSR
     params.enrichmentSigThresh = 0.05;
-
 end
 
 end

@@ -1,5 +1,5 @@
-function [GOTable,gScore,geneEntrezAnnotations] = EdgeEnrichment(whatEdgeMeasure,...
-            onlyOnEdges,correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
+function [GOTable,gScore] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,...
+                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
@@ -57,11 +57,25 @@ end
 % Get data:
 [A_wei,regionAcronyms,A_p] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,false,...
                                     cParam.whatWeightMeasure,cParam.whatHemispheres,'all');
-A_bin = (A_wei~=0);
 [geneData,geneInfo,structInfo] = LoadMeG(gParam);
-[A_bin,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,...
-                                                structInfo,A_bin,geneData);
-A_wei = A_wei(keepInd,keepInd);
+
+% Make sure structInfo match with regionAcronyms:
+[~,ia,ib] = intersect(structInfo.acronym,regionAcronyms,'stable');
+if length(ia)~=height(structInfo) % this should be the limiting list (all should appear in regionAcronyms)
+    error('Error matching ROIs by acronym');
+end
+regionAcronyms = regionAcronyms(ib);
+A_wei = A_wei(ib,ib);
+if ~isempty(A_p)
+    A_p = A_p(ib,ib);
+end
+fprintf(1,'Rearranged information for %u structures\n',length(ib));
+
+% Filter structures:
+[A_wei,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,...
+                                                structInfo,A_wei,geneData);
+A_bin = (A_wei~=0);
+
 if ~isempty(A_p)
     A_p = A_p(keepInd,keepInd);
 end
@@ -102,8 +116,8 @@ case 'randomGene'
     %-------------------------------------------------------------------------------
     % Enrichment using our in-house random-gene null method:
     %-------------------------------------------------------------------------------
-    [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,...
-                        eParam.processFilter,eParam.sizeFilter,eParam.numIterations);
+    GOTable = SingleEnrichment(gScore,geneEntrezIDs,...
+                        eParam.whatSource,eParam.processFilter,eParam.sizeFilter,eParam.numIterations);
 
     %-------------------------------------------------------------------------------
     % ANALYSIS:
