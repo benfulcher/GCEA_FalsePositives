@@ -42,10 +42,40 @@ underThreshold = @(x) 1-(1-x)*double(x < theThreshold); % results over threshold
 rowVectorResultsTh = arrayfun(underThreshold,rowVectorResults);
 rowVectorResultsTh(isnan(rowVectorResultsTh)) = 1;
 
-% Sort:
+% Summarize each dataset and each GO category by mean enrichment:
 meansGO = nanmean(rowVectorResultsTh,1);
 meansDatasets = nanmean(rowVectorResultsTh,2);
 
+%-------------------------------------------------------------------------------
+% TRIMMING
+%-------------------------------------------------------------------------------
+% Need at least this many annotations to be included:
+annotationThresholdDataset = 3; % at least 3 significant to be included
+annotationThresholdGO = 2; % category implicated in at least two studies to be included
+
+% Trim out studies with fewer than Y annotations:
+numAnnotations = sum(rowVectorResultsTh < 1,2);
+hasNoAnnotations = (numAnnotations < annotationThresholdDataset);
+allTableNames(hasNoAnnotations) = [];
+rowVectorResultsTh(hasNoAnnotations,:) = [];
+
+numTrimmedDatasets = sum(~hasNoAnnotations);
+fprintf(1,'Trimmed %u -> %u datasets with fewer than %u annotations\n',...
+            length(hasNoAnnotations),numTrimmedDatasets,annotationThresholdDataset);
+
+% Trim out GO categories with fewer than X annotations:
+numAnnotated = sum(rowVectorResultsTh < 1,1);
+hasNoAnnotations = (numAnnotated < annotationThresholdGO);
+allGOIDs(hasNoAnnotations) = [];
+rowVectorResultsTh(:,hasNoAnnotations) = [];
+meansGO(hasNoAnnotations) = [];
+numTrimmed = sum(~hasNoAnnotations);
+fprintf(1,'Trimmed %u -> %u GO Categories with fewer than %u annotations\n',...
+                    length(hasNoAnnotations),numTrimmed,annotationThresholdGO);
+
+%-------------------------------------------------------------------------------
+% Sort rows/columns for visualization:
+%-------------------------------------------------------------------------------
 [~,ix] = sort(meansGO,'ascend');
 allGOIDsSort = allGOIDs(ix);
 % Sort rows by number of annotations, or by a linkage clustering:
@@ -54,13 +84,6 @@ iy = BF_ClusterReorder(rowVectorResultsTh,'Euclidean','average');
 allTableNamesSort = allTableNames(iy);
 
 rowVectorResultsThSort = rowVectorResultsTh(iy,ix);
-
-% Trim:
-hasNoAnnotations = (meansGO(ix)==1);
-allGOIDsSort(hasNoAnnotations) = [];
-rowVectorResultsThSort(:,hasNoAnnotations) = [];
-numTrimmed = sum(~hasNoAnnotations);
-fprintf(1,'Trimmed %u -> %u GO Categories with annotations\n',length(hasNoAnnotations),numTrimmed);
 
 % IDs -> GONames
 GONamesSort = cell(numTrimmed,1);
@@ -78,7 +101,7 @@ end
 f = figure('color','w'); ax = gca;
 imagesc(rowVectorResultsThSort);
 ax.YTick = 1:numTables;
-ax.YTickLabel = flipud(allTableNamesSort);
+ax.YTickLabel = allTableNamesSort;
 ax.TickLabelInterpreter = 'none';
 ax.XTick = 1:sum(~hasNoAnnotations);
 % ax.XTickLabel = allGOIDsSort;
