@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,whatCorr,whatSpecies)
+function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies)
 %
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
@@ -23,7 +23,7 @@ if nargin < 2 || isempty(structFilter)
     structFilter = 'all'; % 'all', 'isocortex'
 end
 if nargin < 3
-    whatCorr = 'Pearson';
+    corrType = 'Pearson';
     fprintf(1,'Pearson correlations by default\n');
 end
 if nargin < 4
@@ -79,7 +79,7 @@ case 'degree'
     k = sum(A_bin,1)' + sum(A_bin,2);
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
-        gScore(i) = corr(k,geneData(:,i),'type',whatCorr,'rows','pairwise');
+        gScore(i) = corr(k,geneData(:,i),'type',corrType,'rows','pairwise');
     end
 
     % Plot:
@@ -139,14 +139,14 @@ case 'genePC'
 
     if strcmp(whatSpecies,'mouse')
         RegionScatterPlot(structInfo,pcScore(:,1),pcScore(:,2),...
-                        'geneExp-PC1','geneExp-PC2',whatCorr,true);
+                        'geneExp-PC1','geneExp-PC2',corrType,true);
     end
 
     % Score genes for correlation with the leading expression PC:
     fprintf(1,'Scoring genes by their correlation to PC1\n');
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
-        gScore(i) = corr(pcScore(:,1),geneData(:,i),'type',whatCorr,'rows','pairwise');
+        gScore(i) = corr(pcScore(:,1),geneData(:,i),'type',corrType,'rows','pairwise');
     end
 end
 

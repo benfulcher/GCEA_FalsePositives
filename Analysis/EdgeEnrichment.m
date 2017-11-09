@@ -34,18 +34,15 @@ if nargin < 8
 end
 
 %===============================================================================
-% Connectome data processing:
-cParam = GiveMeDefaultParams('conn',whatSpecies);
+% Set default parameters:
+cParam = GiveMeDefaultParams('conn',whatSpecies); % (Connectome data processing)
+gParam = GiveMeDefaultParams('gene',whatSpecies); % (Gene data processing)
+eParam = GiveMeDefaultParams('enrichment',whatSpecies); % (GO enrichment)
 
-% Gene data processing:
-gParam = GiveMeDefaultParams('gene',whatSpecies);
-
-% Correlations:
+%-------------------------------------------------------------------------------
+% Settings for computing correlations:
 thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
 pValOrStat = 'stat'; % 'pval','stat'
-
-% Enrichment parameters:
-eParam = GiveMeDefaultParams('enrichment',whatSpecies);
 
 %-------------------------------------------------------------------------------
 % Checks:

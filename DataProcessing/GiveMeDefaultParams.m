@@ -2,7 +2,7 @@ function params = GiveMeDefaultParams(whatParamSet,humanOrMouse)
 % Idea is to give a parameter vector of defaults
 %-------------------------------------------------------------------------------
 
-if nargin < 2
+if nargin < 2 || isempty(humanOrMouse)
     humanOrMouse = 'mouse';
     fprintf(1,'Mouse by default. Cute.\n');
 end
