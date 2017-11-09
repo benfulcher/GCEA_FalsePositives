@@ -100,11 +100,24 @@ case 'mouse-Ypma'
     theAdjMat = W;
     adjPVals = [];
 
-case 'human-HCP'
+case {'human-HCP-HCP','human-HCP-APARC'}
     % Get the 100-HCP group connectome [Group connectomes are made by removing least
     % consistent (in terms of weight) links to reach the average density of
     % individual connectomes.]
-    C = load('HCPgroupConnectomesAparcaseg.mat');
+    switch whatData
+    case 'human-HCP-HCP'
+        % (HCP parcellation)
+        fprintf(1,'HCP parcellation\n');
+        C = load('HCPgroupConnectomesHCP.mat');
+        structInfo = GiveMeHCPNames();
+    case 'human-HCP-APARC'
+        % (APARC parcellation)
+        fprintf(1,'APARC parcellation\n');
+        C = load('HCPgroupConnectomesAparcaseg.mat');
+        structInfo = GiveMeAPARCNames();
+    end
+
+    % Extract the right weight measure:
     switch  whatWeightMeasure
     case 'count'
         theAdjMat = C.AdjCount;
@@ -113,10 +126,11 @@ case 'human-HCP'
     otherwise
         error('Unknown weight measure: ''%s''',whatWeightMeasure);
     end
+
     adjPVals = []; % Just to fill this output (not used for human data)
     % Get ROI names (regionAcronyms):
-    regionStruct = GiveMeAPARCNames();
-    regionAcronyms = regionStruct.acronym;
+    regionAcronyms = structInfo.acronym;
+
 otherwise
     error('Unknown data source, ''%s''',whatData);
 end
@@ -151,17 +165,17 @@ if strcmp(whatData(1:5),'human')
     switch whatHemispheres
     case 'right'
         % Keep right hemisphere only (human data)
-        isRight = regionStruct.isRight;
+        isRight = structInfo.isRight;
         theAdjMat = theAdjMat(isRight,isRight);
         regionAcronyms = regionAcronyms(isRight);
-        regionStruct = regionStruct(isRight,:);
+        structInfo = structInfo(isRight,:);
         fprintf(1,'Filtered to %u right-hemisphere ROIs\n',sum(isRight));
     case 'left'
         % Keep left hemisphere only (human data)
-        isLeft = regionStruct.isLeft;
+        isLeft = structInfo.isLeft;
         theAdjMat = theAdjMat(isLeft,isLeft);
         regionAcronyms = regionAcronyms(isLeft);
-        regionStruct = regionStruct(isLeft,:);
+        structInfo = structInfo(isLeft,:);
         fprintf(1,'Filtered to %u left-hemisphere ROIs\n',sum(isLeft));
     case 'both'
         % yeah

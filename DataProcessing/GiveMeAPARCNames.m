@@ -1,4 +1,4 @@
-function regionStruct = GiveMeAPARCNames()
+function structInfo = GiveMeAPARCNames()
 % Loads in Aurina's data on APARC names, and outputs
 
 fid = fopen('ROInames_aparcasegBen.txt');
@@ -24,6 +24,6 @@ if ~all(~isCortex==isSubcortex)
     error('Error assigning cortex/subcortex');
 end
 
-regionStruct = table(ID,acronym,isLeft,isCortex);
+structInfo = table(ID,acronym,isLeft,isCortex);
 
 end

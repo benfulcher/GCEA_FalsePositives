@@ -18,7 +18,7 @@ case 'conn'
         params.whatWeightMeasure = 'NCD';
         params.whatHemispheres = 'right';
     case 'human'
-        params.connectomeSource = 'human-HCP'; % 'Oh-cortex'
+        params.connectomeSource = 'human-HCP-HCP'; % 'human-HCP-APARC', 'human-HCP-HCP'
         params.whatWeightMeasure = 'density';
         params.whatHemispheres = 'left';
     end

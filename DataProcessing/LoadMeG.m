@@ -100,14 +100,13 @@ case 'human'
         whatROI = geneROI(:,1);
         geneData = geneROI(:,2:end);
         % Now we need to get the structure info
-        ID = whatROI;
-        numROIs = length(ID);
-        acronym = arrayfun(@(x)sprintf('parcel-%u',ID),ID,'UniformOutput',false);
-        % (see Table 1 of the following supplementary info for more information on parcels:
-        % https://images-nature-com.ezproxy.lib.monash.edu.au/full/nature-assets/nature/journal/v536/n7615/extref/nature18933-s3.pdf)
-        isLeft = true(numROIs,1);
-        isCortex = true(numROIs,1);
-        structInfo = table(ID,acronym,isLeft,isCortex);
+        structInfo = GiveMeHCPNames();
+        % And filter according to the expression data that is here
+        [~,ia,ib] = intersect(whatROI,structInfo.ID,'stable');
+        if ~all(diff(ia)==1)
+            error('Error matching HCP ROIs');
+        end
+        structInfo = structInfo(ib,:);
     end
 end
 
