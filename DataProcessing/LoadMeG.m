@@ -33,9 +33,9 @@ case 'human'
     % Piece together filename from parameters:
     switch gParam.whatParcellation
     case 'APARC'
-        dataFileBase = 'aparcaseg_'; % APARC parcellation
+        dataFileBase = 'aparcaseg'; % APARC parcellation
     case 'HCP'
-        dataFileBase = '360parcellationLcortex_'; % HCP parcellation
+        dataFileBase = '360parcellationLcortex'; % HCP parcellation
     end
     switch gParam.probeSelection
     case 'mean'

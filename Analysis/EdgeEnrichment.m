@@ -59,7 +59,8 @@ end
                                     cParam.whatWeightMeasure,cParam.whatHemispheres,'all');
 A_bin = (A_wei~=0);
 [geneData,geneInfo,structInfo] = LoadMeG(gParam);
-[A_bin,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,structInfo,A_bin,geneData);
+[A_bin,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,...
+                                                structInfo,A_bin,geneData);
 A_wei = A_wei(keepInd,keepInd);
 if ~isempty(A_p)
     A_p = A_p(keepInd,keepInd);
@@ -69,7 +70,7 @@ end
 % Compute the edge measure:
 %-------------------------------------------------------------------------------
 if strcmp(whatNull,'randomGene')
-    edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,A_p);
+    edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,whatSpecies,A_p);
 else
     % Compute edge measures (+nulls):
     edgeMeasures = GiveMeNullEdgeMeasures(whatNull,whatEdgeMeasure,A_bin,A_wei,numNulls,onlyOnEdges,structInfo);
@@ -79,12 +80,11 @@ end
 % Regress distance?:
 %-------------------------------------------------------------------------------
 if correctDistance
-    C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
-    distanceRegressor = C.Dist_Matrix{1,1};
-    fprintf(1,'Regressing ipsilateral distances\n');
+    distanceRegressor = GiveMeDistanceMatrix(whatSpecies);
+    fprintf(1,'Regressing distances\n');
 else
-    fprintf(1,'No distance regressor used\n');
     distanceRegressor = []; % just compute normal correlations
+    fprintf(1,'No distance regressor used\n');
 end
 
 %-------------------------------------------------------------------------------

@@ -39,9 +39,11 @@ case 'gene'
         params.whatParcellation = 'APARC'; % 'APARC', 'HCP'
         params.probeSelection = 'variance'; % 'mean, 'variance'
         params.normalizationInternal = 'robustSigmoid'; % 'robustSigmoid', 'none'
-        % Additional:
+        % Additional 'in-house' normalization:
         params.normalizationGene = 'none'; % 'none', 'mixedSigmoid'
         params.normalizationRegion = 'none'; % 'none', 'zscore'
+        params.subsetOfGenes = []; %[]; only look at the first X genes.
+                                % Set to empty, [], to use all genes
     end
 case 'enrichment'
     % GO enrichment processing
