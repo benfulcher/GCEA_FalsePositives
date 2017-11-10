@@ -1,4 +1,4 @@
-function [GOTable,categoryScores] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies)
+function [GOTable,categoryScores] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies,params)
 % Idea is to shuffle node properties across nodes, generating a null
 % distribution for each category separately
 
@@ -18,31 +18,35 @@ if nargin < 5 || isempty(whatSpecies)
     whatSpecies = 'mouse';
     fprintf(1,'Mouse by default\n');
 end
+if nargin < 6
+    params = GiveMeDefaultParams(whatSpecies);
+end
 
 %-------------------------------------------------------------------------------
-% Retrieve defaults:
-cParam = GiveMeDefaultParams('conn',whatSpecies);
-% Gene parameters, enforcing no normalization:
-gParam = GiveMeDefaultParams('gene',whatSpecies);
-gParam.normalizationGene = 'none';
-gParam.normalizationRegion = 'none';
-% Enrichment parameters:
-eParam = GiveMeDefaultParams('enrichment',whatSpecies);
+% Ensure no gene expression normalization:
+if ~strcmp(params.g.normalizationGene,'none')
+    warning('Over-writing gene expression normalization across genes (-> none) :-O')
+    params.g.normalizationGene = 'none';
+end
+if ~strcmp(params.g.normalizationRegion,'none')
+    warning('Over-writing gene expression normalization across regions (->none) :-O')
+    params.g.normalizationRegion = 'none';
+end
 
 %-------------------------------------------------------------------------------
 % Load data using default settings:
 %-------------------------------------------------------------------------------
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
-                                    cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
-[geneData,geneInfo,structInfo] = LoadMeG(gParam);
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,true,...
+                                    params.c.whatWeightMeasure,params.c.whatHemispheres,params.c.structFilter);
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
 if strcmp(structFilter,'isocortex')
     keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
     geneData = geneData(keepStruct,:);
     structInfo = structInfo(keepStruct,:);
     A_bin = A_bin(keepStruct,keepStruct);
 end
-GOTable = GetFilteredGOData(sprintf('%s-%s',whatSpecies,eParam.whatSource),...
-                    eParam.processFilter,eParam.sizeFilter,geneInfo.entrez_id);
+GOTable = GetFilteredGOData(sprintf('%s-%s',whatSpecies,params.e.whatSource),...
+                    params.e.processFilter,params.e.sizeFilter,geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -109,8 +113,8 @@ GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
 ix_GO = ListCategories(geneInfo,GOTable);
 GOTable = GOTable(ix_GO,:);
 
-numSig = sum(GOTable.pValZ_corr < eParam.enrichmentSigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,eParam.enrichmentSigThresh);
+numSig = sum(GOTable.pValZ_corr < params.e.enrichmentSigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 
 NullSummaryPlots(GOTable,categoryScores);

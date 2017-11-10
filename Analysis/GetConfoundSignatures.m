@@ -4,8 +4,8 @@
 % enrichment signatures -- can then be visualized alongside enrichment results
 %-------------------------------------------------------------------------------
 
+% Global settings (human or mouse):
 whatSpecies = 'human';
-
 resultsTables = struct();
 
 %-------------------------------------------------------------------------------
@@ -17,31 +17,33 @@ correctDistance = false;
 corrType = 'Spearman';
 whatNull = 'randomGene';
 numNulls = 100;
+params = GiveMeDefaultParams(whatSpecies);
 
 absType = 'neg';
 [resultsTables.distance_neg,gScore] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,...
-                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
+                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies,params);
 absType = 'pos';
 [resultsTables.distance_pos,gScore] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,...
-                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
+                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies,params);
 
 %===============================================================================
 % Nodal correlations in cortex
 %===============================================================================
 structFilter = 'cortex';
 corrType = 'Spearman';
+params = GiveMeDefaultParams(whatSpecies);
 
 % Highest variance:
 enrichWhat = 'varExpression';
-[resultsTables.varExpression,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies);
+[resultsTables.varExpression,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies,params);
 
 % Correlate with nodal degree:
 enrichWhat = 'degree';
-[resultsTables.degreeCorr,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies);
+[resultsTables.degreeCorr,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies,params);
 
 % Vary with dominant PC:
 enrichWhat = 'genePC';
-[resultsTables.PC1,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies);
+[resultsTables.PC1,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies,params);
 
 %===============================================================================
 % Now for some plotting:

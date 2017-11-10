@@ -166,7 +166,7 @@ for i = 1:numProcessingTypes
     % Matlab:
     [GOTable,geneEntrezAnnotations] = SingleEnrichment(gScore,geneEntrezIDs,...
                                         'biological_process',[5,200],numIterations);
-    enrichmentTables{i} = GOTable(GOTable.pVal_corr < enrichmentSigThresh,:);
+    enrichmentTables{i} = GOTable(GOTable.pValCorr < enrichmentSigThresh,:);
 
     % Give user feedback
     fprintf(1,'\n\n----%u/%u (%s remaining)\n\n',i,numProcessingTypes,...

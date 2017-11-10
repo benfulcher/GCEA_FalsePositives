@@ -95,7 +95,7 @@ fprintf(1,'Scoring done. Enrichment time\n');
                                     eParam.numIterations);
 
 % ANALYSIS:
-numSig = sum(GOTable.pVal_corr < eParam.enrichmentSigThresh);
+numSig = sum(GOTable.pValCorr < eParam.enrichmentSigThresh);
 fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,eParam.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 

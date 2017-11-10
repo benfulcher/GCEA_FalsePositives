@@ -8,20 +8,20 @@ whatGOID = 6099;
 whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
 numNulls = 800;
 whatShuffle = 'twoIsocortex';
+whatSpecies = 'mouse';
 
 %-------------------------------------------------------------------------------
 % Load defaults:
-cParam = GiveMeDefaultParams('conn');
-gParam = GiveMeDefaultParams('gene');
-gParam.normalizationGene = 'none';
-gParam.normalizationRegion = 'none';
-eParam = GiveMeDefaultParams('enrichment');
+params = GiveMeDefaultParams(whatSpecies);
+warning('Over-writing gene normalization settings -> none')
+params.g.normalizationGene = 'none';
+params.g.normalizationRegion = 'none';
 
 % Get gene data:
-[geneData,geneInfo,structInfo] = LoadMeG(gParam);
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 % Load in GO annotations:
-GOTable = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter,...
+GOTable = GetFilteredGOData(params.e.whatSource,params.e.processFilter,params.e.sizeFilter,...
                                     geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 whatCategory = find(GOTable.GOID==whatGOID);
@@ -29,8 +29,9 @@ fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{whatCategory},...
                     GOTable.GOName{whatCategory},GOTable.size(whatCategory));
 
 % Load adjacency matrix:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
-                                    cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,true,...
+                                    params.c.whatWeightMeasure,params.c.whatHemispheres,...
+                                    params.c.structFilter);
 k = sum(A_bin,1)' + sum(A_bin,2);
 
 theGenesEntrez = geneEntrezAnnotations{whatCategory};

@@ -1,5 +1,5 @@
 function [GOTable,gScore] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,...
-                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies)
+                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies,params)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
@@ -32,12 +32,10 @@ if nargin < 8
     whatSpecies = 'mouse';
     fprintf(1,'Mouse by default\n');
 end
-
-%===============================================================================
-% Set default parameters:
-cParam = GiveMeDefaultParams('conn',whatSpecies); % (Connectome data processing)
-gParam = GiveMeDefaultParams('gene',whatSpecies); % (Gene data processing)
-eParam = GiveMeDefaultParams('enrichment',whatSpecies); % (GO enrichment)
+if nargin < 9
+    % Just use global defaults if none provided
+    params = GiveMeDefaultParams(whatSpecies);
+end
 
 %-------------------------------------------------------------------------------
 % Settings for computing correlations:
@@ -52,9 +50,9 @@ end
 
 %===============================================================================
 % Get data:
-[A_wei,regionAcronyms,A_p] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,false,...
-                                    cParam.whatWeightMeasure,cParam.whatHemispheres,'all');
-[geneData,geneInfo,structInfo] = LoadMeG(gParam);
+[A_wei,regionAcronyms,A_p] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,false,...
+                                    params.c.whatWeightMeasure,params.c.whatHemispheres,'all');
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 % Make sure structInfo match with regionAcronyms:
 [~,ia,ib] = intersect(structInfo.acronym,regionAcronyms,'stable');
@@ -69,7 +67,7 @@ end
 fprintf(1,'Rearranged information for %u structures\n',length(ib));
 
 % Filter structures:
-[A_wei,geneData,structInfo,keepInd] = filterStructures(cParam.structFilter,...
+[A_wei,geneData,structInfo,keepInd] = filterStructures(params.c.structFilter,...
                                                 structInfo,A_wei,geneData);
 A_bin = (A_wei~=0);
 
@@ -114,28 +112,28 @@ case 'randomGene'
     % Enrichment using our in-house random-gene null method:
     %-------------------------------------------------------------------------------
     GOTable = SingleEnrichment(gScore,geneEntrezIDs,...
-                        eParam.whatSource,eParam.processFilter,eParam.sizeFilter,eParam.numIterations);
+                        params.e.whatSource,params.e.processFilter,params.e.sizeFilter,params.e.numIterations);
 
     %-------------------------------------------------------------------------------
     % ANALYSIS:
     %-------------------------------------------------------------------------------
-    numSig = sum(GOTable.pVal_corr < eParam.enrichmentSigThresh);
-    fprintf(1,'%u significant categories at p_corr < %.1g\n',numSig,eParam.enrichmentSigThresh);
+    numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
+    fprintf(1,'%u significant categories at p_corr < %.1g\n',numSig,params.e.enrichmentSigThresh);
     display(GOTable(1:numSig,:));
 
 otherwise
     %-------------------------------------------------------------------------------
     % Get GO data
     % (include only annotations for genes with entrez IDs that are in our dataset)
-    GOTable = GetFilteredGOData(eParam.whatSource,Param.processFilter,...
-                                    eParam.sizeFilter,geneInfo.entrez_id);
+    GOTable = GetFilteredGOData(params.e.whatSource,Param.processFilter,...
+                                    params.e.sizeFilter,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);
     gScore = cell(numNulls+1,1);
     entrezIDsKept = cell(numNulls+1,1);
     fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',...
-                        eParam.enrichmentSigThresh);
+                        params.e.enrichmentSigThresh);
     timer = tic;
     parfor i = 1:numNulls+1
         fprintf(1,'%u/%u\n\n',i,numNulls+1);
@@ -176,9 +174,9 @@ otherwise
     %-------------------------------------------------------------------------------
     % Save to mat file:
     %-------------------------------------------------------------------------------
-    if isempty(gParam.subsetOfGenes)
+    if isempty(params.g.subsetOfGenes)
         fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,whatNull,...
-                eParam.processFilter,gParam.normalizationGene,gParam.normalizationRegion,numNulls);
+                params.e.processFilter,params.g.normalizationGene,params.g.normalizationRegion,numNulls);
         save(fullfile('DataOutputs',fileName));
         fprintf(1,'Saved %s\n',fileName);
     end

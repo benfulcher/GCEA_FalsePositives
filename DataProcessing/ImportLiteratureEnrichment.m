@@ -120,7 +120,7 @@ for i = 1:numPCs
                         PCs(i));
     ResultsTable = ReadInErmineJ(fileName);
     GOID = cellfun(GOtoNumber,ResultsTable.GOID);
-    pValCorr = ResultsTable.pVal_corr;
+    pValCorr = ResultsTable.pValCorr;
     resultsTables.(sprintf('ParkesPC%u',PCs(i))) = table(GOID,pValCorr);
 end
 

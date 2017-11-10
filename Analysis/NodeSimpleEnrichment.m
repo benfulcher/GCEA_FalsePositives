@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies)
+function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies,params)
 %
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
@@ -30,26 +30,32 @@ if nargin < 4
     whatSpecies = 'mouse';
     fprintf(1,'Mouse by default\n');
 end
+if nargin < 5
+    params = GiveMeDefaultParams(whatSpecies);
+end
 doRandomize = false;
 
 %-------------------------------------------------------------------------------
 % Connectome parameters
 %-------------------------------------------------------------------------------
 % Get default parameter sets:
-cParam = GiveMeDefaultParams('conn',whatSpecies);
-eParam = GiveMeDefaultParams('enrichment',whatSpecies);
-gParam = GiveMeDefaultParams('gene',whatSpecies);
 
 % Ensure no normalization:
-gParam.normalizationGene = 'none';
-gParam.normalizationRegion = 'none';
+if ~strcmp(params.g.normalizationGene,'none')
+    warning('Over-writing gene expression normalization across genes (-> none) :-O')
+    params.g.normalizationGene = 'none';
+end
+if ~strcmp(params.g.normalizationRegion,'none')
+    warning('Over-writing gene expression normalization across regions (->none) :-O')
+    params.g.normalizationRegion = 'none';
+end
 
 % Binary connectome data:
 doBinarize = true;
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,doBinarize,...
-                                cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,doBinarize,...
+                                params.c.whatWeightMeasure,params.c.whatHemispheres,params.c.structFilter);
 % Gene data:
-[geneData,geneInfo,structInfo] = LoadMeG(gParam);
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
 % Filter structures:
 [A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData);
 numStructs = height(structInfo);
@@ -160,12 +166,12 @@ end
 %-------------------------------------------------------------------------------
 GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,...
                                     sprintf('%s-direct',whatSpecies),...
-                                    eParam.processFilter,eParam.sizeFilter,...
-                                    eParam.numIterations);
+                                    params.e.processFilter,params.e.sizeFilter,...
+                                    params.e.numIterations);
 
 % ANALYSIS:
-numSig = sum(GOTable.pVal_corr < eParam.enrichmentSigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,eParam.enrichmentSigThresh);
+numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 
 end
