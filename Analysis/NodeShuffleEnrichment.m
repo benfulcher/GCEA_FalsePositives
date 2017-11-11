@@ -24,13 +24,12 @@ end
 
 %-------------------------------------------------------------------------------
 % Ensure no gene expression normalization:
+% Warn if normalization applied:
 if ~strcmp(params.g.normalizationGene,'none')
-    warning('Over-writing gene expression normalization across genes (-> none) :-O')
-    params.g.normalizationGene = 'none';
+    warning('Gene expression normalization across genes?? (Consider -> ''none'') :-O')
 end
 if ~strcmp(params.g.normalizationRegion,'none')
-    warning('Over-writing gene expression normalization across regions (->none) :-O')
-    params.g.normalizationRegion = 'none';
+    warning('Gene expression normalization across regions?? (Consider ->''none'') :-O')
 end
 
 %-------------------------------------------------------------------------------

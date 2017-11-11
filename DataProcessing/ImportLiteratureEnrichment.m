@@ -23,11 +23,10 @@ fprintf(1,'Loaded manual annotations for %u GO Terms from %s\n',numManual,manual
 %===============================================================================
 % MATCH CATEGORIES TO OUR BP INFORMATION
 %===============================================================================
-% Load in general gene info data:
-eParam = GiveMeDefaultParams('enrichment');
-eParam.sizeFilter = [1,1e5];
-gParam = GiveMeDefaultParams('gene');
-[geneData,geneInfo,structInfo] = LoadMeG(gParam); % just need it for the entrez_ids
+% Load in general gene info data (we just need it for the entrez_ids)
+params = GiveMeDefaultParams();
+params.e.sizeFilter = [1,1e5];
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 % ---Load in annoated GO Table---
 % (Only look at categories with annotations for genes in our set)
@@ -36,8 +35,8 @@ if filterOnOurGenes
 else
     restrictEntrez = [];
 end
-GOTerms = GetFilteredGOData(eParam.whatSource,eParam.processFilter,...
-                                eParam.sizeFilter,restrictEntrez);
+GOTerms = GetFilteredGOData(params.e.whatSource,params.e.processFilter,...
+                                params.e.sizeFilter,restrictEntrez);
 numGOCategories = height(GOTerms);
 
 %-------------------------------------------------------------------------------
@@ -146,6 +145,11 @@ resultsTables.WhitakerDiscoveryPLS2pos = ImportWhitaker('Discovery_PLS2pos');
 resultsTables.WhitakerDiscoveryPLS2neg = ImportWhitaker('Discovery_PLS2neg');
 resultsTables.WhitakerValidationPLS2pos = ImportWhitaker('Validation_PLS2pos');
 resultsTables.WhitakerValidationPLS2neg = ImportWhitaker('Validation_PLS2neg');
+
+% ---Fulcher:
+% (connected/unconnected comparison) [done at a pairwise level: 'either']:
+% (rich+feed versus peripheral comparison) [also done at a pairwise level]:
+[resultsTables.FulcherConnected,~,resultsTables.FulcherRichFeed] = ImportFulcher2016();
 
 %-------------------------------------------------------------------------------
 % Ok, so now we have resultsTables from all data combined :-D

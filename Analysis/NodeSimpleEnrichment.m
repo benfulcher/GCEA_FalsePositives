@@ -36,20 +36,17 @@ end
 doRandomize = false;
 
 %-------------------------------------------------------------------------------
-% Connectome parameters
+% Warn if normalization applied:
+if ismember(enrichWhat,{'meanExpression','varExpression'})
+    if ~strcmp(params.g.normalizationGene,'none')
+        warning('Gene expression normalization across genes?? (Consider -> ''none'') :-O')
+    end
+    if ~strcmp(params.g.normalizationRegion,'none')
+        warning('Gene expression normalization across regions?? (Consider ->''none'') :-O')
+    end
+end
+
 %-------------------------------------------------------------------------------
-% Get default parameter sets:
-
-% Ensure no normalization:
-if ~strcmp(params.g.normalizationGene,'none')
-    warning('Over-writing gene expression normalization across genes (-> none) :-O')
-    params.g.normalizationGene = 'none';
-end
-if ~strcmp(params.g.normalizationRegion,'none')
-    warning('Over-writing gene expression normalization across regions (->none) :-O')
-    params.g.normalizationRegion = 'none';
-end
-
 % Binary connectome data:
 doBinarize = true;
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,doBinarize,...

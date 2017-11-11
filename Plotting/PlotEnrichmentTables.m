@@ -11,6 +11,7 @@ end
 if nargin < 3
     whatSpecies = '';
 end
+maxCategories = 200; % show at most this many categories
 %-------------------------------------------------------------------------------
 
 % Preliminaries:
@@ -26,7 +27,8 @@ numGOIDs = length(allGOIDs);
 fprintf(1,'Annotations span %u GO categories\n',length(allGOIDs));
 
 % Match to names
-eParam = GiveMeDefaultParams('enrichment',whatSpecies);
+params = GiveMeDefaultParams(whatSpecies);
+eParam = params.e;
 eParam.sizeFilter = [0,1e6];
 GOTerms = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter);
 
@@ -73,13 +75,20 @@ numTrimmed = sum(~hasNoAnnotations);
 fprintf(1,'Trimmed %u -> %u GO Categories with fewer than %u annotations\n',...
                     length(hasNoAnnotations),numTrimmed,annotationThresholdGO);
 
+% Trim further based on the number
+if size(rowVectorResultsTh,2) > maxCategories
+    rowVectorResultsTh = rowVectorResultsTh(:,1:maxCategories);
+    meansGO = meansGO(1:maxCategories);
+    numTrimmed = maxCategories;
+end
+
 %-------------------------------------------------------------------------------
 % Sort rows/columns for visualization:
 %-------------------------------------------------------------------------------
 [~,ix] = sort(meansGO,'ascend');
 allGOIDsSort = allGOIDs(ix);
 % Sort rows by number of annotations, or by a linkage clustering:
-iy = BF_ClusterReorder(rowVectorResultsTh,'Euclidean','average');
+iy = BF_ClusterReorder(rowVectorResultsTh,'euclidean','average');
 % [~,iy] = sort(meansDatasets,'ascend');
 allTableNamesSort = allTableNames(iy);
 
@@ -109,5 +118,6 @@ ax.XTickLabel = GONamesSort;
 ax.XTickLabelRotation = 90;
 colormap([flipud(BF_getcmap('blues',9))])
 caxis([0,theThreshold*1.2]);
+title(whatSpecies)
 
 end
