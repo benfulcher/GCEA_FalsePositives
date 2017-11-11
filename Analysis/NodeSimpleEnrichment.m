@@ -22,9 +22,9 @@ if nargin < 2 || isempty(structFilter)
     fprintf(1,'No filter: all brain regions included\n');
     structFilter = 'all'; % 'all', 'isocortex'
 end
-if nargin < 3
+if nargin < 3 || isempty(corrType)
     corrType = 'Pearson';
-    fprintf(1,'Pearson correlations by default\n');
+    fprintf(1,'Pearson correlations by default (if relevant)\n');
 end
 if nargin < 4
     whatSpecies = 'mouse';
@@ -96,9 +96,11 @@ case {'cerebcortex','isocortex'}
     % Cerebral cortex enrichment: genes more strongly expressed in the cerebral cortex
     %-------------------------------------------------------------------------------
     whatTest = 'ranksum';
+    fprintf(1,'Using a ranksum test\n');
 
     % Normalize gene expression data:
     geneDataZ = BF_NormalizeMatrix(geneData,'zscore');
+    warning('Ensuring z-score normalized gene expression data');
 
     switch whatSpecies
     case 'mouse'
