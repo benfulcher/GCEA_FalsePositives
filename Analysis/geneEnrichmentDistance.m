@@ -1,4 +1,4 @@
-function GOTable = geneEnrichmentDistance(structFilter,whatSpecies)
+function GOTable = geneEnrichmentDistance(structFilter,whatSpecies,params,GCCparams)
 % Quantify for each gene the correlation between its coexpression and the
 % pairwise distance between regions
 %-------------------------------------------------------------------------------
@@ -8,23 +8,25 @@ function GOTable = geneEnrichmentDistance(structFilter,whatSpecies)
 if nargin < 1 || isempty(structFilter)
     structFilter = 'isocortex'; % 'cortex', 'all'
 end
-if nargin < 2
+if nargin < 2 || isempty(whatSpecies)
     whatSpecies = 'mouse'; % 'mouse', 'human'
+end
+if nargin < 3
+    params = GiveMeDefaultParams(whatSpecies);
+end
+if nargin < 4
+    GCCparams = struct();
+    GCCparams.whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
+    GCCparams.pValOrStat = 'stat'; % 'pval','stat'
+    GCCparams.thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
+    GCCparams.absType = 'neg';
+    GCCparams.onlyConnections = false; % only look where there are structural connections
+    GCCparams.regressDistance = false; % whether to regress distance
 end
 
 %-------------------------------------------------------------------------------
 % Gene scoring parameters:
 %-------------------------------------------------------------------------------
-whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
-pValOrStat = 'stat'; % 'pval','stat'
-thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-absType = 'neg';
-onlyConnections = false; % only look where there are connections
-% regressDistance = true; % whether to regress distance
-
-%-------------------------------------------------------------------------------
-% Get default parameter sets:
-params = GiveMeDefaultParams(whatSpecies);
 
 %-------------------------------------------------------------------------------
 % Load in and process data:
@@ -54,13 +56,15 @@ numStructs = height(structInfo);
 %-------------------------------------------------------------------------------
 % Make vector of distances
 %-------------------------------------------------------------------------------
-if onlyConnections
+if GCCparams.onlyConnections
+    fprintf(1,'Only looking at pairs of regions where connections exist\n');
     pThreshold = 0.05;
     dData = distMat;
     dData(A_bin == 0) = 0;
     % Only symmetric?:
     dData(tril(true(size(dData)),-1)) = 0;
 else
+    fprintf(1,'Looking at all pairs of regions\n');
     % Convert to vector of upper diagonal
     dData = distMat;
     dData(tril(true(size(dData)),-1)) = 0;
@@ -69,24 +73,24 @@ end
 %-------------------------------------------------------------------------------
 % Score genes:
 %-------------------------------------------------------------------------------
-% if regressDistance
-%     fprintf(1,'Scoring %u genes on coexpression with distance (AND regressing out distance?!)\n',numGenes);
-%     [geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,whatCorr,...
-%                                 dData,absType,thresholdGoodGene,pValOrStat);
-% else
-fprintf(1,'Scoring %u genes on coexpression with distance\n',numGenes);
-[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,whatCorr,...
-                            [],absType,thresholdGoodGene,pValOrStat);
-% end
-fprintf(1,'Scoring done. Enrichment time\n');
+if GCCparams.regressDistance
+    fprintf(1,'Scoring %u genes on coexpression with distance (AND regressing out distance?!)\n',numGenes);
+    dRegressor = dData;
+else
+    fprintf(1,'Scoring %u genes on coexpression with distance (no regressor)\n',numGenes);
+    dRegressor = [];
+end
+[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,GCCparams.whatCorr,...
+                            dRegressor,GCCparams.absType,GCCparams.thresholdGoodGene,...
+                            GCCparams.pValOrStat);
+fprintf(1,'Gene scoring done across %u/%u genes! Enrichment time!\n',length(geneScores),numGenes);
 
 %-------------------------------------------------------------------------------
 % Do the enrichment:
 %-------------------------------------------------------------------------------
 GOTable = SingleEnrichment(geneScores,geneEntrezIDs,...
-                                    params.e.whatSource,...
-                                    params.e.processFilter,params.e.sizeFilter,...
-                                    params.e.numIterations);
+                                params.e.whatSource,params.e.processFilter,...
+                                params.e.sizeFilter,params.e.numIterations);
 
 % ANALYSIS:
 numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
@@ -94,15 +98,16 @@ fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichm
 display(GOTable(1:numSig,:));
 
 %-------------------------------------------------------------------------------
-textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',whatCorr,params.g.normalizationGene,...
-                        params.g.normalizationRegion,pValOrStat,absType,onlyConnections);
+textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',GCCparams.whatCorr,params.g.normalizationGene,...
+                        params.g.normalizationRegion,GCCparams.pValOrStat,GCCparams.absType,...
+                        GCCparams.onlyConnections);
 
 %-------------------------------------------------------------------------------
 % Look at the distribution
 %-------------------------------------------------------------------------------
 f = figure('color','w');
 histogram(geneScores)
-xlabel(sprintf('%s correlation between distance and coexpression',whatCorr))
+xlabel(sprintf('%s correlation between distance and coexpression',GCCparams.whatCorr))
 title(textLabel,'interpreter','none')
 
 %-------------------------------------------------------------------------------

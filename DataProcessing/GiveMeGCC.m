@@ -31,6 +31,12 @@ end
 [numRegions,numGenes] = size(geneData);
 
 %-------------------------------------------------------------------------------
+% Check expression data ranges?
+if any(geneData(:) < 0)
+    warning('GCC scores don''t make so much sense when data have negatives... :-O')
+end
+
+%-------------------------------------------------------------------------------
 % Ok, so now we can find correlations to GCC scores across genes
 gScore = zeros(numGenes,1);
 if strcmp(whatCorr,'ttest') % Group based on edge data = {0,1}
