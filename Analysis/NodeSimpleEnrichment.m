@@ -47,14 +47,10 @@ if ismember(enrichWhat,{'meanExpression','varExpression'})
 end
 
 %-------------------------------------------------------------------------------
-% Binary connectome data:
-doBinarize = true;
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,doBinarize,...
-                                params.c.whatWeightMeasure,params.c.whatHemispheres,params.c.structFilter);
 % Gene data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 % Filter structures:
-[A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData);
+[~,geneData,structInfo] = filterStructures(structFilter,structInfo,[],geneData);
 numStructs = height(structInfo);
 numGenes = height(geneInfo);
 
@@ -79,6 +75,11 @@ case 'degree'
     % Degree enrichment: genes scored for the correlation of their expression to
     % the number of connections each region makes to other regions
     %-------------------------------------------------------------------------------
+    % Binary connectome data:
+    doBinarize = true;
+    [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,...
+                params.c.pThreshold,doBinarize,params.c.whatWeightMeasure,...
+                params.c.whatHemispheres,params.c.structFilter);
     k = sum(A_bin,1)' + sum(A_bin,2);
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
@@ -164,9 +165,8 @@ end
 % Do the enrichment
 %-------------------------------------------------------------------------------
 GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,...
-                                    sprintf('%s-direct',whatSpecies),...
-                                    params.e.processFilter,params.e.sizeFilter,...
-                                    params.e.numIterations);
+                        params.e.whatSource,params.e.processFilter,...
+                        params.e.sizeFilter,params.e.numIterations);
 
 % ANALYSIS:
 numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);

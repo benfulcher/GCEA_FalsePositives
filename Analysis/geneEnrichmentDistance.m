@@ -1,4 +1,4 @@
-function geneEnrichmentDistance(structFilter)
+function GOTable = geneEnrichmentDistance(structFilter,whatSpecies)
 % Quantify for each gene the correlation between its coexpression and the
 % pairwise distance between regions
 %-------------------------------------------------------------------------------
@@ -6,7 +6,10 @@ function geneEnrichmentDistance(structFilter)
 %-------------------------------------------------------------------------------
 
 if nargin < 1 || isempty(structFilter)
-    structFilter = 'cortex'; % 'cortex', 'all'
+    structFilter = 'isocortex'; % 'cortex', 'all'
+end
+if nargin < 2
+    whatSpecies = 'mouse'; % 'mouse', 'human'
 end
 
 %-------------------------------------------------------------------------------
@@ -21,41 +24,31 @@ onlyConnections = false; % only look where there are connections
 
 %-------------------------------------------------------------------------------
 % Get default parameter sets:
-cParam = GiveMeDefaultParams('conn');
-eParam = GiveMeDefaultParams('enrichment');
-gParam = GiveMeDefaultParams('gene');
-gParam.normalizationGene = 'none'; % 'none', 'mixedSigmoid'
-gParam.normalizationRegion = 'none'; % 'none', 'zscore'
+params = GiveMeDefaultParams(whatSpecies);
 
 %-------------------------------------------------------------------------------
 % Load in and process data:
 %-------------------------------------------------------------------------------
 % Distance data:
-C = load('Mouse_Connectivity_Data.mat','Dist_Matrix');
-% Pairwise ipsilateral Euclidean distance data:
-d = C.Dist_Matrix{1,1}/1000;
+distMat = GiveMeDistanceMatrix(whatSpecies);
+
 % Binary connectome:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(cParam.connectomeSource,cParam.pThreshold,true,...
-            cParam.whatWeightMeasure,cParam.whatHemispheres,cParam.structFilter);
+[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,...
+            params.c.pThreshold,true,params.c.whatWeightMeasure,...
+            params.c.whatHemispheres,params.c.structFilter);
 
 %-------------------------------------------------------------------------------
 % Gene expression data:
-[geneData,geneInfo,structInfo] = LoadMeG(gParam);
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
+numGenes = height(geneInfo);
 
 %-------------------------------------------------------------------------------
 % Filter to subregions
 %-------------------------------------------------------------------------------
 % Filter structures:
-[A_bin,geneData,structInfo] = filterStructures(structFilter,structInfo,A_bin,geneData);
-if strcmp(structFilter,'cortex')
-    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
-    geneData = geneData(keepStruct,:);
-    structInfo = structInfo(keepStruct,:);
-    A_bin = A_bin(keepStruct,keepStruct);
-    d = d(keepStruct,keepStruct);
-end
+[A_bin,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A_bin,geneData);
+distMat = distMat(keepStruct,keepStruct);
 entrezIDs = geneInfo.entrez_id;
-numGenes = height(geneInfo);
 numStructs = height(structInfo);
 
 %-------------------------------------------------------------------------------
@@ -63,14 +56,14 @@ numStructs = height(structInfo);
 %-------------------------------------------------------------------------------
 if onlyConnections
     pThreshold = 0.05;
-    dData = d;
+    dData = distMat;
     dData(A_bin == 0) = 0;
     % Only symmetric?:
     dData(tril(true(size(dData)),-1)) = 0;
 else
     % Convert to vector of upper diagonal
-    dData = d;
-    dData(tril(true(size(d)),-1)) = 0;
+    dData = distMat;
+    dData(tril(true(size(dData)),-1)) = 0;
 end
 
 %-------------------------------------------------------------------------------
@@ -90,18 +83,19 @@ fprintf(1,'Scoring done. Enrichment time\n');
 %-------------------------------------------------------------------------------
 % Do the enrichment:
 %-------------------------------------------------------------------------------
-[GOTable,geneEntrezAnnotations] = SingleEnrichment(geneScores,geneEntrezIDs,...
-                                    eParam.processFilter,eParam.sizeFilter,...
-                                    eParam.numIterations);
+GOTable = SingleEnrichment(geneScores,geneEntrezIDs,...
+                                    params.e.whatSource,...
+                                    params.e.processFilter,params.e.sizeFilter,...
+                                    params.e.numIterations);
 
 % ANALYSIS:
-numSig = sum(GOTable.pValCorr < eParam.enrichmentSigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,eParam.enrichmentSigThresh);
+numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 
 %-------------------------------------------------------------------------------
-textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',whatCorr,gParam.normalizationGene,...
-                        gParam.normalizationRegion,pValOrStat,absType,onlyConnections);
+textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',whatCorr,params.g.normalizationGene,...
+                        params.g.normalizationRegion,pValOrStat,absType,onlyConnections);
 
 %-------------------------------------------------------------------------------
 % Look at the distribution

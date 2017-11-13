@@ -12,7 +12,9 @@ if nargin < 2 || isempty(structInfo)
     fprintf(1,'Importing structure information for mouse from file: %s\n',dataFile);
     load(dataFile,'structInfo');
 end
-
+if nargin < 3
+    A = [];
+end
 if ismember('isCortex',structInfo.Properties.VariableNames)
     isHuman = true;
     fprintf(1,'Human\n');
@@ -33,7 +35,9 @@ case {'isocortex','cortex'}
     fprintf(1,'Filtering to consider %u cortical areas\n',sum(keepStruct));
     geneData = geneData(keepStruct,:);
     structInfo = structInfo(keepStruct,:);
-    A = A(keepStruct,keepStruct);
+    if ~isempty(A)
+        A = A(keepStruct,keepStruct);
+    end
 case 'all'
     keepStruct = true(height(structInfo),1);
     fprintf(1,'Keeping all %u areas\n',sum(keepStruct));

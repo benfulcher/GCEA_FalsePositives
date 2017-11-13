@@ -4,9 +4,11 @@ function distanceMat = GiveMeDistanceMatrix(whatSpecies)
 
 switch whatSpecies
 case 'mouse'
-    warning('Distances only work at the moment for whole-brain data')
+    % Pairwise ipsilateral Euclidean distance data:
+    % warning('Distances only work at the moment for whole-brain data')
+    % (could add filtering)
     load('Mouse_Connectivity_Data.mat','Dist_Matrix');
-    distanceMat = Dist_Matrix{1,1};
+    distanceMat = Dist_Matrix{1,1}/1000;
 case 'human'
     warning('ASSUMING HCP LEFT CORTICAL PARCELLATION!!! :-O')
     fileName = '360parcellationLcortex_ProbeMean.mat';
