@@ -38,14 +38,10 @@ end
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,true,...
                                     params.c.whatWeightMeasure,params.c.whatHemispheres,params.c.structFilter);
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-if strcmp(structFilter,'isocortex')
-    keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
-    geneData = geneData(keepStruct,:);
-    structInfo = structInfo(keepStruct,:);
-    A_bin = A_bin(keepStruct,keepStruct);
-end
+[A_bin,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A_bin,geneData);
 GOTable = GetFilteredGOData(params.e.whatSource,params.e.processFilter,...
                                 params.e.sizeFilter,geneInfo.entrez_id);
+numGenes = size(geneData,1);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -56,6 +52,9 @@ case 'degree'
     % Score based on correlations to degree
     k = sum(A_bin,1)' + sum(A_bin,2);
     score_fn = @(x) corr(k,x,'type','Spearman','rows','pairwise');
+    fprintf(1,'Scoring genes as SPEARMAN correlation coefficients with degree\n');
+    fprintf(1,'(Degree computed from %u connections across %u areas)\n',...
+                                    sum(A_bin(:)),length(A_bin));
 case 'isocortex'
     isCTX = ismember(structInfo.divisionLabel,'Isocortex');
     score_fn = @(x) -log10(ranksum(x(isCTX),x(~isCTX)));
@@ -72,10 +71,12 @@ case 'anatomyTwo'
 case 'anatomyFive'
     shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'fiveByEye');
 case 'all'
-    shuffle_fn = @()randperm(size(geneData,1));
+    shuffle_fn = @()randperm(numGenes);
 otherwise
     error('Unknown shuffle setting ''%s''',whatShuffle);
 end
+fprintf(1,'Shuffling over %u brain areas using ''%s''\n',...
+                    length(shuffle_fn()),whatShuffle);
 
 %-------------------------------------------------------------------------------
 % Assign scores to categories of genes
