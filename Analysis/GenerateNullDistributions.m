@@ -156,7 +156,7 @@ end
 %-------------------------------------------------------------------------------
 fprintf(1,'GO categories with correlations to %s than %s nulls\n',whatEdgeMeasure,randomizeHow);
 whatTail = 'right';
-[meanNull,stdNull,pValPerm,pValZ,pValZ_corr] = EstimatePVals(categoryScores,numNulls,whatTail);
+[meanNull,stdNull,pValPerm,pValZ,pValZCorr] = EstimatePVals(categoryScores,numNulls,whatTail);
 
 %-------------------------------------------------------------------------------
 % Save to mat file:
@@ -171,7 +171,7 @@ end
 %-------------------------------------------------------------------------------
 % List categories with lowest p-values, or highest mean across nulls, etc.
 %-------------------------------------------------------------------------------
-ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValZ,pValZ_corr);
+ListCategories(geneInfo,GOTable,geneEntrezAnnotations,meanNull,pValZ,pValZCorr);
 
 %-------------------------------------------------------------------------------
 % Check that the mean null score for each gene is zero
@@ -197,7 +197,7 @@ xlabel(sprintf('scores across %u nulls',numNulls))
 % Produce some summary plots:
 %-------------------------------------------------------------------------------
 titleText = sprintf('%s-%s',whatEdgeMeasure,randomizeHow);
-NullSummaryPlots(pValZ,pValZ_corr,categoryScores,meanNull,stdNull,GOTable.size,titleText);
+NullSummaryPlots(pValZ,pValZCorr,categoryScores,meanNull,stdNull,GOTable.size,titleText);
 
 
 %-------------------------------------------------------------------------------
@@ -210,6 +210,6 @@ for i = 1:min(15,numGOCategories)
     plot(categoryScores(ix_GO(i),1)*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     % plot(whatStat(ix_GO(i))*ones(2,1),[0,max(get(gca,'ylim'))],'-r')
     title(sprintf('%s (%u; p_{corr}=%.2g)\n',GOTable.GOName{ix_GO(i)},...
-                        GOTable.size(ix_GO(i)),pValZ_corr(ix_GO(i))));
+                        GOTable.size(ix_GO(i)),pValZCorr(ix_GO(i))));
     % ,pValZ(ix(i))
 end

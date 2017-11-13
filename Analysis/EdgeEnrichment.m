@@ -170,6 +170,7 @@ otherwise
     %-------------------------------------------------------------------------------
     ix_GO = ListCategories(geneInfo,GOTable);
     GOTable = GOTable(ix_GO,:);
+    categoryScores = categoryScores(ix_GO);
 
     %-------------------------------------------------------------------------------
     % Save to mat file:
@@ -207,7 +208,7 @@ otherwise
 
     %-------------------------------------------------------------------------------
     % Look at distribution for some top ones:
-    SpecificNullPlots(categoryScores,GOTable,ix_GO);
+    SpecificNullPlots(GOTable,categoryScores);
 end
 
 end

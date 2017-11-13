@@ -25,16 +25,6 @@ fprintf(1,'%u significant for cortex confound\n',numSig);
 %-------------------------------------------------------------------------------
 % Investigate overlaps between the different enrichment tables:
 % Simplest is to see whether p-values are similar
-
-Table1 = GOTable_simple;
-Table2 = GOTable_shuffle; % GOTable_isocortex
-
-[~,ia,ib] = intersect(Table1.GOID,Table2.GOID);
-f = figure('color','w');
-plot(Table1.meanScore(ia),Table2.meanScore(ib),'.k')
+PlotGOScoreScatter(GOTable_simple,GOTable_isocortex);
 xlabel('GO category score (mean Spearman correlation with degree)')
 ylabel('GO category score (-log10 p-value ranksum test isocortex)')
-r = corr(Table1.meanScore(ia),Table2.meanScore(ib));
-title(sprintf('%u categories, r = %.3f',length(ia),r))
-axis square
-f.Position = [1000,1027,432,311];

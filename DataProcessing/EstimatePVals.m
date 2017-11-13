@@ -29,18 +29,18 @@ end
 
 %-------------------------------------------------------------------------------
 % Corrected p-values using Benjamini-Hochberg
-pValPerm_corr = mafdr(pValPerm,'BHFDR',true,'showPlot',false);
-pValZ_corr = mafdr(pValZ,'BHFDR',true,'showPlot',false);
+pValPermCorr = mafdr(pValPerm,'BHFDR',true,'showPlot',false);
+pValZCorr = mafdr(pValZ,'BHFDR',true,'showPlot',false);
 % q-values of Storey, 2002
-% [~,pValZ_corr] = mafdr(pValZ);
+% [~,pValZCorr] = mafdr(pValZ);
 
 %-------------------------------------------------------------------------------
 % Assign values to categories of GOTable:
 %-------------------------------------------------------------------------------
 GOTable.pValZ = pValZ;
-GOTable.pValZ_corr = pValZ_corr;
+GOTable.pValZCorr = pValZCorr;
 GOTable.pValPerm = pValPerm;
-GOTable.pValPerm_corr = pValPerm_corr;
+GOTable.pValPermCorr = pValPermCorr;
 GOTable.meanScore = categoryScores(:,1);
 GOTable.meanNull = meanNull;
 GOTable.stdNull = stdNull;

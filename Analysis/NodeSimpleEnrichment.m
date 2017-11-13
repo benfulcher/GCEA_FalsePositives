@@ -116,6 +116,9 @@ case {'cerebcortex','isocortex'}
         isCTX = structInfo.isCortex;
     end
     fprintf(1,'%u %s, %u non-%s\n',sum(isCTX),enrichWhat,sum(~isCTX),enrichWhat);
+    if ~any(isCTX) || ~any(~isCTX)
+        error('Not enough data to distinguish cortical from non-cortical areas');
+    end
 
     gScore = zeros(numGenes,1);
     switch whatTest

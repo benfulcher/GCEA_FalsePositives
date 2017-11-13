@@ -9,7 +9,10 @@ function [geneData,geneInfo,structInfo] = LoadMeG(gParam)
 % Check inputs:
 %-------------------------------------------------------------------------------
 if nargin < 1 || isempty(gParam)
-    gParam = GiveMeDefaultParams('gene',humanOrMouse);
+    warning('Using default mouse parameters for gene expression')
+    humanOrMouse = 'mouse';
+    params = GiveMeDefaultParams(humanOrMouse);
+    gParam = params.g;
 end
 %-------------------------------------------------------------------------------
 

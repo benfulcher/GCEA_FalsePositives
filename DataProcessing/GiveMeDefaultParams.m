@@ -33,7 +33,7 @@ case 'human'
     params.c.whatHemispheres = 'left';
 end
 params.c.pThreshold = 0.05;
-params.c.structFilter = 'all'; % 'cortex', 'all'
+params.c.structFilter = 'all'; % 'isocortex', 'all'
 
 %-------------------------------------------------------------------------------
 % Gene expression processing options

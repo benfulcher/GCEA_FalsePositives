@@ -10,7 +10,7 @@ f = figure('color','w');
 % Plot distribution of p-values:
 subplot(2,3,1); hold on
 histogram(GOTable.pValZ)
-histogram(GOTable.pValZ_corr)
+histogram(GOTable.pValZCorr)
 xlabel('p-values')
 legend({'raw','corrected'})
 ylabel('frequency')

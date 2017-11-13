@@ -1,4 +1,4 @@
-function [GOTable,categoryScores] = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies,params)
+function GOTable = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies,params)
 % Idea is to shuffle node properties across nodes, generating a null
 % distribution for each category separately
 
@@ -44,8 +44,8 @@ if strcmp(structFilter,'isocortex')
     structInfo = structInfo(keepStruct,:);
     A_bin = A_bin(keepStruct,keepStruct);
 end
-GOTable = GetFilteredGOData(sprintf('%s-%s',whatSpecies,params.e.whatSource),...
-                    params.e.processFilter,params.e.sizeFilter,geneInfo.entrez_id);
+GOTable = GetFilteredGOData(params.e.whatSource,params.e.processFilter,...
+                                params.e.sizeFilter,geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -111,12 +111,13 @@ whatTail = 'right';
 GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
 ix_GO = ListCategories(geneInfo,GOTable);
 GOTable = GOTable(ix_GO,:);
+categoryScores = categoryScores(ix_GO);
 
-numSig = sum(GOTable.pValZ_corr < params.e.enrichmentSigThresh);
+numSig = sum(GOTable.pValZCorr < params.e.enrichmentSigThresh);
 fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
 display(GOTable(1:numSig,:));
 
 NullSummaryPlots(GOTable,categoryScores);
-SpecificNullPlots(categoryScores,GOTable,ix_GO);
+SpecificNullPlots(GOTable,categoryScores);
 
 end
