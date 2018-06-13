@@ -11,5 +11,5 @@ end
 % Add path references to dependencies:
 %===============================================================================
 % Matlab gene enrichment toolbox (github):
-addpath('/Users/benfulcher/GoogleDrive/Work/CodeToolboxes/MatlabEnrichment/')
-addpath('/Users/benfulcher/GoogleDrive/Work/CodeToolboxes/MatlabmySQL/')
+addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/')
+addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabmySQL/')
