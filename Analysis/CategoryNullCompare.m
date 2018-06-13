@@ -6,7 +6,7 @@
 % Settings:
 whatGOID = 6099;
 whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
-numNulls = 800;
+numNulls = 2000;
 whatShuffle = 'twoIsocortex';
 whatSpecies = 'mouse';
 
@@ -34,8 +34,11 @@ fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{whatCategory},...
                                     params.c.structFilter);
 k = sum(A_bin,1)' + sum(A_bin,2);
 
-theGenesEntrez = geneEntrezAnnotations{whatCategory};
-matchMe = find(ismember(geneInfo.entrez_id,theGenesEntrez));
+theGenesEntrez = GOTable.annotations{whatCategory};
+[entrezMatched,ia,ib] = intersect(theGenesEntrez,geneInfo.entrez_id);
+fprintf(1,'%u/%u genes from this GO category match\n',length(entrezMatched),length(theGenesEntrez));
+numGenesGO = length(entrezMatched);
+matchMe = find(ismember(geneInfo.entrez_id,entrezMatched));
 
 categoryScores = nan(numNulls+1,3);
 for n = 1:numNulls+1
@@ -53,8 +56,8 @@ for n = 1:numNulls+1
     %-------------------------------------------------------------------------------
     % Shuffling node properties:
     %-------------------------------------------------------------------------------
-    gScore = zeros(length(theGenesEntrez),2);
-    for i = 1:length(theGenesEntrez)
+    gScore = zeros(numGenesGO,2);
+    for i = 1:numGenesGO
         gScore(i,1) = corr(k,geneData(permVectorAll,matchMe(i)),'type',whatCorr,'rows','pairwise');
         gScore(i,2) = corr(k,geneData(permVectorCustom,matchMe(i)),'type',whatCorr,'rows','pairwise');
     end
@@ -69,9 +72,9 @@ for n = 1:numNulls+1
     if n == 1
         categoryScores(1,3) = categoryScores(1,1);
     else
-        rp = randperm(size(geneData,2),length(theGenesEntrez));
-        gScore = zeros(length(theGenesEntrez),1);
-        for i = 1:length(theGenesEntrez)
+        rp = randperm(size(geneData,2),numGenesGO);
+        gScore = zeros(numGenesGO,1);
+        for i = 1:numGenesGO
             gScore(i) = corr(k,geneData(:,rp(i)),'type',whatCorr,'rows','pairwise');
         end
         categoryScores(n,3) = nanmean(gScore);

@@ -22,16 +22,12 @@ end
 % try
 switch gParam.humanOrMouse
 case 'mouse'
-    dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    dataFile = '/Users/benfulcher/DropboxSydneyUni/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
     fprintf(1,'New Allen SDK-data from %s\n',dataFile);
     load(dataFile,'GeneExpData','geneInfo','structInfo');
 
-    switch gParam.energyOrDensity
-    case 'energy'
-        geneData = GeneExpData.gene_energy;
-    case 'density'
-        geneData = GeneExpData.gene_density;
-    end
+    % Use combination (z-score) sections to estimate expression:
+    geneData = GeneExpData.combZ.(gParam.energyOrDensity);
 case 'human'
     % Piece together filename from parameters:
     switch gParam.whatParcellation
