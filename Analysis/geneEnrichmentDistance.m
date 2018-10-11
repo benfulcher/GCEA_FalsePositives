@@ -1,20 +1,18 @@
-function GOTable = geneEnrichmentDistance(structFilter,whatSpecies,params,GCCparams)
+function GOTable = geneEnrichmentDistance(structFilter,params,GCCparams)
 % Quantify for each gene the correlation between its coexpression and the
-% pairwise distance between regions
-%-------------------------------------------------------------------------------
-% Then can try to work up a correction
+% pairwise distance between regions (then can try to work up a correction?)
 %-------------------------------------------------------------------------------
 
+%-------------------------------------------------------------------------------
+% INPUTS:
+%-------------------------------------------------------------------------------
 if nargin < 1 || isempty(structFilter)
     structFilter = 'isocortex'; % 'cortex', 'all'
 end
-if nargin < 2 || isempty(whatSpecies)
-    whatSpecies = 'mouse'; % 'mouse', 'human'
+if nargin < 2
+    params = GiveMeDefaultParams('mouse');
 end
 if nargin < 3
-    params = GiveMeDefaultParams(whatSpecies);
-end
-if nargin < 4
     GCCparams = struct();
     GCCparams.whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
     GCCparams.pValOrStat = 'stat'; % 'pval','stat'
@@ -81,16 +79,16 @@ else
     dRegressor = [];
 end
 [geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,GCCparams.whatCorr,...
-                            dRegressor,GCCparams.absType,GCCparams.thresholdGoodGene,...
-                            GCCparams.pValOrStat);
+                                dRegressor,GCCparams.absType,GCCparams.thresholdGoodGene,...
+                                GCCparams.pValOrStat);
 fprintf(1,'Gene scoring done across %u/%u genes! Enrichment time!\n',length(geneScores),numGenes);
 
 %-------------------------------------------------------------------------------
 % Do the enrichment:
 %-------------------------------------------------------------------------------
 GOTable = SingleEnrichment(geneScores,geneEntrezIDs,...
-                                params.e.whatSource,params.e.processFilter,...
-                                params.e.sizeFilter,params.e.numIterations);
+                            params.e.whatSource,params.e.processFilter,...
+                            params.e.sizeFilter,params.e.numIterations);
 
 % ANALYSIS:
 numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);

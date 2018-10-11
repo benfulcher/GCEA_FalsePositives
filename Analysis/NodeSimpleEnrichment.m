@@ -1,5 +1,6 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,whatSpecies,params)
-%
+function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,params)
+% Score each gene on some simple property
+
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
 % enrichWhat = 'varExpression'; % raw variance of expression levels
@@ -8,6 +9,8 @@ function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrTyp
 % enrichWhat = 'degree'; % correlation with structural connectivity degree across regions
 %
 % structFilter = 'cortex';
+%
+% corrType = 'Pearson';
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 
@@ -27,12 +30,9 @@ if nargin < 3 || isempty(corrType)
     fprintf(1,'Pearson correlations by default (if relevant)\n');
 end
 if nargin < 4
-    whatSpecies = 'mouse';
-    fprintf(1,'Mouse by default\n');
+    params = GiveMeDefaultParams('mouse'); % mouse by default
 end
-if nargin < 5
-    params = GiveMeDefaultParams(whatSpecies);
-end
+
 doRandomize = false;
 
 %-------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ case {'cerebcortex','isocortex'}
     geneDataZ = BF_NormalizeMatrix(geneData,'zscore');
     warning('Ensuring z-score normalized gene expression data');
 
-    switch whatSpecies
+    switch params.humanOrMouse
     case 'mouse'
         switch enrichWhat
         case 'isocortex'
@@ -146,7 +146,7 @@ case 'genePC'
     [pcCoeff, pcScore, ~, ~, ~] = pca(geneDataNorm,'NumComponents',2,'algorithm','als');
     fprintf(1,'\n');
 
-    if strcmp(whatSpecies,'mouse')
+    if strcmp(params.humanOrMouse,'mouse')
         RegionScatterPlot(structInfo,pcScore(:,1),pcScore(:,2),...
                         'geneExp-PC1','geneExp-PC2',corrType,true);
     end

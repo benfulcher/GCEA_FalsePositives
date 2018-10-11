@@ -13,12 +13,14 @@ resultsTablesVar = struct();
 whatSpecies = 'mouse';
 params = GiveMeDefaultParams(whatSpecies);
 params.g.normalizationGene = 'none';
-% MEAN:
-[resultsTablesMean.mouse_all] = NodeSimpleEnrichment('meanExpression','all','',whatSpecies,params);
-[resultsTablesMean.mouse_ctx] = NodeSimpleEnrichment('meanExpression','cortex','',whatSpecies,params);
-% VARIANCE:
-[resultsTablesVar.mouse_all] = NodeSimpleEnrichment('varExpression','all','',whatSpecies,params);
-[resultsTablesVar.mouse_ctx] = NodeSimpleEnrichment('varExpression','cortex','',whatSpecies,params);
+% mean expression (whole brain):
+resultsTablesMean.mouse_all = NodeSimpleEnrichment('meanExpression','all','',params);
+% mean expression (cortical areas):
+resultsTablesMean.mouse_ctx = NodeSimpleEnrichment('meanExpression','cortex','',params);
+% variance (whole brain):
+resultsTablesVar.mouse_all = NodeSimpleEnrichment('varExpression','all','',params);
+% variance (cortical areas):
+resultsTablesVar.mouse_ctx = NodeSimpleEnrichment('varExpression','cortex','',params);
 
 %-------------------------------------------------------------------------------
 % Then we do human stuff:
@@ -29,9 +31,9 @@ params.g.normalizationInternal = 'none';
 params.g.normalizationGene = 'none';
 params.g.normalizationRegion = 'none';
 % MEAN:
-[resultsTablesMean.human_HCP] = NodeSimpleEnrichment('meanExpression','cortex','',whatSpecies,params);
+resultsTablesMean.human_HCP = NodeSimpleEnrichment('meanExpression','cortex','',params);
 % VARIANCE:
-[resultsTablesVar.human_HCP] = NodeSimpleEnrichment('varExpression','cortex','',whatSpecies,params);
+resultsTablesVar.human_HCP = NodeSimpleEnrichment('varExpression','cortex','',params);
 
 %-------------------------------------------------------------------------------
 % Visualize results
@@ -43,21 +45,7 @@ title('Enrichment by mean expression across the brain')
 PlotEnrichmentTables(resultsTablesVar,thresholdSig);
 title('Enrichment by expression variance across the brain')
 
-%===============================================================================
-% Cortical differences:
-%===============================================================================
-resultsTablesCortexDiff = struct();
-params = GiveMeDefaultParams('mouse');
-[resultsTablesCortexDiff.mouse] = NodeSimpleEnrichment('isocortex','all','','mouse',params);
-params = GiveMeDefaultParams('human');
-params.g.whatParcellation = 'APARC';
-params.g.normalizationInternal = 'none';
-params.g.normalizationRegion = 'none';
-params.g.normalizationGene = 'zscore';
-[resultsTablesCortexDiff.human_APARC,gScore] = NodeSimpleEnrichment('isocortex','all','','human',params);
 
-thresholdSig = 0.5;
-PlotEnrichmentTables(resultsTablesCortexDiff,thresholdSig);
 
 %===============================================================================
 % PCs of expression variation:
@@ -72,9 +60,9 @@ params = GiveMeDefaultParams(whatSpecies);
 params.g.normalizationGene = 'mixedSigmoid'; % 'none', 'mixedSigmoid'
 params.g.normalizationRegion = 'none'; % 'none', 'mixedSigmoid'
 structFilter = 'all';
-[resultsTablesPC1.mouse_all] = NodeSimpleEnrichment('genePC',structFilter,'',whatSpecies,params);
+[resultsTablesPC1.mouse_all] = NodeSimpleEnrichment('genePC',structFilter,'',params);
 structFilter = 'isocortex';
-[resultsTablesPC1.mouse_ctx] = NodeSimpleEnrichment('genePC',structFilter,'',whatSpecies,params);
+[resultsTablesPC1.mouse_ctx] = NodeSimpleEnrichment('genePC',structFilter,'',params);
 
 whatSpecies = 'human';
 params = GiveMeDefaultParams(whatSpecies);

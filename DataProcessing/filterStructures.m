@@ -8,7 +8,7 @@ if nargin < 1
     fprintf(1,'Filtering to include only cortical areas by default\n');
 end
 if nargin < 2 || isempty(structInfo)
-    dataFile = '/Users/benfulcher/GoogleDrive/Work/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    dataFile = '/Users/benfulcher/GoogleDrive/Work/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
     fprintf(1,'Importing structure information for mouse from file: %s\n',dataFile);
     load(dataFile,'structInfo');
 end

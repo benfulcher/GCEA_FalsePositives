@@ -31,8 +31,6 @@ end
 % Corrected p-values using Benjamini-Hochberg
 pValPermCorr = mafdr(pValPerm,'BHFDR',true,'showPlot',false);
 pValZCorr = mafdr(pValZ,'BHFDR',true,'showPlot',false);
-% q-values of Storey, 2002
-% [~,pValZCorr] = mafdr(pValZ);
 
 %-------------------------------------------------------------------------------
 % Assign values to categories of GOTable:

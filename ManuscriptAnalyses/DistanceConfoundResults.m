@@ -5,7 +5,7 @@
 resultsTablesDist = struct();
 
 %-------------------------------------------------------------------------------
-% Set up general GCC compute parameters:
+% Set up general GCC parameters:
 %-------------------------------------------------------------------------------
 GCCparams = struct();
 GCCparams.whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
@@ -18,29 +18,27 @@ GCCparams.regressDistance = false; % whether to regress distance
 %-------------------------------------------------------------------------------
 % MOUSE:
 %-------------------------------------------------------------------------------
-whatSpecies = 'mouse';
 % Other parameters:
-params = GiveMeDefaultParams(whatSpecies);
+params = GiveMeDefaultParams('mouse');
 % To make GCC scores make sense -- expression needs to be [0,1] normalized:
 params.g.normalizationGene = 'mixedSigmoid'; % 'none', 'mixedSigmoid'
 params.g.normalizationRegion = 'none'; % 'none', 'zscore'
 
 %----Get the results (for whole-brain and cortex):
 structFilter = 'all';
-resultsTablesDist.mouse_all = geneEnrichmentDistance(structFilter,whatSpecies,params,GCCparams);
+resultsTablesDist.mouse_all = geneEnrichmentDistance(structFilter,params,GCCparams);
 structFilter = 'isocortex';
-resultsTablesDist.mouse_ctx = geneEnrichmentDistance(structFilter,whatSpecies,params,GCCparams);
+resultsTablesDist.mouse_ctx = geneEnrichmentDistance(structFilter,params,GCCparams);
 
 %-------------------------------------------------------------------------------
 % Now Human:
-whatSpecies = 'human';
-params = GiveMeDefaultParams(whatSpecies);
+params = GiveMeDefaultParams('human');
 params.g.whatParcellation = 'HCP';
 params.g.normalizationInternal = 'robustSigmoid';
 params.g.normalizationGene = 'mixedSigmoid'; % 'none', 'mixedSigmoid'
 params.g.normalizationRegion = 'none'; % 'none', 'zscore'
 
-resultsTablesDist.human_HCP = geneEnrichmentDistance(structFilter,whatSpecies,params,GCCparams);
+resultsTablesDist.human_HCP = geneEnrichmentDistance(structFilter,params,GCCparams);
 
 %-------------------------------------------------------------------------------
 % Visualize together:

@@ -10,6 +10,14 @@ end
 %===============================================================================
 % Add path references to dependencies:
 %===============================================================================
-% Matlab gene enrichment toolbox (github):
+fprintf(1,'Adding dependencies for external toolboxes:\n');
+
+fprintf(1,'GeneEnrichment for Matlab\n');
 addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/')
+hereNow = pwd;
+cd('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/')
+startup;
+cd(hereNow);
+
+fprintf(1,'mySQL for Matlab\n');
 addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabmySQL/')

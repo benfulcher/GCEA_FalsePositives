@@ -4,8 +4,7 @@ function [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneEntrezIDs,what
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% DEFAULTS:
-%-------------------------------------------------------------------------------
+% Check inputs:
 if nargin < 3
     [geneData,geneInfo] = LoadMeG({'robustSigmoid','zscore'},'energy');
     geneEntrezIDs = geneInfo.gene_entrez_id;
@@ -175,54 +174,5 @@ case 'abs'
 otherwise
     error('Unknown abs type: %s',absType);
 end
-
-
-%-------------------------------------------------------------------------------
-% Correct for distance:
-%-------------------------------------------------------------------------------
-% Get scores relative to what would be expected from distance
-% A pretty poor way to do it because the signature of distance may be from a
-% different pattern of GCC scores than the edge metric of interest
-% if correctDistance
-%     % STILL NEED TO INSPECT WHAT THIS IS DOING...
-%     if ~strcmp(whatCorr,'Spearman')
-%         warning('Correcting using Spearman, not %s',whatCorr);
-%     end
-%     dScores = load('dScores_Spearman.mat','geneEntrez','geneDistanceScores');
-%     [geneEntrezMatched,ia,ib] = intersect(dScores.geneEntrez,geneEntrezIDs);
-%     gScore = bsxfun(@minus,gScore(ib),dScores.geneDistanceScores(ia));
-%     geneEntrezIDs = geneEntrezMatched;
-% end
-
-
-% Plot some of the top ones:
-% geneData(:,notGoodEnough) = [];
-% [~,ix] = sort(gScore,'descend');
-% f = figure('color','w');
-% for i = 1:10
-%     subplot(2,5,i);
-%     g = geneData(:,ix(i));
-%     GCC = g*g';
-%     GCCVector = GCC(isEdge);
-%     plot(edgeVector,GCCVector,'.k');
-%     title(sprintf('%.2f -- %u',gScore(ix(i)),geneEntrezIDs(ix(i))));
-%     xlabel('edge properties')
-%     ylabel('gcc')
-% end
-%
-% % Look at distributions of genes that did well:
-% f = figure('color','w');
-% for i = 1:20
-%     subplot(5,8,i)
-%     histogram(geneData(:,ix(i)))
-%     title(i)
-% end
-% for i = 1:20
-%     subplot(5,8,20+i)
-%     histogram(geneData(:,ix(end-i)))
-%     title(length(ix)-i)
-% end
-% keyboard
-
 
 end

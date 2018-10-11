@@ -1,6 +1,6 @@
 function params = GiveMeDefaultParams(humanOrMouse)
-%-------------------------------------------------------------------------------
-% Idea is to give a parameter vector of defaults
+% Produces a parameter vector of default values for processing and analysis
+% 
 % Gives a unified parameter structure broken into 3 components:
 % * c (connectome processing)
 % * g (gene expression processing)

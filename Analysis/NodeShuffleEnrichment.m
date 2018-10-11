@@ -1,7 +1,17 @@
 function GOTable = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies,params)
-% Idea is to shuffle node properties across nodes, generating a null
-% distribution for each category separately
+% NodeShuffleEnrichment  Compute enrichment in different GO categories by spatial shuffling
 
+% Shuffle node properties across nodes, generating a null distribution
+% for each category separately
+
+%---INPUTS:
+% * whatEnrichment: what node property to do enrichment on
+% * whatShuffle: the shuffling model for generating null distributions
+% * numNulls: how many nulls to generate
+
+%-------------------------------------------------------------------------------
+% INPUTS:
+%-------------------------------------------------------------------------------
 if nargin < 1
     whatEnrichment = 'degree';
 end
@@ -83,10 +93,12 @@ fprintf(1,'Shuffling over %u brain areas using ''%s''\n',...
 %-------------------------------------------------------------------------------
 categoryScores = nan(numGOCategories,numNulls+1);
 parfor n = 1:numNulls+1
-    fprintf(1,'Null %u/%u\n',n,numNulls+1);
+
     if n == 1
+        fprintf(1,'Unpermuted data!\n');
         permVector = 1:size(geneData,1);
     else
+        fprintf(1,'Null %u/%u\n',n-1,numNulls);
         permVector = shuffle_fn();
     end
 

@@ -1,28 +1,20 @@
 function [geneData,geneInfo,structInfo] = LoadMeG(gParam)
-% Load in the gene data as G from new, SDK results
-% Gets the gene_energy or gene_density matrix, and the matching geneInfo table
-% Along with the structInfo table.
-% (could also get the full structure dataset info from the 'energy' or 'density'
-% fields and match with the datasetInfo table)
+% LoadMeG Load gene data as a matrix with tables for metadata info about rows and columns
 
 %-------------------------------------------------------------------------------
 % Check inputs:
-%-------------------------------------------------------------------------------
 if nargin < 1 || isempty(gParam)
     warning('Using default mouse parameters for gene expression')
     humanOrMouse = 'mouse';
     params = GiveMeDefaultParams(humanOrMouse);
     gParam = params.g;
 end
-%-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% Get NEW DATA FROM SDK RETRIEVALS:
-%-------------------------------------------------------------------------------
-% try
 switch gParam.humanOrMouse
 case 'mouse'
-    dataFile = '/Users/benfulcher/DropboxSydneyUni/CurrentProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    % Get NEW DATA FROM SDK RETRIEVALS:
+    dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
     fprintf(1,'New Allen SDK-data from %s\n',dataFile);
     load(dataFile,'GeneExpData','geneInfo','structInfo');
 
