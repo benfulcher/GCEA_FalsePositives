@@ -23,7 +23,6 @@ onlyOnEdges = params.gcc.onlyConnections; % only look where there are structural
 corrType = params.gcc.whatCorr; % 'Spearman', 'Pearson'
 correctDistance = params.gcc.regressDistance; % whether to regress distance
 absType = params.gcc.absType;
-numNulls = params.gcc.numNulls; % not used for 'randomGene'
 
 % %-------------------------------------------------------------------------------
 % % Checks:
@@ -110,10 +109,11 @@ case 'randomGene'
 
 otherwise
     % ---Custom null---
-
-    fprintf(1,'%u nulls\n',params.gcc.numNulls);
+    numNulls = params.gcc.numNulls;
+    fprintf(1,'%u nulls\n',numNulls);
 
     % (include only annotations for genes with entrez IDs that are in our dataset)
+    fprintf(1,'---Interested in %s---\n',params.e.processFilter);
     GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
                                     params.e.sizeFilter,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
@@ -121,9 +121,8 @@ otherwise
     categoryScores = nan(numGOCategories,numNulls+1);
     geneScores = cell(numNulls+1,1);
     entrezIDsKept = cell(numNulls+1,1); % (sometimes entrez IDs change -- e.g., when matching to distance results)
-    fprintf(1,'---Interested in %s---\n',params.e.processFilter);
     timer = tic;
-    parfor i = 1:numNulls+1
+    for i = 1:numNulls+1
         if i==1
             fprintf(1,'Read edge data!\n\n');
             theEdgeData = edgeData;

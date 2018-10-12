@@ -1,15 +1,19 @@
 
 randomizeHow = 'shuffleStructAll';
-numNulls = 100;
+humanOrMouse = 'mouse';
+%-------------------------------------------------------------------------------
 
+params = GiveMeDefaultParams(humanOrMouse);
 % Compute edge measures (+nulls):
-edgeData = GiveMeDistanceMatrix('mouse');
-nullEdgeData = SpatialShuffleNull(edgeData,randomizeHow,numNulls);
+edgeData = GiveMeDistanceMatrix(params.humanOrMouse);
+nullEdgeData = SpatialShuffleNull(edgeData,randomizeHow,params.gcc.numNulls);
 
-% Gene expression data:
-[geneData,geneInfo,structInfo] = LoadMeG(params.g);
-numGenes = height(geneInfo);
-fprintf(1,'%u x %u gene expression matrix\n',size(geneData,1),size(geneData,2));
+% We're symmetric (Euclidean distances) so we should only look at upper triangles:
+fprintf(1,'Taking upper triangles of symmetric distance-based data...\n');
+isUpperDiag = triu(true(size(edgeData)),+1);
+edgeData = edgeData(isUpperDiag);
+nullEdgeData = cellfun(@(x)x(isUpperDiag),nullEdgeData);
 
-%
-[GOTable,gScore] = EdgeEnrichment(edgeData,nullEdgeData,whatNull,params);
+%-------------------------------------------------------------------------------
+% Do the enrichment at the level of individual genes:
+[GOTable,geneScores] = EdgeEnrichment(edgeData,nullEdgeData,randomizeHow,params);
