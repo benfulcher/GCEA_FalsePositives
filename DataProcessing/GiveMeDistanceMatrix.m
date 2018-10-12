@@ -26,4 +26,7 @@ case 'human'
     distanceMat = squareform(pdist(coOrds,'Euclidean'));
 end
 
+fprintf(1,'%u x %u pairwise distance matrix\n',...
+                size(distanceMat,1),size(distanceMat,2));
+
 end

@@ -30,7 +30,7 @@ fprintf(1,'Annotations span %u GO categories\n',length(allGOIDs));
 params = GiveMeDefaultParams(whatSpecies);
 eParam = params.e;
 eParam.sizeFilter = [0,1e6];
-GOTerms = GetFilteredGOData(eParam.whatSource,eParam.processFilter,eParam.sizeFilter);
+GOTerms = GetFilteredGOData(eParam.dataSource,eParam.processFilter,eParam.sizeFilter);
 
 % Convert each dataset to a vector across GOIDs:
 rowVectorResults = nan(numTables,numGOIDs);

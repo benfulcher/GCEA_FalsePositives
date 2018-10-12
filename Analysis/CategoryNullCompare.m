@@ -21,7 +21,7 @@ params.g.normalizationRegion = 'none';
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 % Load in GO annotations:
-GOTable = GetFilteredGOData(params.e.whatSource,params.e.processFilter,params.e.sizeFilter,...
+GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,params.e.sizeFilter,...
                                     geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 whatCategory = find(GOTable.GOID==whatGOID);

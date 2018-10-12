@@ -1,8 +1,6 @@
 function [theAdjMat,regionAcronyms,adjPVals] = GiveMeAdj(whatData,pThreshold,doBinarize,...
                                     whatWeightMeasure,whatHemispheres,whatFilter)
-% Gives a string identifying the type of normalization to apply, then returns
-% the gene data for that normalization.
-% ------------------------------------------------------------------------------
+% Return a pairwise connectivity matrix
 
 %-------------------------------------------------------------------------------
 % Check Inputs
@@ -38,7 +36,6 @@ case 'mouse-Oh'
     if ~exist('C','var')
         C = load('Mouse_Connectivity_Data.mat','Conn_W','Conn_p','regionAcronyms');
     end
-    % Ipsi:
     switch whatHemispheres
     case 'right'
         ind = [1,1];

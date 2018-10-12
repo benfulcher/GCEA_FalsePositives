@@ -111,21 +111,20 @@ case 'randomGene'
     %-------------------------------------------------------------------------------
     % Enrichment using our in-house random-gene null method:
     %-------------------------------------------------------------------------------
-    GOTable = SingleEnrichment(gScore,geneEntrezIDs,...
-                        params.e.whatSource,params.e.processFilter,params.e.sizeFilter,params.e.numIterations);
+    GOTable = SingleEnrichment(gScore,geneEntrezIDs,params.e);
 
     %-------------------------------------------------------------------------------
     % ANALYSIS:
     %-------------------------------------------------------------------------------
-    numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
-    fprintf(1,'%u significant categories at p_corr < %.1g\n',numSig,params.e.enrichmentSigThresh);
+    numSig = sum(GOTable.pValCorr < params.e.sigThresh);
+    fprintf(1,'%u significant categories at p_corr < %.1g\n',numSig,params.e.sigThresh);
     display(GOTable(1:numSig,:));
 
 otherwise
     %-------------------------------------------------------------------------------
     % Get GO data
     % (include only annotations for genes with entrez IDs that are in our dataset)
-    GOTable = GetFilteredGOData(params.e.whatSource,Param.processFilter,...
+    GOTable = GetFilteredGOData(params.e.dataSource,Param.processFilter,...
                                     params.e.sizeFilter,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
 
@@ -133,7 +132,7 @@ otherwise
     gScore = cell(numNulls+1,1);
     entrezIDsKept = cell(numNulls+1,1);
     fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',...
-                        params.e.enrichmentSigThresh);
+                        params.e.sigThresh);
     timer = tic;
     parfor i = 1:numNulls+1
         fprintf(1,'%u/%u\n\n',i,numNulls+1);

@@ -70,7 +70,7 @@ if ~isempty(subsetOfGenes)
     geneInfo = geneInfo(rp,:);
 end
 % Check gene data matches connectome data
-if ~all([regionStruct.id]'==structInfo.id)
+if ~all(regionStruct.id'==structInfo.id)
     % Take subset
     [~,ia,ib] = intersect([regionStruct.id]',structInfo.id,'stable');
     geneData = geneData(ib,:);
@@ -90,7 +90,7 @@ end
 %-------------------------------------------------------------------------------
 % Get GO data
 % (include only annotations for genes with entrez IDs that are in our dataset)
-GOTable = GetFilteredGOData(eParam.whatSource,eParam.processFilter,...
+GOTable = GetFilteredGOData(eParam.dataSource,eParam.processFilter,...
                                     eParam.sizeFilter,geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 

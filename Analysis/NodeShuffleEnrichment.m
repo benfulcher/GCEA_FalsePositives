@@ -49,7 +49,7 @@ end
                                     params.c.whatWeightMeasure,params.c.whatHemispheres,params.c.structFilter);
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 [A_bin,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A_bin,geneData);
-GOTable = GetFilteredGOData(params.e.whatSource,params.e.processFilter,...
+GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
                                 params.e.sizeFilter,geneInfo.entrez_id);
 numGenes = size(geneData,1);
 numGOCategories = height(GOTable);
@@ -126,8 +126,8 @@ ix_GO = ListCategories(geneInfo,GOTable);
 GOTable = GOTable(ix_GO,:);
 categoryScores = categoryScores(ix_GO);
 
-numSig = sum(GOTable.pValZCorr < params.e.enrichmentSigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
+numSig = sum(GOTable.pValZCorr < params.e.sigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
 
 NullSummaryPlots(GOTable,categoryScores);

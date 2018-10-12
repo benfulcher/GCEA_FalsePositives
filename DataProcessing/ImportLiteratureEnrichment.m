@@ -35,7 +35,7 @@ if filterOnOurGenes
 else
     restrictEntrez = [];
 end
-GOTerms = GetFilteredGOData(params.e.whatSource,params.e.processFilter,...
+GOTerms = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
                                 params.e.sizeFilter,restrictEntrez);
 numGOCategories = height(GOTerms);
 

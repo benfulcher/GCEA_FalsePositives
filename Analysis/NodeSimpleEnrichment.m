@@ -30,7 +30,7 @@ if nargin < 3 || isempty(corrType)
     fprintf(1,'Pearson correlations by default (if relevant)\n');
 end
 if nargin < 4
-    params = GiveMeDefaultParams('mouse'); % mouse by default
+    params = GiveMeDefaultParams('mouse');
 end
 
 doRandomize = false;
@@ -167,13 +167,11 @@ end
 %-------------------------------------------------------------------------------
 % Do the enrichment
 %-------------------------------------------------------------------------------
-GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,...
-                        params.e.whatSource,params.e.processFilter,...
-                        params.e.sizeFilter,params.e.numIterations);
+GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,params.e);
 
 % ANALYSIS:
-numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
+numSig = sum(GOTable.pValCorr < params.e.sigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
 
 end

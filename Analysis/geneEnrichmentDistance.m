@@ -1,112 +1,94 @@
-function GOTable = geneEnrichmentDistance(structFilter,params,GCCparams)
+function GOTable = geneEnrichmentDistance(params)
 % Quantify for each gene the correlation between its coexpression and the
 % pairwise distance between regions (then can try to work up a correction?)
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% INPUTS:
-%-------------------------------------------------------------------------------
-if nargin < 1 || isempty(structFilter)
-    structFilter = 'isocortex'; % 'cortex', 'all'
-end
-if nargin < 2
+% Inputs (defaults):
+if nargin < 1
     params = GiveMeDefaultParams('mouse');
 end
-if nargin < 3
-    GCCparams = struct();
-    GCCparams.whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
-    GCCparams.pValOrStat = 'stat'; % 'pval','stat'
-    GCCparams.thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-    GCCparams.absType = 'neg';
-    GCCparams.onlyConnections = false; % only look where there are structural connections
-    GCCparams.regressDistance = false; % whether to regress distance
-end
 
 %-------------------------------------------------------------------------------
-% Gene scoring parameters:
+% Load and process data
 %-------------------------------------------------------------------------------
+% Pairwise distance data:
+distMat = GiveMeDistanceMatrix(params.humanOrMouse);
 
-%-------------------------------------------------------------------------------
-% Load in and process data:
-%-------------------------------------------------------------------------------
-% Distance data:
-distMat = GiveMeDistanceMatrix(whatSpecies);
-
-% Binary connectome:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,...
+% Structural connectivity (ONLY used if params.gcc.onlyConnections):
+[A_bin,regionAcronyms] = GiveMeAdj(params.c.connectomeSource,...
             params.c.pThreshold,true,params.c.whatWeightMeasure,...
             params.c.whatHemispheres,params.c.structFilter);
+fprintf(1,'%u x %u structural connectivity matrix\n',size(A_bin,1),size(A_bin,2));
 
-%-------------------------------------------------------------------------------
 % Gene expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 numGenes = height(geneInfo);
+fprintf(1,'%u x %u gene expression matrix\n',size(geneData,1),size(geneData,2));
 
-%-------------------------------------------------------------------------------
-% Filter to subregions
+% Align:
+if ~all(strcmp(structInfo.acronym,regionAcronyms))
+    error('Connectivity and gene expression data are not aligned');
+end
+
 %-------------------------------------------------------------------------------
 % Filter structures:
-[A_bin,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A_bin,geneData);
-distMat = distMat(keepStruct,keepStruct);
+if ~strcmp(params.c.structFilter,'all')
+    [A_bin,geneData,structInfo,keepStruct] = filterStructures(params.c.structFilter,structInfo,A_bin,geneData);
+    distMat = distMat(keepStruct,keepStruct);
+end
 entrezIDs = geneInfo.entrez_id;
-numStructs = height(structInfo);
+numStructs = height(structInfo)
 
 %-------------------------------------------------------------------------------
-% Make vector of distances
-%-------------------------------------------------------------------------------
-if GCCparams.onlyConnections
+% Construct vector of pairwise separation distances:
+dData = distMat;
+if params.gcc.onlyConnections
     fprintf(1,'Only looking at pairs of regions where connections exist\n');
-    pThreshold = 0.05;
-    dData = distMat;
     dData(A_bin == 0) = 0;
-    % Only symmetric?:
-    dData(tril(true(size(dData)),-1)) = 0;
 else
     fprintf(1,'Looking at all pairs of regions\n');
-    % Convert to vector of upper diagonal
-    dData = distMat;
-    dData(tril(true(size(dData)),-1)) = 0;
 end
+% Keep upper diagonal of pairwise distances:
+dData(tril(true(size(dData)),-1)) = 0;
 
 %-------------------------------------------------------------------------------
 % Score genes:
-%-------------------------------------------------------------------------------
-if GCCparams.regressDistance
-    fprintf(1,'Scoring %u genes on coexpression with distance (AND regressing out distance?!)\n',numGenes);
+if params.gcc.regressDistance
+    fprintf(1,'Scoring %u genes on correlation between g.gT and distance (AND regressing out distance?!)\n',numGenes);
     dRegressor = dData;
 else
-    fprintf(1,'Scoring %u genes on coexpression with distance (no regressor)\n',numGenes);
+    fprintf(1,'Scoring %u genes on correlation between g.gT and distance (no regressor)\n',numGenes);
     dRegressor = [];
 end
-[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,GCCparams.whatCorr,...
-                                dRegressor,GCCparams.absType,GCCparams.thresholdGoodGene,...
-                                GCCparams.pValOrStat);
-fprintf(1,'Gene scoring done across %u/%u genes! Enrichment time!\n',length(geneScores),numGenes);
+[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,params,dRegressor);
+fprintf(1,'Scoring complete across %u/%u genes!\n',length(geneScores),numGenes);
 
 %-------------------------------------------------------------------------------
 % Do the enrichment:
-%-------------------------------------------------------------------------------
-GOTable = SingleEnrichment(geneScores,geneEntrezIDs,...
-                            params.e.whatSource,params.e.processFilter,...
-                            params.e.sizeFilter,params.e.numIterations);
+fprintf(1,'Enrichment time!\n');
+GOTable = SingleEnrichment(geneScores,geneEntrezIDs,params.e);
 
-% ANALYSIS:
-numSig = sum(GOTable.pValCorr < params.e.enrichmentSigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.enrichmentSigThresh);
+%-------------------------------------------------------------------------------
+% Look at the distribution of scores across genes and within categories
+f = figure('color','w');
+hold('on')
+h1 = histogram(geneScores);
+h2 = histogram(GOTable.meanScore);
+xlabel(sprintf('%s correlation between CGE and separation distance',params.gcc.whatCorr))
+legend([h1,h2],{sprintf('%u gene scores',length(geneScores)),sprintf('%u category scores',height(GOTable))})
+title(textLabel,'interpreter','none')
+
+%-------------------------------------------------------------------------------
+% List GO categories with significant p-values:
+numSig = sum(GOTable.pValCorr < params.e.sigThresh);
+fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
 
 %-------------------------------------------------------------------------------
-textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',GCCparams.whatCorr,params.g.normalizationGene,...
-                        params.g.normalizationRegion,GCCparams.pValOrStat,GCCparams.absType,...
-                        GCCparams.onlyConnections);
-
-%-------------------------------------------------------------------------------
-% Look at the distribution
-%-------------------------------------------------------------------------------
-f = figure('color','w');
-histogram(geneScores)
-xlabel(sprintf('%s correlation between distance and coexpression',GCCparams.whatCorr))
-title(textLabel,'interpreter','none')
+textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',params.gcc.whatCorr,params.g.normalizationGene,...
+                        params.g.normalizationRegion,params.gcc.pValOrStat,params.gcc.absType,...
+                        params.gcc.onlyConnections);
 
 %-------------------------------------------------------------------------------
 % Save result to .mat file
@@ -116,30 +98,5 @@ title(textLabel,'interpreter','none')
 % fileNameMat = [textLabel,'.mat'];
 % save(fileNameMat,'geneEntrez','geneDistanceScores');
 % fprintf(1,'Saved info to %s\n',fileNameMat);
-
-%-------------------------------------------------------------------------------
-% Do enrichment using ermine J:
-%-------------------------------------------------------------------------------
-% numIterations = 20000;
-% fileNameWrite = writeErmineJFile('tmp',-(geneScores),geneEntrezIDs,'distance');
-% ermineJResults = RunErmineJ(fileNameWrite,numIterations);
-
-% fileName = sprintf('corr_d_%s_%s_%s',whatCorr,normalizeHow,pValOrStat);
-%
-% doWhat = {'pos','neg','abs'};
-% for i = 1:length(doWhat)
-%     fileName = sprintf('%s_%s',fileNameBase,doWhat{i});
-%     switch doWhat{i}
-%     case 'pos'
-%         geneScoresNow = geneScores;
-%     case 'neg'
-%         geneScoresNow = -geneScores;
-%     case 'abs'
-%         geneScoresNow = abs(geneScores);
-%     end
-%
-%     writeErmineJFile(fileName,geneScoresNow,geneEntrez,...
-%                     sprintf('%s_%s_%s',whatCorr,normalizeHow,pValOrStat));
-% end
 
 end
