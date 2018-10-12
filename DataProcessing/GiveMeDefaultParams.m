@@ -1,10 +1,11 @@
 function params = GiveMeDefaultParams(humanOrMouse)
 % Produces a parameter vector of default values for processing and analysis
 %
-% Gives a unified parameter structure broken into 3 components:
+% Gives a unified parameter structure broken into 4 components:
 % * c (connectome processing)
 % * g (gene expression processing)
 % * e (GO enrichment processing)
+% * gcc (settings for computing GCC scores)
 %-------------------------------------------------------------------------------
 
 % Check inputs:
@@ -44,7 +45,7 @@ switch humanOrMouse
 case 'mouse'
     params.g.energyOrDensity = 'energy'; % what gene expression data to use
     params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-    params.g.normalizationRegion = 'none'; % 'none', 'zscore'
+    params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
     params.g.subsetOfGenes = []; % only analyze the first X genes.
                                  % Set to empty, [], to use all genes
 case 'human'
@@ -74,7 +75,7 @@ end
 
 params.e.processFilter = 'biological_process';
 params.e.sizeFilter = [5,200];
-params.e.numSamples = 20000; % number of null samples when computing gene score significance
+params.e.numSamples = 100000; % number of null samples when computing gene score significance
 params.e.sigThresh = 0.05; % display categories with corrected p-value below this threshold
 
 %-------------------------------------------------------------------------------

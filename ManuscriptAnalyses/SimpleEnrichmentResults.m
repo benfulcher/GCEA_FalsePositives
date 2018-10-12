@@ -45,8 +45,6 @@ title('Enrichment by mean expression across the brain')
 PlotEnrichmentTables(resultsTablesVar,thresholdSig);
 title('Enrichment by expression variance across the brain')
 
-
-
 %===============================================================================
 % PCs of expression variation:
 %===============================================================================

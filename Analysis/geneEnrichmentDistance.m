@@ -9,6 +9,11 @@ if nargin < 1
     params = GiveMeDefaultParams('mouse');
 end
 
+% Text summary of the relevant analysis settings:
+textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',params.gcc.whatCorr,params.g.normalizationGene,...
+                        params.g.normalizationRegion,params.gcc.pValOrStat,params.gcc.absType,...
+                        params.gcc.onlyConnections);
+
 %-------------------------------------------------------------------------------
 % Load and process data
 %-------------------------------------------------------------------------------
@@ -38,7 +43,7 @@ if ~strcmp(params.c.structFilter,'all')
     distMat = distMat(keepStruct,keepStruct);
 end
 entrezIDs = geneInfo.entrez_id;
-numStructs = height(structInfo)
+numStructs = height(structInfo);
 
 %-------------------------------------------------------------------------------
 % Construct vector of pairwise separation distances:
@@ -51,6 +56,16 @@ else
 end
 % Keep upper diagonal of pairwise distances:
 dData(tril(true(size(dData)),-1)) = 0;
+
+%-------------------------------------------------------------------------------
+% Visualize bulk distance trend for cge computed across all genes:
+cge = corr(geneData','type','Pearson','rows','pairwise');
+isUpperDiag = triu(true(size(dData)),+1);
+f = figure('color','w');
+plot(dData(isUpperDiag),cge(isUpperDiag),'.k');
+xlabel('Distance')
+ylabel('CGE (Pearson)')
+title(sprintf('Bulk spatial trend: %u genes',numGenes));
 
 %-------------------------------------------------------------------------------
 % Score genes:
@@ -82,13 +97,8 @@ title(textLabel,'interpreter','none')
 %-------------------------------------------------------------------------------
 % List GO categories with significant p-values:
 numSig = sum(GOTable.pValCorr < params.e.sigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
+fprintf(1,'%u GO categories have p_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
-
-%-------------------------------------------------------------------------------
-textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',params.gcc.whatCorr,params.g.normalizationGene,...
-                        params.g.normalizationRegion,params.gcc.pValOrStat,params.gcc.absType,...
-                        params.gcc.onlyConnections);
 
 %-------------------------------------------------------------------------------
 % Save result to .mat file

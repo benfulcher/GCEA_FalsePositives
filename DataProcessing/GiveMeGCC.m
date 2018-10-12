@@ -102,9 +102,8 @@ else
         fprintf(1,'***COMPUTING CORRELATIONS (WITHOUT ANY REGRESSORS)^^^\n');
     end
 
-
     fprintf(1,'Looping over %u genes, computing %s correlations across %u edges...\n',...
-                                                numGenes,params.gcc.whatCorr,length(edgeVector));
+                                        numGenes,params.gcc.whatCorr,length(edgeVector));
     parfor i = 1:numGenes
         g = geneData(:,i);
         GCC = g*g'; % self product at each edge
