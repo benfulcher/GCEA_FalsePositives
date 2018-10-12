@@ -4,7 +4,7 @@ function GOTable = geneEnrichmentDistance(params)
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% Inputs (defaults):
+% Inputs:
 if nargin < 1
     params = GiveMeDefaultParams('mouse');
 end

@@ -1,96 +1,88 @@
-function [GOTable,gScore] = EdgeEnrichment(whatEdgeMeasure,onlyOnEdges,...
-                correctDistance,absType,corrType,whatNull,numNulls,whatSpecies,params)
+function [GOTable,gScore] = EdgeEnrichment(edgeData,nullEdgeData,whatNull,params)
 % Computes correlation between a pairwise measure and gene expression outer
 % product
 %-------------------------------------------------------------------------------
 
-%-------------------------------------------------------------------------------
-% Fixed processing parameters:
-%-------------------------------------------------------------------------------
+% Processing parameters:
 if nargin < 1
     whatEdgeMeasure = 'distance';
 end
 if nargin < 2
-    onlyOnEdges = false;
+    nullEdgeData = [];
 end
 if nargin < 3
-    correctDistance = false; % false,true;
-end
-if nargin < 4
-    absType = 'pos'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
-end
-if nargin < 5
-    corrType = 'Spearman'; % {'Spearman','Pearson'};
-end
-if nargin < 6
     whatNull = 'randomGene'; % 'topology', 'uniformTopology', 'permutedGeneDep', 'shuffleEdgeVals'
 end
-if nargin < 7
-    numNulls = 100; % not used for 'randomGene'
+if nargin < 4
+    params = GiveMeDefaultParams('mouse');
+    % params.gcc.pValOrStat = 'stat'; % 'pval','stat'
+    % params.gcc.thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
 end
-if nargin < 8
-    whatSpecies = 'mouse';
-    fprintf(1,'Mouse by default\n');
-end
-if nargin < 9
-    % Just use global defaults if none provided
-    params = GiveMeDefaultParams(whatSpecies);
-end
+
+onlyOnEdges = params.gcc.onlyConnections; % only look where there are structural connections
+corrType = params.gcc.whatCorr; % 'Spearman', 'Pearson'
+correctDistance = params.gcc.regressDistance; % whether to regress distance
+absType = params.gcc.absType;
+numNulls = params.gcc.numNulls; % not used for 'randomGene'
+
+% %-------------------------------------------------------------------------------
+% % Checks:
+% if strcmp(whatEdgeMeasure,'connected')
+%     corrType = 'ttest';
+% end
+%
+% %===============================================================================
+% % Get data:
+% [A_wei,regionAcronyms,A_p] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,false,...
+%                                     params.c.whatWeightMeasure,params.c.whatHemispheres,'all');
+
+
+% % Make sure structInfo match with regionAcronyms:
+% [~,ia,ib] = intersect(structInfo.acronym,regionAcronyms,'stable');
+% if length(ia)~=height(structInfo) % this should be the limiting list (all should appear in regionAcronyms)
+%     error('Error matching ROIs by acronym');
+% end
+% regionAcronyms = regionAcronyms(ib);
+% A_wei = A_wei(ib,ib);
+% if ~isempty(A_p)
+%     A_p = A_p(ib,ib);
+% end
+% fprintf(1,'Rearranged information for %u structures\n',length(ib));
+%
+% % Filter structures:
+% [A_wei,geneData,structInfo,keepInd] = filterStructures(params.c.structFilter,...
+%                                                 structInfo,A_wei,geneData);
+% A_bin = (A_wei~=0);
+%
+% if ~isempty(A_p)
+%     A_p = A_p(keepInd,keepInd);
+% end
+%
+% %-------------------------------------------------------------------------------
+% % Compute the edge measure:
+% %-------------------------------------------------------------------------------
+% if strcmp(whatNull,'randomGene')
+%     edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,whatSpecies,A_p);
+% else
+%     % Compute edge measures (+nulls):
+%     edgeMeasures = GiveMeNullEdgeMeasures(whatNull,whatEdgeMeasure,A_bin,A_wei,numNulls,onlyOnEdges,structInfo);
+% end
 
 %-------------------------------------------------------------------------------
-% Settings for computing correlations:
-thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-pValOrStat = 'stat'; % 'pval','stat'
-
-%-------------------------------------------------------------------------------
-% Checks:
-if strcmp(whatEdgeMeasure,'connected')
-    corrType = 'ttest';
-end
-
-%===============================================================================
-% Get data:
-[A_wei,regionAcronyms,A_p] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,false,...
-                                    params.c.whatWeightMeasure,params.c.whatHemispheres,'all');
+% Load in gene expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
-% Make sure structInfo match with regionAcronyms:
-[~,ia,ib] = intersect(structInfo.acronym,regionAcronyms,'stable');
-if length(ia)~=height(structInfo) % this should be the limiting list (all should appear in regionAcronyms)
-    error('Error matching ROIs by acronym');
-end
-regionAcronyms = regionAcronyms(ib);
-A_wei = A_wei(ib,ib);
-if ~isempty(A_p)
-    A_p = A_p(ib,ib);
-end
-fprintf(1,'Rearranged information for %u structures\n',length(ib));
-
-% Filter structures:
-[A_wei,geneData,structInfo,keepInd] = filterStructures(params.c.structFilter,...
-                                                structInfo,A_wei,geneData);
-A_bin = (A_wei~=0);
-
-if ~isempty(A_p)
-    A_p = A_p(keepInd,keepInd);
-end
-
 %-------------------------------------------------------------------------------
-% Compute the edge measure:
-%-------------------------------------------------------------------------------
-if strcmp(whatNull,'randomGene')
-    edgeData = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges,whatSpecies,A_p);
-else
-    % Compute edge measures (+nulls):
-    edgeMeasures = GiveMeNullEdgeMeasures(whatNull,whatEdgeMeasure,A_bin,A_wei,numNulls,onlyOnEdges,structInfo);
+% Check that regions in the gene expression data match the edge data provided:
+if size(geneData,1)~=length(edgeData)
+    error('You loser, they''re not even the same size');
 end
 
 %-------------------------------------------------------------------------------
 % Regress distance?:
-%-------------------------------------------------------------------------------
 if correctDistance
-    distanceRegressor = GiveMeDistanceMatrix(whatSpecies);
-    fprintf(1,'Regressing distances\n');
+    distanceRegressor = GiveMeDistanceMatrix(params.humanOrMouse);
+    fprintf(1,'Regressing inter-areal distances for %s\n',params.humanOrMouse);
 else
     distanceRegressor = []; % just compute normal correlations
     fprintf(1,'No distance regressor used\n');
@@ -98,58 +90,57 @@ end
 
 %-------------------------------------------------------------------------------
 % Compute the scores -> GO enrichment
-%-------------------------------------------------------------------------------
 switch whatNull
 case 'randomGene'
-    % Conventional gene enrichment analysis
-    %-------------------------------------------------------------------------------
+    % ---Conventional enrichment analysis under random-gene nulls---
+    % (computational benefit: each gene scored independently allows
+    % cheap computation of large number of null samples)
+    fprintf(1,'Random gene nulls\n');
+
     % Compute gene scores:
-    %-------------------------------------------------------------------------------
-    [gScore,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,corrType,...
-                            distanceRegressor,absType,thresholdGoodGene,pValOrStat);
+    [geneScores,geneEntrezIDs] = GiveMeGCC(edgeData,geneData,geneInfo.entrez_id,params,distanceRegressor);
 
-    %-------------------------------------------------------------------------------
-    % Enrichment using our in-house random-gene null method:
-    %-------------------------------------------------------------------------------
-    GOTable = SingleEnrichment(gScore,geneEntrezIDs,params.e);
+    % In-house category-size based random-gene permutation testing enrichment:
+    GOTable = SingleEnrichment(geneScores,geneEntrezIDs,params.e);
 
-    %-------------------------------------------------------------------------------
-    % ANALYSIS:
-    %-------------------------------------------------------------------------------
+    % Any significant?:
     numSig = sum(GOTable.pValCorr < params.e.sigThresh);
     fprintf(1,'%u significant categories at p_corr < %.1g\n',numSig,params.e.sigThresh);
     display(GOTable(1:numSig,:));
 
 otherwise
-    %-------------------------------------------------------------------------------
-    % Get GO data
+    % ---Custom null---
+
+    fprintf(1,'%u nulls\n',params.gcc.numNulls);
+
     % (include only annotations for genes with entrez IDs that are in our dataset)
-    GOTable = GetFilteredGOData(params.e.dataSource,Param.processFilter,...
+    GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
                                     params.e.sizeFilter,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);
-    gScore = cell(numNulls+1,1);
-    entrezIDsKept = cell(numNulls+1,1);
-    fprintf(1,'---Interested in Biological Processes with FDR p < %g\n',...
-                        params.e.sigThresh);
+    geneScores = cell(numNulls+1,1);
+    entrezIDsKept = cell(numNulls+1,1); % (sometimes entrez IDs change -- e.g., when matching to distance results)
+    fprintf(1,'---Interested in %s---\n',params.e.processFilter);
     timer = tic;
     parfor i = 1:numNulls+1
-        fprintf(1,'%u/%u\n\n',i,numNulls+1);
+        if i==1
+            fprintf(1,'Read edge data!\n\n');
+            theEdgeData = edgeData;
+        else
+            fprintf(1,'Null edge data: %u/%u\n\n',i-1,numNulls);
+            theEdgeData = nullEdgeData{i-1};
+        end
 
         % Compute gene scores:
-        % (sometimes entrez IDs change -- e.g., when matching to distance results)
-        [gScore{i},entrezIDsKept{i}] = GiveMeGCC(edgeMeasures{i},geneData,...
-                            geneInfo.entrez_id,corrType,distanceRegressor,absType,...
-                            thresholdGoodGene,pValOrStat);
+        [geneScores{i},entrezIDsKept{i}] = GiveMeGCC(theEdgeData,geneData,geneInfo.entrez_id,params,distanceRegressor);
 
         % Record mean scores for each category:
         for j = 1:numGOCategories
             matchMe = ismember(entrezIDsKept{i},GOTable.annotations{j});
-            if sum(matchMe) <= 1
-                continue
+            if sum(matchMe) > 0
+                categoryScores(j,i) = nanmean(geneScores{i}(matchMe));
             end
-            categoryScores(j,i) = nanmean(gScore{i}(matchMe));
         end
 
         % Give user feedback (not so useful for parfor... :-/)
@@ -159,21 +150,16 @@ otherwise
 
     %-------------------------------------------------------------------------------
     % Compute p-values (+ corrected) and annotate GOTable
-    %-------------------------------------------------------------------------------
-    fprintf(1,'GO categories with correlations to %s than %s nulls\n',whatEdgeMeasure,whatNull);
-    whatTail = 'right'; % right-tailed p-values
     GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
 
     %-------------------------------------------------------------------------------
     % List categories with lowest p-values, or highest mean across nulls, etc.
-    %-------------------------------------------------------------------------------
     ix_GO = ListCategories(geneInfo,GOTable);
     GOTable = GOTable(ix_GO,:);
     categoryScores = categoryScores(ix_GO);
 
     %-------------------------------------------------------------------------------
     % Save to mat file:
-    %-------------------------------------------------------------------------------
     if isempty(params.g.subsetOfGenes)
         fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,whatNull,...
                 params.e.processFilter,params.g.normalizationGene,params.g.normalizationRegion,numNulls);

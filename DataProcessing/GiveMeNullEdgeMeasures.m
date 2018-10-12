@@ -5,7 +5,6 @@ function edgeMeasures = GiveMeNullEdgeMeasures(randomizeHow,whatEdgeMeasure,A_bi
 %-------------------------------------------------------------------------------
 % (structInfo required for anatomically constrained nulls)
 %-------------------------------------------------------------------------------
-
 N = length(A_bin);
 
 switch randomizeHow
@@ -56,29 +55,6 @@ case 'topology'
         edgeMeasures{i} = GiveMeEdgeMeasure(whatEdgeMeasure,A_rand,A_wei_rand,onlyOnEdges);
     end
 
-case {'shuffleStructAll','shuffleStructTwo','shuffleStructFive'}
-    % Permute gene profiles assigned to regions (later)
-    % Edge measure stays constant using the correct topology:
-    edgeMeasures0 = GiveMeEdgeMeasure(whatEdgeMeasure,A_bin,A_wei,onlyOnEdges);
-    edgeMeasures = cell(numNulls+1,1);
-    edgeMeasures{1} = edgeMeasures0;
-    switch randomizeHow
-    case 'shuffleStructAll'
-        fprintf(1,'Shuffling all structures uniformly...\n');
-        shuffle_fn = @()randperm(N);
-    case 'shuffleStructTwo'
-        fprintf(1,'Shuffling within and outside of cerebral cortex separately...\n');
-        shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'twoBroad',false);
-    case 'shuffleStructFive'
-        fprintf(1,'Shuffling within five brain divisions...\n');
-        shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'fiveByEye',false);
-    end
-    for i = 2:numNulls+1
-        % Compute the desired edge measure:
-        rp = shuffle_fn();
-        edgeMeasures{i} = edgeMeasures0(rp,rp);
-    end
-
 case 'shuffleEdgeVals'
     % Shuffle values given to each edge
     % First compute the proper values:
@@ -92,4 +68,6 @@ case 'shuffleEdgeVals'
         edgeMeasures{i} = zeros(size(A_bin));
         edgeMeasures{i}(A_bin > 0) = edgeValsVector(randperm(length(edgeValsVector)));
     end
+otherwise
+    error('Unknown null method, %s',randomizeHow);
 end

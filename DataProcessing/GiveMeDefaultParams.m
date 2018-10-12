@@ -82,11 +82,17 @@ params.e.sigThresh = 0.05; % display categories with corrected p-value below thi
 % Computing GCC scores
 %-------------------------------------------------------------------------------
 params.gcc = struct();
+params.gcc.onlyConnections = false; % only look where there are structural connections
+params.gcc.regressDistance = false; % whether to regress distance
+% Settings for computing correlations:
 params.gcc.whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
 params.gcc.pValOrStat = 'stat'; % 'pval','stat'
 params.gcc.thresholdGoodGene = 0.5; % threshold of valid coexpression values at which a gene is kept
-params.gcc.absType = 'neg';
-params.gcc.onlyConnections = false; % only look where there are structural connections
-params.gcc.regressDistance = false; % whether to regress distance
+params.gcc.absType = 'neg'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
+
+% Computing nulls through shuffling:
+params.gcc.numNulls = 100; % number of nulls
+params.gcc.whatTail = 'right'; % right-tailed p-values
+
 
 end

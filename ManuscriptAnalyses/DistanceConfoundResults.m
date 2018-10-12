@@ -1,4 +1,4 @@
-% DistanceConfoundResults   Investigate the enrichment signatures of distance-related confounds
+% DistanceConfoundResults Investigate the enrichment signatures of distance-related confounds
 
 % Store results tables in this struct:
 results = struct();
@@ -19,7 +19,7 @@ results.mouse_all = geneEnrichmentDistance(params);
 
 categoryIndex = 9;
 
-isThisCat = ismember(geneInfo.entrez_id,results.annotations{categoryIndex});
+isThisCat = ismember(geneInfo.entrez_id,results.mouse_all.annotations{categoryIndex});
 geneDataSub = geneData(:,isThisCat);
 
 f = figure('color','w');
@@ -38,7 +38,7 @@ ax.XTickLabel = geneAcronyms;
 ax.XTickLabelRotation = 90;
 ylabel('Genes')
 ylabel('Brain areas')
-title(results.GOName{categoryIndex})
+title(results.mouse_all.GOName{categoryIndex})
 
 % Spatial projection:
 subplot(1,3,2); axis('equal')
@@ -65,7 +65,7 @@ histogram(individualRhos)
 GCCmean = gMean*gMean';
 rhoMean = corr(distMat(isUpperDiag),GCCmean(isUpperDiag))
 plot(ones(2,1)*rhoMean,ax.YLim,'r')
-plot(-ones(2,1)*results.meanScore(categoryIndex),ax.YLim,'g')
+plot(-ones(2,1)*results.mouse_all.meanScore(categoryIndex),ax.YLim,'g')
 xlabel('\rho (GCC-distance)')
 % plot(distMat(isUpperDiag),GCC(isUpperDiag),'.k')
 % ylabel('Mean expression GCC')
