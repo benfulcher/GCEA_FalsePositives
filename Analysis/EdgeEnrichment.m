@@ -149,7 +149,7 @@ otherwise
 
     %-------------------------------------------------------------------------------
     % Compute p-values (+ corrected) and annotate GOTable
-    GOTable = EstimatePVals(categoryScores,whatTail,GOTable);
+    GOTable = EstimatePVals(categoryScores,params.gcc.whatTail,GOTable);
 
     %-------------------------------------------------------------------------------
     % List categories with lowest p-values, or highest mean across nulls, etc.
@@ -158,22 +158,13 @@ otherwise
     categoryScores = categoryScores(ix_GO);
 
     %-------------------------------------------------------------------------------
-    % Save to mat file:
-    if isempty(params.g.subsetOfGenes)
-        fileName = sprintf('%s-%s-%s-G%s_R%s-%unulls.mat',whatEdgeMeasure,whatNull,...
-                params.e.processFilter,params.g.normalizationGene,params.g.normalizationRegion,numNulls);
-        save(fullfile('DataOutputs',fileName));
-        fprintf(1,'Saved %s\n',fileName);
-    end
-
-    %-------------------------------------------------------------------------------
     % Check whether the mean null score for each gene is zero:
     f = figure('color','w');
     allKeptEntrez = unique(vertcat(entrezIDsKept{:}));
     gScoresMat = nan(length(allKeptEntrez),numNulls);
     for i = 1:numNulls
         [~,~,perm] = intersect(allKeptEntrez,entrezIDsKept{i+1},'stable');
-        gScoresMat(:,i) = gScore{i+1}(perm);
+        gScoresMat(:,i) = geneScores{i+1}(perm);
     end
     subplot(121); hold on
     histogram(mean(gScoresMat,2),'FaceColor','w','EdgeColor','k')

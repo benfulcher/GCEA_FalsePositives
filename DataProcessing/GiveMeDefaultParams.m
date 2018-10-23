@@ -55,7 +55,7 @@ case 'human'
     % Additional 'in-house' normalization:
     params.g.normalizationGene = 'none'; % 'none', 'mixedSigmoid'
     params.g.normalizationRegion = 'none'; % 'none', 'zscore'
-    params.g.subsetOfGenes = []; %[]; only look at the first X genes.
+    params.g.subsetOfGenes = 1000; %[]; only look at the first X genes.
                             % Set to empty, [], to use all genes
 end
 
@@ -91,7 +91,7 @@ params.gcc.thresholdGoodGene = 0.5; % threshold of valid coexpression values at 
 params.gcc.absType = 'neg'; % 'pos','neg','abs' -> e.g., pos -> coexpression contribution increases with the statistic
 
 % Computing nulls through shuffling:
-params.gcc.numNulls = 100; % number of nulls
+params.gcc.numNulls = 50; % number of nulls
 params.gcc.whatTail = 'right'; % right-tailed p-values
 
 
