@@ -21,9 +21,9 @@ end
 
 %-------------------------------------------------------------------------------
 % Check expression data ranges?
-if any(geneData(:) < 0)
-    warning('GCC scores don''t make too much sense when data have negatives... :-O')
-end
+% if any(geneData(:) < 0)
+%     warning('GCC scores don''t make too much sense when data have negatives... :-O')
+% end
 
 %-------------------------------------------------------------------------------
 % Ok, so now we can find correlations to GCC scores across genes

@@ -9,7 +9,16 @@ case 'mouse'
     % (could add filtering)
     load('Mouse_Connectivity_Data.mat','Dist_Matrix');
     distanceMat = Dist_Matrix{1,1}/1000;
+    
 case 'human'
+    % Latest data processed by Aurina
+    dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+    % dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+    load(dataFile,'averageDistance');
+    distanceMat = averageDistance;
+
+case 'human2017'
+    % Results using data provided by Aurina in 2017
     warning('ASSUMING HCP LEFT CORTICAL PARCELLATION!!! :-O')
     fileName = '360parcellationLcortex_ProbeMean.mat';
     fprintf(1,'Loading data from ''%s''\n',fileName);

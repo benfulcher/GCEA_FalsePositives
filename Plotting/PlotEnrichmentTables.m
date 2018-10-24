@@ -1,4 +1,4 @@
-function PlotEnrichmentTables(resultsTables,theThreshold,whatSpecies)
+function PlotEnrichmentTables(resultsTables,thresholds,whatSpecies)
 % Plots multiple results of GO enrichment as a (sorted) table
 %-------------------------------------------------------------------------------
 
@@ -6,12 +6,20 @@ function PlotEnrichmentTables(resultsTables,theThreshold,whatSpecies)
 % Check Inputs:
 %-------------------------------------------------------------------------------
 if nargin < 2
-    theThreshold = 0.2; % threshold for plotting a 'significant' category
+    % Need at least this many annotations to be included:
+    thresholds = zeros(1,3);
+    thresholds(1) = 0.2; % threshold for plotting a 'significant' category
+    thresholds(2) = 3; % at least 3 significant to be included
+    thresholds(3) = 2; % category implicated in at least two studies to be included
 end
+sigThreshold = thresholds(1);
+annotationThresholdGO = thresholds(2);
+annotationThresholdDataset = thresholds(3);
+maxCategories = 200; % show at most this many categories
+
 if nargin < 3
     whatSpecies = '';
 end
-maxCategories = 200; % show at most this many categories
 %-------------------------------------------------------------------------------
 
 % Preliminaries:
@@ -40,7 +48,7 @@ for i = 1:numTables
 end
 
 % Filter max:
-underThreshold = @(x) 1-(1-x)*double(x < theThreshold); % results over threshold are set to 1
+underThreshold = @(x) 1-(1-x)*double(x < sigThreshold); % results over threshold are set to 1
 rowVectorResultsTh = arrayfun(underThreshold,rowVectorResults);
 rowVectorResultsTh(isnan(rowVectorResultsTh)) = 1;
 
@@ -51,9 +59,6 @@ meansDatasets = nanmean(rowVectorResultsTh,2);
 %-------------------------------------------------------------------------------
 % TRIMMING
 %-------------------------------------------------------------------------------
-% Need at least this many annotations to be included:
-annotationThresholdDataset = 3; % at least 3 significant to be included
-annotationThresholdGO = 2; % category implicated in at least two studies to be included
 
 % Trim out studies with fewer than Y annotations:
 numAnnotations = sum(rowVectorResultsTh < 1,2);
@@ -116,8 +121,8 @@ ax.XTick = 1:sum(~hasNoAnnotations);
 % ax.XTickLabel = allGOIDsSort;
 ax.XTickLabel = GONamesSort;
 ax.XTickLabelRotation = 90;
-colormap([flipud(BF_getcmap('blues',9))])
-caxis([0,theThreshold*1.2]);
+colormap([flipud(BF_getcmap('blues',9));1,1,1])
+caxis([0,sigThreshold*1.2]);
 title(whatSpecies)
 
 end

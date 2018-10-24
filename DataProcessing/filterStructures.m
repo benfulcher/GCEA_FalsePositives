@@ -1,4 +1,5 @@
 function [A,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A,geneData)
+% filterStructures   Reduces data to a specified subset of structures
 
 %-------------------------------------------------------------------------------
 % Check inputs:
@@ -24,23 +25,32 @@ else
 end
 
 %-------------------------------------------------------------------------------
+if isHuman
+    isCortex = structInfo.isCortex;
+else % mouse
+    isCortex = strcmp(structInfo.divisionLabel,'Isocortex');
+end
 
 switch structFilter
 case {'isocortex','cortex'}
-    if isHuman
-        keepStruct = structInfo.isCortex;
-    else
-        keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
-    end
+    keepStruct = isCortex;
     fprintf(1,'Filtering to consider %u cortical areas\n',sum(keepStruct));
+case 'notCortex'
+    keepStruct = ~isCortex;
+    fprintf(1,'Filtering to consider %u non-cortical areas\n',sum(keepStruct));
+case 'all'
+    keepStruct = true(height(structInfo),1);
+    fprintf(1,'Keeping all %u areas\n',sum(keepStruct));
+end
+
+%-------------------------------------------------------------------------------
+% Do the filtering:
+if ~all(keepStruct)
     geneData = geneData(keepStruct,:);
     structInfo = structInfo(keepStruct,:);
     if ~isempty(A)
         A = A(keepStruct,keepStruct);
     end
-case 'all'
-    keepStruct = true(height(structInfo),1);
-    fprintf(1,'Keeping all %u areas\n',sum(keepStruct));
 end
 
 end

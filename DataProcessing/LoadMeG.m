@@ -21,6 +21,32 @@ case 'mouse'
     % Use combination (z-score) sections to estimate expression:
     geneData = GeneExpData.combZ.(gParam.energyOrDensity);
 case 'human'
+    if gParam.normalizeSeparately
+        % Cortex and subcortex normalized separately:
+        dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+    else
+        % Cortex and subcortex normalized together:
+        dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+    end
+
+    % Get ROI x gene matrix (separate off first colum for the ROI ID)
+    load(dataFile,'parcelExpression');
+    ROI_ID = parcelExpression(:,1); % ROI IDs (from cust100)
+    isCortex = (ROI_ID<=100);
+    structInfo = table(ROI_ID,isCortex);
+    geneData = parcelExpression(:,2:end);
+
+    % Now we need information about the columns of the gene expression matrix
+    % (read in and format as a table):
+    load(dataFile,'probeInformation');
+    entrez_id = probeInformation.EntrezID;
+    acronym = probeInformation.GeneSymbol;
+    probeName = probeInformation.ProbeName;
+    DS_score = probeInformation.DS;
+    geneInfo = table(entrez_id,acronym,probeName,DS_score);
+
+case 'human-old'
+    % Data provided by Aurina in 2017
     % Piece together filename from parameters:
     switch gParam.whatParcellation
     case 'APARC'

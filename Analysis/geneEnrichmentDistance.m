@@ -1,6 +1,7 @@
 function GOTable = geneEnrichmentDistance(params)
-% Quantify for each gene the correlation between its coexpression and the
-% pairwise distance between regions (then can try to work up a correction?)
+% Quantify for each gene the correlation between its correlated expression
+% pattern and the pairwise distance between regions
+% (then can try to work up a correction?)
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
@@ -20,20 +21,25 @@ textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',params.gcc.whatCorr,para
 % Pairwise distance data:
 distMat = GiveMeDistanceMatrix(params.humanOrMouse);
 
-% Structural connectivity (ONLY used if params.gcc.onlyConnections):
-[A_bin,regionAcronyms] = GiveMeAdj(params.c.connectomeSource,...
-            params.c.pThreshold,true,params.c.whatWeightMeasure,...
-            params.c.whatHemispheres,params.c.structFilter);
-fprintf(1,'%u x %u structural connectivity matrix\n',size(A_bin,1),size(A_bin,2));
-
 % Gene expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 numGenes = height(geneInfo);
 fprintf(1,'%u x %u gene expression matrix\n',size(geneData,1),size(geneData,2));
 
-% Align:
-if ~all(strcmp(structInfo.acronym,regionAcronyms))
-    error('Connectivity and gene expression data are not aligned');
+% Structural connectivity
+if params.gcc.onlyConnections
+    % (ONLY used to look specifically at connected pairs of areas: if params.gcc.onlyConnections)
+    [A_bin,regionAcronyms] = GiveMeAdj(params.c.connectomeSource,...
+                params.c.pThreshold,true,params.c.whatWeightMeasure,...
+                params.c.whatHemispheres,params.c.structFilter);
+    fprintf(1,'%u x %u structural connectivity matrix\n',size(A_bin,1),size(A_bin,2));
+
+    % Check it aligns with the gene expression data:
+    if ~all(strcmp(structInfo.acronym,regionAcronyms))
+        error('Connectivity and gene expression data are not aligned');
+    end
+else
+    A_bin = [];
 end
 
 %-------------------------------------------------------------------------------
