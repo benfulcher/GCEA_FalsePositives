@@ -16,7 +16,7 @@ switch gParam.humanOrMouse
 case 'surrogate-mouse'
     % dataFileSurrogate = 'mouseSurrogate_rho5_d010.csv';
     dataFileSurrogate = 'mouseSurrogate_rho8_d040.csv';
-    dataFileReal = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    dataFileReal = GiveMeFile('AllenMouseGene');
 
     fprintf(1,'Geometric surrogate mouse maps from %s\n',dataFileSurrogate);
     geneData = dlmread(dataFileSurrogate,',',1,1);
@@ -32,7 +32,7 @@ case 'surrogate-mouse'
 
 case 'mouse'
     % Get NEW DATA FROM SDK RETRIEVALS:
-    dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    dataFile = GiveMeFile('AllenMouseGene');
     fprintf(1,'New Allen SDK data from %s\n',dataFile);
     load(dataFile,'GeneExpData','geneInfo','structInfo');
 

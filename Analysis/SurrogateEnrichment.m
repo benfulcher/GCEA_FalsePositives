@@ -2,7 +2,7 @@
 
 % Main parameter:
 whatSpecies = 'mouse';
-numMaps = 1000; % number of null maps to test
+numMaps = 10; % number of null maps to test
 
 % Run enrichment:
 params = GiveMeDefaultParams(whatSpecies);
@@ -37,6 +37,7 @@ end
 numGenesReal = height(geneInfoReal);
 GOTables = cell(numMaps,1);
 for i = 1:numMaps
+    fprintf(1,'%u/%u\n',i,numMaps);
     map_i = geneDataNull(:,i);
     geneScores = zeros(numGenesReal,1);
     for j = 1:numGenesReal

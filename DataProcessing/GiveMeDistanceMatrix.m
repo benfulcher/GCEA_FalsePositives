@@ -14,7 +14,7 @@ case 'mouse'
     distanceMat = Dist_Matrix{1,1}/1000;
     acronym = regionAcronyms;
     % Map to division labels:
-    dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    dataFile = GiveMeFile('AllenMouseGene');
     load(dataFile,'structInfo');
 
 case 'human'

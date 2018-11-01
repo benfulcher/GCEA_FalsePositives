@@ -13,11 +13,16 @@ end
 fprintf(1,'Adding dependencies for external toolboxes:\n');
 
 fprintf(1,'GeneEnrichment for Matlab\n');
-addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/')
+pathToToolbox = GiveMeFile('EnrichmentToolbox');
+addpath(pathToToolbox)
 hereNow = pwd;
-cd('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/')
+cd(pathToToolbox)
 startup;
 cd(hereNow);
 
 fprintf(1,'mySQL for Matlab\n');
-addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabmySQL/')
+try
+    addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabmySQL/')
+catch
+    fprintf(1,'Failed\n');
+end
