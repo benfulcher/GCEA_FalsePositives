@@ -44,7 +44,6 @@ params.c.structFilter = structFilter;
 %-------------------------------------------------------------------------------
 params.g = struct();
 params.g.humanOrMouse = humanOrMouse;
-params.g.useSurrogate = false;
 params.g.structFilter = structFilter;
 switch humanOrMouse
 case 'mouse'
