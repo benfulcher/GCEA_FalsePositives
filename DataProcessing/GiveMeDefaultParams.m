@@ -18,6 +18,9 @@ end
 params = struct();
 params.humanOrMouse = humanOrMouse;
 
+% Filter structures:
+structFilter = 'all'; % 'isocortex', 'all'
+
 %-------------------------------------------------------------------------------
 % Connectome processing options
 %-------------------------------------------------------------------------------
@@ -34,13 +37,15 @@ case 'human'
     params.c.whatHemispheres = 'left';
 end
 params.c.pThreshold = 0.05;
-params.c.structFilter = 'all'; % 'isocortex', 'all'
+params.c.structFilter = structFilter;
 
 %-------------------------------------------------------------------------------
 % Gene expression processing options
 %-------------------------------------------------------------------------------
 params.g = struct();
 params.g.humanOrMouse = humanOrMouse;
+params.g.useSurrogate = false;
+params.g.structFilter = structFilter;
 switch humanOrMouse
 case 'mouse'
     params.g.energyOrDensity = 'energy'; % what gene expression data to use
@@ -77,7 +82,7 @@ case 'human'
 end
 
 params.e.processFilter = 'biological_process';
-params.e.sizeFilter = [10,200];
+params.e.sizeFilter = [10,100];
 params.e.numSamples = 20000; % number of null samples when computing gene score significance
 params.e.sigThresh = 0.05; % display categories with corrected p-value below this threshold
 

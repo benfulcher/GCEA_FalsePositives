@@ -19,7 +19,7 @@ textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',params.gcc.whatCorr,para
 % Load and process data
 %-------------------------------------------------------------------------------
 % Pairwise distance data:
-distMat = GiveMeDistanceMatrix(params.humanOrMouse);
+distMat = GiveMeDistanceMatrix(params.humanOrMouse,params.c.structFilter);
 
 % Gene expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
@@ -44,11 +44,6 @@ end
 
 %-------------------------------------------------------------------------------
 % Filter structures:
-if ~strcmp(params.c.structFilter,'all')
-    [A_bin,geneData,structInfo,keepStruct] = filterStructures(params.c.structFilter,structInfo,A_bin,geneData);
-    distMat = distMat(keepStruct,keepStruct);
-end
-entrezIDs = geneInfo.entrez_id;
 numStructs = height(structInfo);
 
 %-------------------------------------------------------------------------------
@@ -82,7 +77,7 @@ else
     fprintf(1,'Scoring %u genes on correlation between g.gT and distance (no regressor)\n',numGenes);
     dRegressor = [];
 end
-[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,entrezIDs,params,dRegressor);
+[geneScores,geneEntrezIDs] = GiveMeGCC(dData,geneData,geneInfo.entrez_id,params,dRegressor);
 fprintf(1,'Scoring complete across %u/%u genes!\n',length(geneScores),numGenes);
 
 %-------------------------------------------------------------------------------

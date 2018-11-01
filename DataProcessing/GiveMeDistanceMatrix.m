@@ -1,15 +1,22 @@
-function distanceMat = GiveMeDistanceMatrix(whatSpecies)
+function distanceMat = GiveMeDistanceMatrix(whatSpecies,structFilter)
 % Gives a pairwise distance matrix
 %-------------------------------------------------------------------------------
+if nargin < 2
+    structFilter = 'all';
+end
 
+%-------------------------------------------------------------------------------
 switch whatSpecies
 case 'mouse'
     % Pairwise ipsilateral Euclidean distance data:
     % warning('Distances only work at the moment for whole-brain data')
-    % (could add filtering)
-    load('Mouse_Connectivity_Data.mat','Dist_Matrix');
+    load('Mouse_Connectivity_Data.mat','Dist_Matrix','regionAcronyms');
     distanceMat = Dist_Matrix{1,1}/1000;
-    
+    acronym = regionAcronyms;
+    % Map to division labels:
+    dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    load(dataFile,'structInfo');
+
 case 'human'
     % Latest data processed by Aurina
     dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
@@ -34,6 +41,15 @@ case 'human2017'
     coOrds = coordinatesROI(:,2:end);
     distanceMat = squareform(pdist(coOrds,'Euclidean'));
 end
+
+%-------------------------------------------------------------------------------
+% Filter structures:
+if ~strcmp(structFilter,'all')
+    [~,~,~,keepStruct] = filterStructures(structFilter,structInfo);
+    distanceMat = distanceMat(keepStruct,keepStruct);
+end
+
+%-------------------------------------------------------------------------------
 
 fprintf(1,'%u x %u pairwise distance matrix\n',...
                 size(distanceMat,1),size(distanceMat,2));

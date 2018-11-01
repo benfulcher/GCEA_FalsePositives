@@ -125,4 +125,7 @@ colormap([flipud(BF_getcmap('blues',9));1,1,1])
 caxis([0,sigThreshold*1.2]);
 title(whatSpecies)
 
+cB = colorbar();
+cB.Label.String = 'p-corr'
+
 end

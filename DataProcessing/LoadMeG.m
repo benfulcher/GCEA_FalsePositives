@@ -1,5 +1,6 @@
 function [geneData,geneInfo,structInfo] = LoadMeG(gParam)
 % LoadMeG Load gene data as a matrix with tables for metadata info about rows and columns
+%-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Check inputs:
@@ -12,10 +13,27 @@ end
 
 %-------------------------------------------------------------------------------
 switch gParam.humanOrMouse
+case 'surrogate-mouse'
+    % dataFileSurrogate = 'mouseSurrogate_rho5_d010.csv';
+    dataFileSurrogate = 'mouseSurrogate_rho8_d040.csv';
+    dataFileReal = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+
+    fprintf(1,'Geometric surrogate mouse maps from %s\n',dataFileSurrogate);
+    geneData = dlmread(dataFileSurrogate,',',1,1);
+    numFakeGenes = size(geneData,2);
+
+    % Assign random gene metadata:
+    fprintf(1,'Real Allen SDK data from %s\n',dataFileReal);
+    load(dataFileReal,'geneInfo','structInfo');
+    numRealGenes = height(geneInfo);
+    rp = sort(randperm(numRealGenes,numFakeGenes));
+    fprintf(1,'Assigning a random %u/%u genes\n',numFakeGenes,numRealGenes);
+    geneInfo = geneInfo(rp,:);
+
 case 'mouse'
     % Get NEW DATA FROM SDK RETRIEVALS:
     dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
-    fprintf(1,'New Allen SDK-data from %s\n',dataFile);
+    fprintf(1,'New Allen SDK data from %s\n',dataFile);
     load(dataFile,'GeneExpData','geneInfo','structInfo');
 
     % Use combination (z-score) sections to estimate expression:
@@ -128,6 +146,13 @@ case 'human-old'
 end
 
 %-------------------------------------------------------------------------------
+% Apply a structure filter
+%-------------------------------------------------------------------------------
+if ~isempty(structInfo)
+    [~,geneData,structInfo] = filterStructures(gParam.structFilter,structInfo,[],geneData);
+end
+
+%-------------------------------------------------------------------------------
 % Further normalization:
 %-------------------------------------------------------------------------------
 if ~strcmp(gParam.normalizationGene,'none')
@@ -140,7 +165,7 @@ if ~strcmp(gParam.normalizationRegion,'none')
 end
 
 %-------------------------------------------------------------------------------
-% Subset:
+% Subset genes:
 %-------------------------------------------------------------------------------
 if ~isempty(gParam.subsetOfGenes)
     warning('Only looking at a random set of %u genes',gParam.subsetOfGenes);
