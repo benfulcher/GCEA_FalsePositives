@@ -1,10 +1,16 @@
+function SurrogateEnrichment(whatSpecies,numMaps)
+% Get enrichment results across surrogate spatial maps
+%-------------------------------------------------------------------------------
 
+if nargin < 1
+    whatSpecies = 'mouse';
+end
+if nargin < 2
+    numMaps = 1000; % number of null maps to test
+end
 
-% Main parameter:
-whatSpecies = 'mouse';
-numMaps = 10; % number of null maps to test
-
-% Run enrichment:
+%-------------------------------------------------------------------------------
+% Prepare for enrichment:
 params = GiveMeDefaultParams(whatSpecies);
 switch whatSpecies
 case 'mouse'
