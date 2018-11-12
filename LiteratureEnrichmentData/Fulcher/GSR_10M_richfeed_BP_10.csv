@@ -1,0 +1,8 @@
+GO Category	Description	Number of genes	ermineJ $p$-value
+GO:0072350	tricarboxylic acid metabolic process	27	0.051
+GO:0006103	2-oxoglutarate metabolic process	10	0.052
+GO:0006107	oxaloacetate metabolic process	9	0.053
+GO:0015992	proton transport	57	0.058
+GO:0042026	protein refolding	7	0.065
+GO:0006818	hydrogen transport	58	0.07
+GO:0072384	organelle transport along microtubule	19	0.089

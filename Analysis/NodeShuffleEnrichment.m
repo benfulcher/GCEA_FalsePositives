@@ -102,18 +102,17 @@ parfor n = 1:numNulls+1
         permVector = shuffle_fn();
     end
 
-    gScore = zeros(height(geneInfo),1);
-    for i = 1:height(geneInfo)
+    gScore = zeros(numGenes,1);
+    for i = 1:numGenes
         gScore(i) = score_fn(geneData(permVector,i));
     end
 
     % Record mean scores for each category:
     for j = 1:numGOCategories
         matchMe = ismember(geneInfo.entrez_id,GOTable.annotations{j});
-        if sum(matchMe) <= 1
-            continue
+        if any(matchMe)
+            categoryScores(j,n) = nanmean(gScore(matchMe));
         end
-        categoryScores(j,n) = nanmean(gScore(matchMe));
     end
 end
 
