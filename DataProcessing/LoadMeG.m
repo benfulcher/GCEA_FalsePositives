@@ -39,18 +39,30 @@ case 'mouse'
     % Use combination (z-score) sections to estimate expression:
     geneData = GeneExpData.combZ.(gParam.energyOrDensity);
 case 'human'
-    if gParam.normalizeSeparately
-        % Cortex and subcortex normalized separately:
-        dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
-    else
-        % Cortex and subcortex normalized together:
-        dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+    switch gParam.whatParcellation
+    case 'HCP'
+    dataFile = '100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat';
+    case 'cust100'
+        if gParam.normalizeSeparately
+            % Cortex and subcortex normalized separately:
+            dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+        else
+            % Cortex and subcortex normalized together:
+            dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+        end
+    otherwise
+        error('Unknown parcellation: %s',gParam.whatParcellation);
     end
 
     % Get ROI x gene matrix (separate off first colum for the ROI ID)
     load(dataFile,'parcelExpression');
     ROI_ID = parcelExpression(:,1); % ROI IDs (from cust100)
-    isCortex = (ROI_ID<=100);
+    switch gParam.whatParcellation
+    case 'HCP'
+        isCortex = true(size(ROI_ID));
+    case 'cust100'
+        isCortex = (ROI_ID<=100);
+    end
     structInfo = table(ROI_ID,isCortex);
     geneData = parcelExpression(:,2:end);
 

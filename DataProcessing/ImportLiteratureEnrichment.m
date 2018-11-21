@@ -311,8 +311,8 @@ TableGOBP.TanPositive100isSig = cell2mat(rawNumericColumns(:, 28));
 TableGOBP.TanNegative100isSig = cell2mat(rawNumericColumns(:, 29));
 TableGOBP.French2011outgoing = cell2mat(rawNumericColumns(:, 30));
 TableGOBP.French2011incoming = cell2mat(rawNumericColumns(:, 31));
-TableGOBP.French2015inconsistent = cell2mat(rawNumericColumns(:, 32));
-TableGOBP.French2011FrontN = cell2mat(rawNumericColumns(:, 33));
+% TableGOBP.French2015inconsistent = cell2mat(rawNumericColumns(:, 32));
+% TableGOBP.French2011FrontN = cell2mat(rawNumericColumns(:, 33));
 
 end
 

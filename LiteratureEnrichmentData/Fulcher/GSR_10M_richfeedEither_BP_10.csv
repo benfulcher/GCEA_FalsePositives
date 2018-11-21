@@ -1,7 +1,0 @@
-GO Category	Description	Number of genes	ermineJ $p$-value
-GO:0006099	tricarboxylic acid cycle	22	0.012
-GO:0072350	tricarboxylic acid metabolic process	27	0.03
-GO:0006101	citrate metabolic process	25	0.033
-GO:1902600	hydrogen ion transmembrane transport	45	0.064
-GO:0015988	energy coupled proton transmembrane transport, against electrochemical gradient	19	0.093
-GO:0015991	ATP hydrolysis coupled proton transport	19	0.093

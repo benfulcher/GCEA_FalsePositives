@@ -60,4 +60,4 @@ end
 %-------------------------------------------------------------------------------
 % Save out
 fileNameOut = 'SurrogateGOTables.mat';
-save(fileNameOut,'GOTables');
+save(fileNameOut,'GOTables','-v7.3');
