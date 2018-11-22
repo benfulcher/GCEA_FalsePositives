@@ -1,4 +1,4 @@
-function SurrogateEnrichment(whatSpecies,numMaps)
+function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate)
 % Get enrichment results across surrogate spatial maps
 %-------------------------------------------------------------------------------
 
@@ -8,38 +8,45 @@ end
 if nargin < 2
     numMaps = 1000; % number of null maps to test
 end
-
-%-------------------------------------------------------------------------------
-% Prepare for enrichment:
-params = GiveMeDefaultParams(whatSpecies);
-switch whatSpecies
-case 'mouse'
-    realAndFake = {'mouse','surrogate-mouse'};
-case 'human'
-    realAndFake = {'human','surrogate-human'};
+if nargin < 3
+    whatSurrogate = 'spatialLag';
 end
 
-% % To make GCC scores make sense -- expression needs to be [0,1] normalized:
-% params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-% params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
-% params.c.structFilter = 'all';
-%
-% %-------------------------------------------------------------------------------
-% % Enrichment of random maps with distance
-% % (nothing, as expected)
-% params.g.humanOrMouse = 'surrogate-mouse';
-% mouse_surrogate_enrichment = geneEnrichmentDistance(params);
+%-------------------------------------------------------------------------------
+% Get real data:
+params = GiveMeDefaultParams(whatSpecies);
+params.g.humanOrMouse = whatSpecies;
+[geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
+numGenes = height(geneInfoReal);
+numAreas = height(structInfoReal);
 
 %-------------------------------------------------------------------------------
-%-------------------------------------------------------------------------------
-% Enrichment of genes with a given random (spatially correlated) map
-params.g.humanOrMouse = realAndFake{1};
-[geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
-params.g.humanOrMouse = realAndFake{2};
-[geneDataNull,geneInfoNull,structInfoNull] = LoadMeG(params.g);
-if numMaps > height(geneInfoNull)
+% Get surrogate data, geneDataNull (each column is a null spatial map)
+switch whatSurrogate
+case 'spatialLag'
+    % Surrogate maps pre-generated using the spatial lag model:
+    fakeFlags = struct();
+    fakeFlags.mouse = 'surrogate-mouse';
+    fakeFlags.human = 'surrogate-human';
+    params.g.humanOrMouse = fakeFlags.(whatSpecies);
+    geneDataNull = LoadMeG(params.g);
+case 'randomShuffle'
+    % Surrogate maps generated through random shuffling across brain areas:
+    geneDataNull = geneDataReal;
+    for j = 1:numGenes
+        rp = randperm(numAreas);
+        geneDataNull(:,j) = geneDataReal(rp,j);
+    end
+otherwise
+    error('Unknown surrogate method: ''%s''',whatSurrogate);
+end
+if numMaps > size(geneDataNull,2)
     error('There aren''t enough null maps to compare against...');
 end
+
+%-------------------------------------------------------------------------------
+%-------------------------------------------------------------------------------
+% Enrichment of genes with a given random (or spatially autocorrelated) map
 numGenesReal = height(geneInfoReal);
 GOTables = cell(numMaps,1);
 for i = 1:numMaps
@@ -49,15 +56,18 @@ for i = 1:numMaps
     for j = 1:numGenesReal
         geneScores(j) = corr(map_i,geneDataReal(:,j),'type','Spearman');
     end
+    % Store random-gene enrichment results:
     GOTables{i} = SingleEnrichment(geneScores,geneInfoReal.entrez_id,params.e);
-    %-------------------------------------------------------------------------------
     % List GO categories with significant p-values:
     numSig = sum(GOTables{i}.pValCorr < params.e.sigThresh);
-    fprintf(1,'%u GO categories have p_corr < %.2f\n',numSig,params.e.sigThresh);
+    fprintf(1,'Iteration %u/%u (%s-%s): %u GO categories have p_corr < %.2f\n',
+                i,numMaps,whatSpecies,whatSurrogate,numSig,params.e.sigThresh);
     display(GOTables{i}(1:numSig,:));
 end
 
 %-------------------------------------------------------------------------------
 % Save out
-fileNameOut = 'SurrogateGOTables.mat';
+fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
 save(fileNameOut,'GOTables','-v7.3');
+
+end
