@@ -14,21 +14,19 @@ end
 %-------------------------------------------------------------------------------
 switch gParam.humanOrMouse
 case 'surrogate-mouse'
-    % dataFileSurrogate = 'mouseSurrogate_rho5_d010.csv';
     dataFileSurrogate = 'mouseSurrogate_rho8_d040.csv';
-    dataFileReal = GiveMeFile('AllenMouseGene');
 
     fprintf(1,'Geometric surrogate mouse maps from %s\n',dataFileSurrogate);
     geneData = dlmread(dataFileSurrogate,',',1,1);
     numFakeGenes = size(geneData,2);
 
     % Assign random gene metadata:
-    fprintf(1,'Real Allen SDK data from %s\n',dataFileReal);
-    load(dataFileReal,'geneInfo','structInfo');
-    numRealGenes = height(geneInfo);
+    gParam.humanOrMouse = 'mouse';
+    [~,geneInfoReal,structInfo] = LoadMeG(gParam);
+    numRealGenes = height(geneInfoReal);
     rp = sort(randperm(numRealGenes,numFakeGenes));
-    fprintf(1,'Assigning a random %u/%u genes\n',numFakeGenes,numRealGenes);
-    geneInfo = geneInfo(rp,:);
+    fprintf(1,'Assigning metadata to genes at random (%u/%u)\n',numFakeGenes,numRealGenes);
+    geneInfo = geneInfoReal(rp,:);
 
 case 'mouse'
     % Get NEW DATA FROM SDK RETRIEVALS:
@@ -41,14 +39,12 @@ case 'mouse'
 case 'human'
     switch gParam.whatParcellation
     case 'HCP'
-    dataFile = '100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat';
+        dataFile = GiveMeFile('HumanGene_HCP');
     case 'cust100'
         if gParam.normalizeSeparately
-            % Cortex and subcortex normalized separately:
-            dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+            dataFile = GiveMeFile('HumanGene_cust100_normSeparate');
         else
-            % Cortex and subcortex normalized together:
-            dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+            dataFile = GiveMeFile('HumanGene_cust100_normTogether');
         end
     otherwise
         error('Unknown parcellation: %s',gParam.whatParcellation);
@@ -74,6 +70,22 @@ case 'human'
     probeName = probeInformation.ProbeName;
     DS_score = probeInformation.DS;
     geneInfo = table(entrez_id,acronym,probeName,DS_score);
+
+case 'surrogate-human'
+    % Load in surrogate spatially-correlated expression maps
+    dataFileSurrogate = 'humanSurrogate_rho8_d02000.csv';
+
+    fprintf(1,'Geometric surrogate human transcriptional maps from %s\n',dataFileSurrogate);
+    geneData = dlmread(dataFileSurrogate,',',1,1);
+    numFakeGenes = size(geneData,2);
+
+    % Assign random gene metadata:
+    gParam.humanOrMouse = 'human';
+    [~,geneInfoReal,structInfo] = LoadMeG(gParam);
+    numRealGenes = height(geneInfoReal);
+    rp = sort(randperm(numRealGenes,numFakeGenes));
+    fprintf(1,'Assigning metadata to genes AT RANDOM (%u/%u genes)\n',numFakeGenes,numRealGenes);
+    geneInfo = geneInfoReal(rp,:);
 
 case 'human-old'
     % Data provided by Aurina in 2017

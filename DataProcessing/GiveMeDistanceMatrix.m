@@ -13,16 +13,21 @@ case 'mouse'
     load('Mouse_Connectivity_Data.mat','Dist_Matrix','regionAcronyms');
     distanceMat = Dist_Matrix{1,1}/1000;
     acronym = regionAcronyms;
+
     % Map to division labels:
     dataFile = GiveMeFile('AllenMouseGene');
     load(dataFile,'structInfo');
 
 case 'human'
     % Latest data processed by Aurina
+    % cust100: cortical and subcortical structures normalized separately:
     dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
-    % dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat';
     load(dataFile,'averageDistance');
-    distanceMat = averageDistance;
+    distanceMat = (averageDistance + averageDistance')/2;
+
+    % Keep only cortex:
+    warning('Hard keeping first 100 cust100 cortical parcels (out of %u)',length(distanceMat));
+    distanceMat = distanceMat(1:100,1:100);
 
 case 'human2017'
     % Results using data provided by Aurina in 2017

@@ -19,7 +19,12 @@ params = struct();
 params.humanOrMouse = humanOrMouse;
 
 % Filter structures:
-structFilter = 'all'; % 'isocortex', 'all'
+switch params.humanOrMouse
+case 'human'
+    structFilter = 'cortex'; % 'cortex', 'all'
+case 'mouse'
+    structFilter = 'all';
+end
 
 %-------------------------------------------------------------------------------
 % Connectome processing options
@@ -54,9 +59,9 @@ case 'mouse'
                                  % Set to empty, [], to use all genes
 case 'human'
     % New data (Aurina 2018) does not allow selection of these options:
-    % params.g.whatParcellation = 'cust100'; % 'APARC', 'HCP', 'cust100'
     % params.g.probeSelection = 'DS'; % 'mean, 'variance', 'DS'
     % params.g.normalizationInternal = 'robustSigmoid'; % 'robustSigmoid', 'none'
+    params.g.whatParcellation = 'HCP'; % 'HCP', 'cust100'
     params.g.normalizeSeparately = true; % whether to normalize cortex/subcortex separately
 
     % Additional 'in-house' normalization:
