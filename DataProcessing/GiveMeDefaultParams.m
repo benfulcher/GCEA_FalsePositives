@@ -50,6 +50,7 @@ params.c.structFilter = structFilter;
 params.g = struct();
 params.g.humanOrMouse = humanOrMouse;
 params.g.structFilter = structFilter;
+params.g.whatSurrogate = 'spatialLag';
 switch humanOrMouse
 case 'mouse'
     params.g.energyOrDensity = 'energy'; % what gene expression data to use

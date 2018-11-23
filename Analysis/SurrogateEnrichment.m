@@ -22,24 +22,11 @@ numAreas = height(structInfoReal);
 
 %-------------------------------------------------------------------------------
 % Get surrogate data, geneDataNull (each column is a null spatial map)
-switch whatSurrogate
-case 'spatialLag'
-    % Surrogate maps pre-generated using the spatial lag model:
-    fakeFlags = struct();
-    fakeFlags.mouse = 'surrogate-mouse';
-    fakeFlags.human = 'surrogate-human';
-    params.g.humanOrMouse = fakeFlags.(whatSpecies);
-    geneDataNull = LoadMeG(params.g);
-case 'randomShuffle'
-    % Surrogate maps generated through random shuffling across brain areas:
-    geneDataNull = geneDataReal;
-    for j = 1:numGenes
-        rp = randperm(numAreas);
-        geneDataNull(:,j) = geneDataReal(rp,j);
-    end
-otherwise
-    error('Unknown surrogate method: ''%s''',whatSurrogate);
-end
+fakeFlags = struct();
+fakeFlags.mouse = 'surrogate-mouse';
+fakeFlags.human = 'surrogate-human';
+params.g.humanOrMouse = fakeFlags.(whatSpecies);
+geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
     error('There aren''t enough null maps to compare against...');
 end

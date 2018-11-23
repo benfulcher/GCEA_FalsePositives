@@ -13,21 +13,6 @@ end
 
 %-------------------------------------------------------------------------------
 switch gParam.humanOrMouse
-case 'surrogate-mouse'
-    dataFileSurrogate = 'mouseSurrogate_rho8_d040.csv';
-
-    fprintf(1,'Geometric surrogate mouse maps from %s\n',dataFileSurrogate);
-    geneData = dlmread(dataFileSurrogate,',',1,1);
-    numFakeGenes = size(geneData,2);
-
-    % Assign random gene metadata:
-    gParam.humanOrMouse = 'mouse';
-    [~,geneInfoReal,structInfo] = LoadMeG(gParam);
-    numRealGenes = height(geneInfoReal);
-    rp = sort(randperm(numRealGenes,numFakeGenes));
-    fprintf(1,'Assigning metadata to genes at random (%u/%u)\n',numFakeGenes,numRealGenes);
-    geneInfo = geneInfoReal(rp,:);
-
 case 'mouse'
     % Get NEW DATA FROM SDK RETRIEVALS:
     dataFile = GiveMeFile('AllenMouseGene');
@@ -36,6 +21,7 @@ case 'mouse'
 
     % Use combination (z-score) sections to estimate expression:
     geneData = GeneExpData.combZ.(gParam.energyOrDensity);
+
 case 'human'
     switch gParam.whatParcellation
     case 'HCP'
@@ -71,21 +57,51 @@ case 'human'
     DS_score = probeInformation.DS;
     geneInfo = table(entrez_id,acronym,probeName,DS_score);
 
-case 'surrogate-human'
-    % Load in surrogate spatially-correlated expression maps
-    dataFileSurrogate = 'humanSurrogate_rho8_d02000.csv';
+case {'surrogate-mouse','surrogate-human'}
+    % Start by loading in the real data:
+    switch gParam.humanOrMouse
+    case 'surrogate-mouse'
+        gParam.humanOrMouse = 'mouse';
+        dataFileSurrogate = 'mouseSurrogate_rho8_d040.csv';
+    case 'surrogate-human'
+        gParam.humanOrMouse = 'human';
+        dataFileSurrogate = 'humanSurrogate_rho8_d02000.csv';
+    end
+    [geneDataReal,geneInfo,structInfo] = LoadMeG(gParam);
+    numRealGenes = height(geneInfo);
+    numAreas = height(structInfo);
 
-    fprintf(1,'Geometric surrogate human transcriptional maps from %s\n',dataFileSurrogate);
-    geneData = dlmread(dataFileSurrogate,',',1,1);
-    numFakeGenes = size(geneData,2);
+    % Surrogate maps:
+    switch gParam.whatSurrogate
+    case 'spatialLag'
+        % Surrogate maps pre-generated using the spatial lag model:
+        fprintf(1,'Surrogate mouse brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
+        geneData = dlmread(dataFileSurrogate,',',1,1);
+        numFakeGenes = size(geneData,2);
+        % Assign random gene metadata:
+        rp = randperm(numRealGenes,numFakeGenes);
+        fprintf(1,'Assigning metadata to genes at RANDOM (%u/%u genes)\n',numFakeGenes,numRealGenes);
+        geneInfo = geneInfoReal(rp,:);
 
-    % Assign random gene metadata:
-    gParam.humanOrMouse = 'human';
-    [~,geneInfoReal,structInfo] = LoadMeG(gParam);
-    numRealGenes = height(geneInfoReal);
-    rp = sort(randperm(numRealGenes,numFakeGenes));
-    fprintf(1,'Assigning metadata to genes AT RANDOM (%u/%u genes)\n',numFakeGenes,numRealGenes);
-    geneInfo = geneInfoReal(rp,:);
+    case 'spatialShuffle'
+        % Surrogate maps generated through (independent) random shuffling across brain areas
+        % (should be consistent with random noise)
+        fprintf(1,'Surrogate mouse brain maps from independent random shuffling\n');
+        geneData = geneDataReal;
+        for j = 1:numRealGenes
+            rp = randperm(numAreas);
+            geneData(:,j) = geneDataReal(rp,j);
+        end
+
+    case 'geneShuffle'
+        % Random shuffling of genes (randomizing association with metadata)
+        fprintf(1,'Surrogate mouse brain maps from independent random shuffling\n');
+        rp = randperm(numRealGenes);
+        geneData = geneDataReal(:,rp);
+
+    otherwise
+        error('Unknown surrogate method: ''%s''',whatSurrogate);
+    end
 
 case 'human-old'
     % Data provided by Aurina in 2017

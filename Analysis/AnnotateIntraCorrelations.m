@@ -2,6 +2,8 @@ function GOTable = AnnotateIntraCorrelations(params,GOTable,analName)
 % Annotates intracorrelation scores
 %-------------------------------------------------------------------------------
 
+%-------------------------------------------------------------------------------
+% Check inputs:
 if nargin < 2
     GOTable = [];
 end
@@ -16,8 +18,8 @@ end
 %-------------------------------------------------------------------------------
 % Load annotation data:
 if isempty(GOTable)
-    GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,params.e.sizeFilter,...
-                                    geneInfo.entrez_id);
+    GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
+                                params.e.sizeFilter,geneInfo.entrez_id);
 end
 numGOCategories = height(GOTable);
 
@@ -32,14 +34,14 @@ parfor j = 1:numGOCategories
     end
     % Correlation matrix:
     C = corr(geneData(:,matchMe),'rows','pairwise','type','Pearson');
-    % (consider looking also at negative correlations)
     corrVect = C(triu(true(size(C)),+1));
     categoryScoresRaw(j) = nanmean(corrVect);
+    % (look also at taking magnitude of any negative correlations):
     categoryScoresAbs(j) = nanmean(abs(corrVect));
 end
 
 %-------------------------------------------------------------------------------
-GOTable.(analName) = categoryScores;
-
+GOTable.(analName) = categoryScoresRaw;
+GOTable.(sprintf('%s_abs',analName)) = categoryScoresAbs;
 
 end
