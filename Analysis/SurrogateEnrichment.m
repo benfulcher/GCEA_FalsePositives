@@ -30,7 +30,9 @@ geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
     error('There aren''t enough null maps to compare against...');
 end
-
+if size(geneDataNull,1)~=numAreas
+    error('Different parcellation???')
+end
 %-------------------------------------------------------------------------------
 % Get a generic GO Table:
 GOTableGeneric = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...

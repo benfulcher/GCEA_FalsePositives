@@ -75,7 +75,7 @@ case {'surrogate-mouse','surrogate-human'}
     switch gParam.whatSurrogate
     case 'spatialLag'
         % Surrogate maps pre-generated using the spatial lag model:
-        fprintf(1,'Surrogate mouse brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
+        fprintf(1,'Surrogate brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
         geneData = dlmread(dataFileSurrogate,',',1,1);
         numFakeGenes = size(geneData,2);
         % Assign random gene metadata:
@@ -86,7 +86,7 @@ case {'surrogate-mouse','surrogate-human'}
     case 'spatialShuffle'
         % Surrogate maps generated through (independent) random shuffling across brain areas
         % (should be consistent with random noise)
-        fprintf(1,'Surrogate mouse brain maps from independent random shuffling\n');
+        fprintf(1,'Surrogate brain maps from independent random shuffling\n');
         geneData = geneDataReal;
         for j = 1:numRealGenes
             rp = randperm(numAreas);
@@ -95,7 +95,7 @@ case {'surrogate-mouse','surrogate-human'}
 
     case 'geneShuffle'
         % Random shuffling of genes (randomizing association with metadata)
-        fprintf(1,'Surrogate mouse brain maps from independent random shuffling\n');
+        fprintf(1,'Surrogate brain maps from independent random shuffling\n');
         rp = randperm(numRealGenes);
         geneData = geneDataReal(:,rp);
 
