@@ -67,6 +67,6 @@ end
 %-------------------------------------------------------------------------------
 % Save out
 fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
-save(fileNameOut,'GOTableGeneric','surrogateScores','-v7.3');
+save(fileNameOut,'GOTableGeneric','surrogatePVals','-v7.3');
 
 end
