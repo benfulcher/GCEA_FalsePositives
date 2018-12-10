@@ -32,12 +32,8 @@ parfor j = 1:numGOCategories
     if sum(matchMe) <= 1
         continue
     end
-    % Correlation matrix:
-    C = corr(geneData(:,matchMe),'rows','pairwise','type','Pearson');
-    corrVect = C(triu(true(size(C)),+1));
-    categoryScoresRaw(j) = nanmean(corrVect);
-    % (look also at taking magnitude of any negative correlations):
-    categoryScoresAbs(j) = nanmean(abs(corrVect));
+    geneMatrix = geneData(:,matchMe);
+    [categoryScoresRaw(j),categoryScoresAbs(j)] = IntraCorrelationScore(geneMatrix);
 end
 
 %-------------------------------------------------------------------------------
