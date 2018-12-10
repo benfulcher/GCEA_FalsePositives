@@ -1,10 +1,18 @@
+function resultsTable = IntraCorrelationByCategory(whatSpecies,whatSurrogate,numSamples)
 %-------------------------------------------------------------------------------
 % Annotate intra-category correlations for different gene-expression datasets
 %-------------------------------------------------------------------------------
-% Parameters:
-whatSpecies = 'mouse';
-whatSurrogate = 'geneShuffle';
-numSamples = 5000;
+
+% Input parameters:
+if nargin < 1
+    whatSpecies = 'human';
+end
+if nargin < 2
+    whatSurrogate = 'geneShuffle';
+end
+if nargin < 3
+    numSamples = 500;
+end
 
 %-------------------------------------------------------------------------------
 % Set default parameters:
@@ -32,8 +40,7 @@ switch whatSurrogate
 case 'spatialShuffle'
     % Spatial shuffle case:
     fprintf(1,'(INDEPENDENT) SPATIAL SHUFFLE!!\n');
-    params.g.humanOrMouse = 'surrogate-mouse';
-    params.g.whatSurrogate = 'spatialShuffle';
+    params.g.humanOrMouse = sprintf('surrogate-%s',whatSpecies);
     parfor j = 1:numSamples
         fprintf(1,'Sample %u/%u\n',j,numSamples);
         % Get indpendently-shuffled data:
@@ -57,10 +64,12 @@ case 'geneShuffle'
             [nullDistributionRaw(i,j),nullDistributionAbs(i,j)] = IntraCorrelationScore(shuffledData);
         end
     end
+otherwise
+    error('Unknown null model');
 end
 
 %-------------------------------------------------------------------------------
-theField = 'mouse_abs';
+theField = sprintf('%s_abs',whatSpecies);
 theNullDistribution = nullDistributionAbs;
 
 %-------------------------------------------------------------------------------
@@ -72,25 +81,28 @@ h3 = histogram(theNullDistribution(end,:),'normalization','pdf');
 legend([h1,h2,h3],{'realData',sprintf('nullSize%u',uniqueSizes(1)),sprintf('nullSize%u',uniqueSizes(end))});
 
 %-------------------------------------------------------------------------------
-% Compute p-values (bigger scores are better)
+% Compute p-values (bigger scores are better):
 pVal = nan(numGOCategories,1);
+pValZ = nan(numGOCategories,1);
 parfor i = 1:numGOCategories
     categoryScore = resultsTable.(theField)(i);
     if ~isnan(categoryScore)
         nullForSize = theNullDistribution(resultsTable.size(i)==uniqueSizes,:);
         pVal(i) = mean(categoryScore < nullForSize);
+        % Gaussian approximation:
+        pValZ(i) = 1 - normcdf(categoryScore,mean(nullForSize),std(nullForSize));
     end
 end
 
 %-------------------------------------------------------------------------------
-% FDR correct:
-pValCorr = mafdr(pVal,'BHFDR','true');
-
-%-------------------------------------------------------------------------------
 % Update the GO table:
 resultsTable.pVal = pVal;
-resultsTable.pValCorr = pValCorr;
+resultsTable.pValZ = pValZ;
+% FDR-corrected values:
+resultsTable.pValCorr = mafdr(pVal,'BHFDR','true');
+resultsTable.pValZCorr = mafdr(pValZ,'BHFDR','true');
 
 %-------------------------------------------------------------------------------
 % Sort:
-resultsTable = sortrows(resultsTable,{'pVal','pValCorr'},{'ascend','ascend'});
+resultsTable = sortrows(resultsTable,'pValZ','ascend');
+% resultsTable = sortrows(resultsTable,{'pVal','pValCorr','mouse_abs'},{'ascend','ascend','descend'});

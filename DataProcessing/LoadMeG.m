@@ -81,7 +81,7 @@ case {'surrogate-mouse','surrogate-human'}
         % Assign random gene metadata:
         rp = randperm(numRealGenes,numFakeGenes);
         fprintf(1,'Assigning metadata to genes at RANDOM (%u/%u genes)\n',numFakeGenes,numRealGenes);
-        geneInfo = geneInfoReal(rp,:);
+        geneInfo = geneInfo(rp,:);
 
     case 'spatialShuffle'
         % Surrogate maps generated through (independent) random shuffling across brain areas
