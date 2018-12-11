@@ -47,7 +47,10 @@ for i = 1:numMaps
     map_i = geneDataNull(:,i);
     geneScores = zeros(numGenesReal,1);
     for j = 1:numGenesReal
-        geneScores(j) = corr(map_i,geneDataReal(:,j),'type','Spearman');
+        geneScores(j) = corr(map_i,geneDataReal(:,j),'type','Spearman','rows','pairwise');
+        if isnan(geneScores(j))
+            keyboard
+        end
     end
     % Store random-gene enrichment results:
     GOTable_i = SingleEnrichment(geneScores,geneInfoReal.entrez_id,params.e);

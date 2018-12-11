@@ -62,7 +62,7 @@ case 'human'
     % New data (Aurina 2018) does not allow selection of these options:
     % params.g.probeSelection = 'DS'; % 'mean, 'variance', 'DS'
     % params.g.normalizationInternal = 'robustSigmoid'; % 'robustSigmoid', 'none'
-    params.g.whatParcellation = 'HCP'; % 'HCP', 'cust100'
+    params.g.whatParcellation = 'cust100'; % 'HCP', 'cust100'
     params.g.normalizeSeparately = true; % whether to normalize cortex/subcortex separately
 
     % Additional 'in-house' normalization:
