@@ -2,14 +2,15 @@
 % whatSpecies = 'mouse';
 whatSpecies = 'human';
 
+% whatSurrogate = 'spatialLag';
+whatSurrogate = 'spatialShuffle';
 
-switch whatSpecies
-case 'mouse'
-    load('SurrogateGOTables_1000_mouse_spatialLag.mat','GOTableGeneric','surrogatePVals');
-case 'human'
-    load('SurrogateGOTables_1000_human_spatialLag.mat','GOTableGeneric','surrogatePVals')
-end
+%-------------------------------------------------------------------------------
 
+theMatFile = sprintf('SurrogateGOTables_1000_%s_%s.mat',whatSpecies,whatSurrogate);
+load(theMatFile,'GOTableGeneric','surrogatePVals');
+
+fprintf(1,'Enrichment of %s nulls under a %s model\n',whatSpecies,whatSurrogate);
 
 %-------------------------------------------------------------------------------
 % Compute corrected p-vals:
@@ -27,3 +28,4 @@ GOTableGeneric.sumUnderSig = sumUnderSig;
 GOTableGeneric = sortrows(GOTableGeneric,'sumUnderSig','descend');
 
 %-------------------------------------------------------------------------------
+display(GOTableGeneric(1:20,:))
