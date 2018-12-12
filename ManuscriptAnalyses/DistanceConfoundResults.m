@@ -1,4 +1,8 @@
-% DistanceConfoundResults Investigate the enrichment signatures of distance-related confounds
+%-------------------------------------------------------------------------------
+% DistanceConfoundResults
+%-------------------------------------------------------------------------------
+% Investigate the enrichment signatures of distance-related confounds
+%-------------------------------------------------------------------------------
 
 % Store results tables in this struct:
 results = struct();

@@ -1,44 +1,49 @@
 %-------------------------------------------------------------------------------
 % CategoryNullCompare
-% Does nulls for correlations with degree, in different ways
+% Compares different nulls for correlations with some underlying phenotype
 %-------------------------------------------------------------------------------
 
+%-------------------------------------------------------------------------------
 % Settings:
+%-------------------------------------------------------------------------------
 whatGOID = 6099;
-whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
-numNulls = 2000;
 whatShuffle = 'twoIsocortex';
 whatSpecies = 'mouse';
+whatCorr = 'Spearman'; % 'Pearson', 'Spearman'
+numNulls = 100;
+whatPhenotype = 'degree';
 
 %-------------------------------------------------------------------------------
-% Load defaults:
+% Load in gene-expression data:
 params = GiveMeDefaultParams(whatSpecies);
-warning('Over-writing gene normalization settings -> none')
-params.g.normalizationGene = 'none';
-params.g.normalizationRegion = 'none';
-
-% Get gene data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 % Load in GO annotations:
 GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,params.e.sizeFilter,...
                                     geneInfo.entrez_id);
 numGOCategories = height(GOTable);
+
+% Get the category of interest:
 whatCategory = find(GOTable.GOID==whatGOID);
 fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{whatCategory},...
                     GOTable.GOName{whatCategory},GOTable.size(whatCategory));
 
-% Load adjacency matrix:
-[A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,true,...
-                                    params.c.whatWeightMeasure,params.c.whatHemispheres,...
-                                    params.c.structFilter);
-k = sum(A_bin,1)' + sum(A_bin,2);
-
+% Match genes:
 theGenesEntrez = GOTable.annotations{whatCategory};
 [entrezMatched,ia,ib] = intersect(theGenesEntrez,geneInfo.entrez_id);
 fprintf(1,'%u/%u genes from this GO category match\n',length(entrezMatched),length(theGenesEntrez));
 numGenesGO = length(entrezMatched);
 matchMe = find(ismember(geneInfo.entrez_id,entrezMatched));
+
+% Load the phenotype map:
+switch whatPhenotype
+case 'degree'
+    % Load adjacency matrix:
+    [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,params.c.pThreshold,true,...
+                                        params.c.whatWeightMeasure,params.c.whatHemispheres,...
+                                        params.c.structFilter);
+    thePhenotype = sum(A_bin,1)' + sum(A_bin,2);
+end
 
 categoryScores = nan(numNulls+1,3);
 for n = 1:numNulls+1
@@ -58,8 +63,8 @@ for n = 1:numNulls+1
     %-------------------------------------------------------------------------------
     gScore = zeros(numGenesGO,2);
     for i = 1:numGenesGO
-        gScore(i,1) = corr(k,geneData(permVectorAll,matchMe(i)),'type',whatCorr,'rows','pairwise');
-        gScore(i,2) = corr(k,geneData(permVectorCustom,matchMe(i)),'type',whatCorr,'rows','pairwise');
+        gScore(i,1) = corr(thePhenotype,geneData(permVectorAll,matchMe(i)),'type',whatCorr,'rows','pairwise');
+        gScore(i,2) = corr(thePhenotype,geneData(permVectorCustom,matchMe(i)),'type',whatCorr,'rows','pairwise');
     end
 
     % Record mean scores for each category:
@@ -75,7 +80,7 @@ for n = 1:numNulls+1
         rp = randperm(size(geneData,2),numGenesGO);
         gScore = zeros(numGenesGO,1);
         for i = 1:numGenesGO
-            gScore(i) = corr(k,geneData(:,rp(i)),'type',whatCorr,'rows','pairwise');
+            gScore(i) = corr(thePhenotype,geneData(:,rp(i)),'type',whatCorr,'rows','pairwise');
         end
         categoryScores(n,3) = nanmean(gScore);
     end
@@ -118,19 +123,3 @@ title(sprintf('%s\t%s (%u)',GOTable.GOIDlabel{whatCategory},...
                     GOTable.GOName{whatCategory},GOTable.size(whatCategory)))
 xlabel(sprintf('%s correlation',whatCorr))
 legend([h1,h2,h3],{'random-area-all',sprintf('random-area-%s',whatShuffle),'random-gene'})
-
-%-------------------------------------------------------------------------------
-f = figure('color','w'); ax = gca;
-corrMat = corr(geneData(:,matchMe),'type',whatCorr,'rows','pairwise');
-ord = BF_ClusterReorder(corrMat,'euclidean','average');
-imagesc(corrMat(ord,ord));
-ax.YTick = 1:length(matchMe);
-acronymsMatch = geneInfo.acronym(matchMe);
-ax.YTickLabel = acronymsMatch(ord);
-caxis([-1,1])
-colormap([flipud(BF_getcmap('blues',9));1,1,1;BF_getcmap('reds',9)])
-title(sprintf('%s %s (%u genes)[%s]',GOTable.GOIDlabel{whatCategory},...
-                    GOTable.GOName{whatCategory},GOTable.size(whatCategory),...
-                    whatCorr))
-axis('square')
-cB = colorbar;

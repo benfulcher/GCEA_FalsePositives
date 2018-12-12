@@ -3,7 +3,8 @@ function resultsTable = IntraCorrelationByCategory(whatSpecies,whatSurrogate,num
 % Annotate intra-category correlations for different gene-expression datasets
 %-------------------------------------------------------------------------------
 
-% Input parameters:
+%-------------------------------------------------------------------------------
+% Check input parameters:
 if nargin < 1
     whatSpecies = 'human';
 end
@@ -106,3 +107,5 @@ resultsTable.pValZCorr = mafdr(pValZ,'BHFDR','true');
 % Sort:
 resultsTable = sortrows(resultsTable,'pValZ','ascend');
 % resultsTable = sortrows(resultsTable,{'pVal','pValCorr','mouse_abs'},{'ascend','ascend','descend'});
+
+end
