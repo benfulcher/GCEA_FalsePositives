@@ -3,11 +3,11 @@ function dataFile = GiveMeFile(fileLabel)
 
 switch fileLabel
 case 'AllenMouseGene'
-    if ismac
-        dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
-    else
-        dataFile = 'MouseData/AllenGeneDataset_19419.mat';
-    end
+    dataFile = 'MouseData/AllenGeneDataset_19419.mat';
+    % if ismac
+        % dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
+    % else
+    % end
 case 'EnrichmentToolbox'
     if ismac
         dataFile = '/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/';

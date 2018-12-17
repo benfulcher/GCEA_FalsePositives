@@ -13,9 +13,9 @@ if nargin < 2 || isempty(whatSurrogate)
 end
 
 %-------------------------------------------------------------------------------
-
 theMatFile = sprintf('SurrogateGOTables_1000_%s_%s.mat',whatSpecies,whatSurrogate);
 load(theMatFile,'GOTableGeneric','surrogatePVals');
+fprintf(1,'(data loaded from %s)\n',theMatFile);
 fprintf(1,'Enrichment of %s nulls under a %s model\n',whatSpecies,whatSurrogate);
 
 %-------------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 function [geneDataSub,geneInfoSub,structInfo,categoryInfo] = GiveMeGOCategory(whatGOID,params)
 % Retrieve expression data for a given GO category
+%-------------------------------------------------------------------------------
+
 if nargin < 1
     whatGOID = 7215;
 end

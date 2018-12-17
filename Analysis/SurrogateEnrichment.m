@@ -26,6 +26,7 @@ fakeFlags = struct();
 fakeFlags.mouse = 'surrogate-mouse';
 fakeFlags.human = 'surrogate-human';
 params.g.humanOrMouse = fakeFlags.(whatSpecies);
+params.g.whatSurrogate = whatSurrogate;
 geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
     error('There aren''t enough null maps to compare against...');

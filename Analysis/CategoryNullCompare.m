@@ -14,27 +14,12 @@ numNulls = 100;
 whatPhenotype = 'degree';
 
 %-------------------------------------------------------------------------------
-% Load in gene-expression data:
+% Load in gene-expression data for this GO category:
 params = GiveMeDefaultParams(whatSpecies);
-[geneData,geneInfo,structInfo] = LoadMeG(params.g);
+[geneData,geneInfo,structInfo,categoryInfo] = GiveMeGOCategory(whatGOID,params);
+numGenes = height(geneInfo);
 
-% Load in GO annotations:
-GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,params.e.sizeFilter,...
-                                    geneInfo.entrez_id);
-numGOCategories = height(GOTable);
-
-% Get the category of interest:
-whatCategory = find(GOTable.GOID==whatGOID);
-fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{whatCategory},...
-                    GOTable.GOName{whatCategory},GOTable.size(whatCategory));
-
-% Match genes:
-theGenesEntrez = GOTable.annotations{whatCategory};
-[entrezMatched,ia,ib] = intersect(theGenesEntrez,geneInfo.entrez_id);
-fprintf(1,'%u/%u genes from this GO category match\n',length(entrezMatched),length(theGenesEntrez));
-numGenesGO = length(entrezMatched);
-matchMe = find(ismember(geneInfo.entrez_id,entrezMatched));
-
+%-------------------------------------------------------------------------------
 % Load the phenotype map:
 switch whatPhenotype
 case 'degree'
@@ -59,12 +44,12 @@ for n = 1:numNulls+1
     end
 
     %-------------------------------------------------------------------------------
-    % Shuffling node properties:
+    % Coherent spatial shuffling:
     %-------------------------------------------------------------------------------
     gScore = zeros(numGenesGO,2);
     for i = 1:numGenesGO
-        gScore(i,1) = corr(thePhenotype,geneData(permVectorAll,matchMe(i)),'type',whatCorr,'rows','pairwise');
-        gScore(i,2) = corr(thePhenotype,geneData(permVectorCustom,matchMe(i)),'type',whatCorr,'rows','pairwise');
+        gScore(i,1) = corr(thePhenotype,geneData(permVectorAll,i),'type',whatCorr,'rows','pairwise');
+        gScore(i,2) = corr(thePhenotype,geneData(permVectorCustom,i),'type',whatCorr,'rows','pairwise');
     end
 
     % Record mean scores for each category:
@@ -119,7 +104,7 @@ plot(ones(2,1)*mean(categoryScores(2:end,1)),ax.YLim,'color',h1.FaceColor);
 plot(ones(2,1)*mean(categoryScores(2:end,2)),ax.YLim,'color',h2.FaceColor);
 plot(ones(2,1)*mean(categoryScores(2:end,3)),ax.YLim,'color',h3.FaceColor);
 plot(ones(2,1)*categoryScores(1,1),ax.YLim,'r')
-title(sprintf('%s\t%s (%u)',GOTable.GOIDlabel{whatCategory},...
-                    GOTable.GOName{whatCategory},GOTable.size(whatCategory)))
+title(sprintf('%s\t%s (%u)',categoryInfo.GOIDlabel{1},...
+                    categoryInfo.GOName{1},categoryInfo.size))
 xlabel(sprintf('%s correlation',whatCorr))
 legend([h1,h2,h3],{'random-area-all',sprintf('random-area-%s',whatShuffle),'random-gene'})
