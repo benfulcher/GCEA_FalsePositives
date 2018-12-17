@@ -28,6 +28,7 @@ case 'human'
     % Keep only cortex:
     warning('Hard keeping first 100 cust100 cortical parcels (out of %u)',length(distanceMat));
     distanceMat = distanceMat(1:100,1:100);
+    structFilter = 'all';
 
 case 'human2017'
     % Results using data provided by Aurina in 2017
