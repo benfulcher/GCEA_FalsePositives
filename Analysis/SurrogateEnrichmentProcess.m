@@ -1,6 +1,7 @@
 function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,whatSurrogate)
-
+%
 %-------------------------------------------------------------------------------
+
 % Check inputs:
 if nargin < 1 || isempty(whatSpecies)
     whatSpecies = 'mouse';
@@ -15,7 +16,7 @@ end
 %-------------------------------------------------------------------------------
 theMatFile = sprintf('SurrogateGOTables_1000_%s_%s.mat',whatSpecies,whatSurrogate);
 load(theMatFile,'GOTableGeneric','surrogatePVals');
-fprintf(1,'(data loaded from %s)\n',theMatFile);
+fprintf(1,'(Data loaded from %s)\n',theMatFile);
 fprintf(1,'Enrichment of %s nulls under a %s model\n',whatSpecies,whatSurrogate);
 
 %-------------------------------------------------------------------------------
@@ -32,6 +33,10 @@ GOTableGeneric.sumUnderSig = sumSig;
 GOTableGeneric = sortrows(GOTableGeneric,'sumUnderSig','descend');
 
 %-------------------------------------------------------------------------------
-display(GOTableGeneric(1:20,:))
+% Estimate a p-value? NB NB NB: THIS IS WRONG!!!:
+GOTableGeneric.pValCorr = 1./GOTableGeneric.sumUnderSig;
+
+%-------------------------------------------------------------------------------
+% display(GOTableGeneric(1:20,:))
 
 end

@@ -1,5 +1,6 @@
 function resultsTablesSpecies = LiteratureLook(whatSpecies,theThreshold,doPlot)
 % Unifies across literature enrichment results and displays in a graphical table
+%-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Check inputs:

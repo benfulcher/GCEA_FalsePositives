@@ -1,4 +1,4 @@
-function PlotEnrichmentTables(resultsTables,thresholds,whatSpecies)
+function [allGOIDsSort,GONamesSort] = PlotEnrichmentTables(resultsTables,thresholds,whatSpecies)
 % Plots multiple results of GO enrichment as a (sorted) table
 %-------------------------------------------------------------------------------
 
@@ -113,19 +113,19 @@ end
 %-------------------------------------------------------------------------------
 % Plot:
 f = figure('color','w'); ax = gca;
-imagesc(rowVectorResultsThSort);
-ax.YTick = 1:numTables;
-ax.YTickLabel = allTableNamesSort;
+imagesc(rowVectorResultsThSort');
+ax.XTick = 1:numTables;
+ax.XTickLabel = allTableNamesSort;
+ax.XTickLabelRotation = 40;
 ax.TickLabelInterpreter = 'none';
-ax.XTick = 1:sum(~hasNoAnnotations);
+ax.YTick = 1:sum(~hasNoAnnotations);
 % ax.XTickLabel = allGOIDsSort;
-ax.XTickLabel = GONamesSort;
-ax.XTickLabelRotation = 90;
+ax.YTickLabel = GONamesSort;
 colormap([flipud(BF_getcmap('blues',9));1,1,1])
 caxis([0,sigThreshold*1.2]);
 title(whatSpecies)
 
 cB = colorbar();
-cB.Label.String = 'p-corr'
+cB.Label.String = 'pCorr';
 
 end

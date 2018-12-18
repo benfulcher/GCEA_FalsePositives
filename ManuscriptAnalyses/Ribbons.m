@@ -29,7 +29,9 @@ results.humanDistance = geneEnrichmentDistance(params);
 %===============================================================================
 numSamples = 100;
 results.mouseIntra = IntraCorrelationByCategory('mouse','geneShuffle',numSamples);
+results.mouseIntra.pValCorr = results.mouseIntra.pValZCorr;
 results.humanIntra = IntraCorrelationByCategory('human','geneShuffle',numSamples);
+results.humanIntra.pValCorr = results.humanIntra.pValZCorr;
 
 %===============================================================================
 % Significant categories under the spatial lag model
@@ -40,4 +42,4 @@ results.humanSpatialLag = SurrogateEnrichmentProcess('human','spatialLag');
 %-------------------------------------------------------------------------------
 % Check em out together:
 thresholdSig = [0.05,2,2];
-PlotEnrichmentTables(results,thresholdSig);
+[allGOIDsSort,GONamesSort] = PlotEnrichmentTables(results,thresholdSig);

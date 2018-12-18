@@ -1,6 +1,5 @@
 function resultsTable = IntraCorrelationByCategory(whatSpecies,whatSurrogate,numSamples)
-%-------------------------------------------------------------------------------
-% Annotate intra-category correlations for different gene-expression datasets
+% Annotate intra-category coexpression for different gene-expression datasets
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
