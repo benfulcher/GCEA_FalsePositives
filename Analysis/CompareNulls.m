@@ -1,11 +1,9 @@
 function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,whatSurrogate,numNullSamples)
-%-------------------------------------------------------------------------------
-% Plots comparison of the correlation between the genes in a given GO category
-% and different null spatial maps
+% Compares the coexpression of genes in a given GO category from different null spatial maps
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% Settings:
+% Inputs:
 if nargin < 1
     whatGOIDs = [7215,32612]; % 6099, 2374,2693,
 end

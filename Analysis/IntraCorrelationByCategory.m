@@ -1,11 +1,12 @@
-function resultsTable = IntraCorrelationByCategory(whatSpecies,whatSurrogate,numSamples)
+function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSamples)
 % Annotate intra-category coexpression for different gene-expression datasets
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Check input parameters:
 if nargin < 1
-    whatSpecies = 'human';
+    whatSpecies = 'mouse';
+    params = GiveMeDefaultParams(whatSpecies);
 end
 if nargin < 2
     whatSurrogate = 'geneShuffle';
@@ -16,7 +17,6 @@ end
 
 %-------------------------------------------------------------------------------
 % Set default parameters:
-params = GiveMeDefaultParams(whatSpecies);
 params.g.whatSurrogate = whatSurrogate;
 
 %-------------------------------------------------------------------------------

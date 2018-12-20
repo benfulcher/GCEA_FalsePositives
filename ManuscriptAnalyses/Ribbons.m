@@ -14,23 +14,23 @@ results = struct();
 params = GiveMeDefaultParams('mouse');
 params.g.normalizationGene = 'zscore';
 params.g.normalizationRegion = 'zscore';
-params.c.structFilter = 'all';
 results.mouseDistance = geneEnrichmentDistance(params);
 
 % Human cortex:
 params = GiveMeDefaultParams('human');
 params.g.normalizationGene = 'zscore';
 params.g.normalizationRegion = 'zscore';
-params.c.structFilter = 'cortex';
 results.humanDistance = geneEnrichmentDistance(params);
 
 %===============================================================================
 % Within-category correlation
 %===============================================================================
 numSamples = 100;
-results.mouseIntra = IntraCorrelationByCategory('mouse','geneShuffle',numSamples);
+params = GiveMeDefaultParams('mouse');
+results.mouseIntra = IntraCorrelationByCategory(params,'geneShuffle',numSamples);
 results.mouseIntra.pValCorr = results.mouseIntra.pValZCorr;
-results.humanIntra = IntraCorrelationByCategory('human','geneShuffle',numSamples);
+params = GiveMeDefaultParams('human');
+results.humanIntra = IntraCorrelationByCategory(params,'geneShuffle',numSamples);
 results.humanIntra.pValCorr = results.humanIntra.pValZCorr;
 
 %===============================================================================

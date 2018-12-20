@@ -6,11 +6,9 @@
 results = struct();
 
 %-------------------------------------------------------------------------------
-% Tweak default parameters:
+% Get default parameters:
 mouseParams = GiveMeDefaultParams('mouse');
-mouseParams.c.structFilter = 'all';
 humanParams = GiveMeDefaultParams('human');
-humanParams.c.structFilter = 'cortex';
 
 %-------------------------------------------------------------------------------
 % Mouse:
