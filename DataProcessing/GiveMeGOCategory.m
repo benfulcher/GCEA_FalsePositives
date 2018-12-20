@@ -1,5 +1,5 @@
 function [geneDataSub,geneInfoSub,structInfo,categoryInfo] = GiveMeGOCategory(whatGOID,params)
-% Retrieve expression data for a given GO category
+% Retrieve gene expression data for a given GO category
 %-------------------------------------------------------------------------------
 
 if nargin < 1
@@ -13,10 +13,12 @@ end
 % Load gene-expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 % Load GO annotations:
-GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
-                                params.e.sizeFilter,geneInfo.entrez_id);
+GOTable = GiveMeGOData(params,geneInfo.entrez_id);
 % Get the category of interest:
 whatCategory = find(GOTable.GOID==whatGOID);
+if isempty(whatCategory)
+    error('No matches for category %u',whatGOID);
+end
 % Match genes:
 theGenesEntrez = GOTable.annotations{whatCategory};
 [entrezMatched,ia,ib] = intersect(theGenesEntrez,geneInfo.entrez_id);

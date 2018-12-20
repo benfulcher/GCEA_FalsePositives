@@ -18,8 +18,7 @@ end
 %-------------------------------------------------------------------------------
 % Load annotation data:
 if isempty(GOTable)
-    GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
-                                params.e.sizeFilter,geneInfo.entrez_id);
+    GOTable = GiveMeGOData(params,geneInfo.entrez_id);
 end
 numGOCategories = height(GOTable);
 

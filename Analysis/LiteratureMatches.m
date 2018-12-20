@@ -7,7 +7,7 @@ end
 %-------------------------------------------------------------------------------
 % Tell them what it is:
 params = GiveMeDefaultParams('mouse');
-GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,params.e.sizeFilter);
+GOTable = GiveMeGOData(params);
 % Get the category of interest:
 whatCategory = find(GOTable.GOID==whatGOID);
 fprintf(1,'GOGO %s\n',GOTable.GOName{whatCategory});

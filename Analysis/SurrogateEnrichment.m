@@ -36,8 +36,7 @@ if size(geneDataNull,1)~=numAreas
 end
 %-------------------------------------------------------------------------------
 % Get a generic GO Table:
-GOTableGeneric = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
-                                    params.e.sizeFilter,geneInfoReal.entrez_id);
+GOTableGeneric = GiveMeGOData(params,geneInfoReal.entrez_id);
 numGOCategories = height(GOTableGeneric);
 
 %-------------------------------------------------------------------------------

@@ -90,8 +90,7 @@ end
 %-------------------------------------------------------------------------------
 % Get GO data
 % (include only annotations for genes with entrez IDs that are in our dataset)
-GOTable = GetFilteredGOData(eParam.dataSource,eParam.processFilter,...
-                                    eParam.sizeFilter,geneInfo.entrez_id);
+GOTable = GiveMeGOData(eParam,geneInfo.entrez_id);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------

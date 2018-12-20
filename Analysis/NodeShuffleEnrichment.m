@@ -49,8 +49,7 @@ end
                                     params.c.whatWeightMeasure,params.c.whatHemispheres,params.c.structFilter);
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 [A_bin,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A_bin,geneData);
-GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
-                                params.e.sizeFilter,geneInfo.entrez_id);
+GOTable = GiveMeGOData(params,geneInfo.entrez_id);
 numGenes = size(geneData,1);
 numGOCategories = height(GOTable);
 

@@ -23,8 +23,8 @@ params.g.humanOrMouse = realAndFake{1};
 [geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
 params.g.humanOrMouse = realAndFake{2};
 [geneDataNull,geneInfoNull,structInfoNull] = LoadMeG(params.g);
-GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
-                                params.e.sizeFilter,geneInfoReal.entrez_id);
+
+GOTable = GiveMeGOData(params,geneInfoReal.entrez_id);
 numGenes = height(geneInfoReal);
 numGOCategories = height(GOTable);
 if numMaps > height(geneInfoNull)

@@ -8,6 +8,7 @@ if nargin < 1
     whatSpecies = 'mouse';
     params = GiveMeDefaultParams(whatSpecies);
 end
+whatSpecies = params.humanOrMouse;
 if nargin < 2
     whatSurrogate = 'geneShuffle';
 end

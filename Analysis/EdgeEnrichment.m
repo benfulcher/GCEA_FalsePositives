@@ -114,8 +114,7 @@ otherwise
 
     % (include only annotations for genes with entrez IDs that are in our dataset)
     fprintf(1,'---Interested in %s---\n',params.e.processFilter);
-    GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
-                                    params.e.sizeFilter,geneInfo.entrez_id);
+    GOTable = GiveMeGOData(params,geneInfo.entrez_id);
     numGOCategories = height(GOTable);
 
     categoryScores = nan(numGOCategories,numNulls+1);
