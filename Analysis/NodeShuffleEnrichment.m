@@ -1,8 +1,8 @@
-function GOTable = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,whatSpecies,params)
+function GOTable = NodeShuffleEnrichment(whatEnrichment,whatShuffle,numNulls,structFilter,params)
 % NodeShuffleEnrichment  Compute enrichment in different GO categories by spatial shuffling
 
-% Shuffle node properties across nodes, generating a null distribution
-% for each category separately
+% Shuffle properties across nodes, generating a null distribution for each
+% category separately
 
 %---INPUTS:
 % * whatEnrichment: what node property to do enrichment on
@@ -24,11 +24,8 @@ end
 if nargin < 4 || isempty(structFilter)
     structFilter = 'all'; % 'isocortex','all'
 end
-if nargin < 5 || isempty(whatSpecies)
+if nargin < 5
     whatSpecies = 'mouse';
-    fprintf(1,'Mouse by default\n');
-end
-if nargin < 6
     params = GiveMeDefaultParams(whatSpecies);
 end
 
@@ -50,7 +47,8 @@ end
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 [A_bin,geneData,structInfo,keepStruct] = filterStructures(structFilter,structInfo,A_bin,geneData);
 GOTable = GiveMeGOData(params,geneInfo.entrez_id);
-numGenes = size(geneData,1);
+numGenes = height(geneInfo);
+numAreas = height(structInfo);
 numGOCategories = height(GOTable);
 
 %-------------------------------------------------------------------------------
@@ -80,7 +78,7 @@ case 'anatomyTwo'
 case 'anatomyFive'
     shuffle_fn = @()AnatomyShuffle(structInfo.divisionLabel,'fiveByEye');
 case 'all'
-    shuffle_fn = @()randperm(numGenes);
+    shuffle_fn = @()randperm(numAreas);
 otherwise
     error('Unknown shuffle setting ''%s''',whatShuffle);
 end
@@ -91,10 +89,10 @@ fprintf(1,'Shuffling over %u brain areas using ''%s''\n',...
 % Assign scores to categories of genes
 %-------------------------------------------------------------------------------
 categoryScores = nan(numGOCategories,numNulls+1);
-parfor n = 1:numNulls+1
+for n = 1:numNulls+1
 
     if n == 1
-        fprintf(1,'Unpermuted data!\n');
+        fprintf(1,'n=1: Unpermuted data!\n');
         permVector = 1:size(geneData,1);
     else
         fprintf(1,'Null %u/%u\n',n-1,numNulls);
