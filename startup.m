@@ -8,8 +8,8 @@ for j = 1:length(paths)
 end
 
 %===============================================================================
-% Add path references to dependencies:
-%===============================================================================
+% Add path to dependencies:
+
 fprintf(1,'Adding dependencies for external toolboxes:\n');
 
 fprintf(1,'GeneEnrichment for Matlab\n');
