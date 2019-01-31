@@ -62,10 +62,10 @@ case {'surrogate-mouse','surrogate-human'}
     switch gParam.humanOrMouse
     case 'surrogate-mouse'
         gParam.humanOrMouse = 'mouse';
-        dataFileSurrogate = 'mouseSurrogate_rho8_d040.csv';
+        dataFileSurrogate = 'mouseSurrogate_N10000_rho8_d040.csv';
     case 'surrogate-human'
         gParam.humanOrMouse = 'human';
-        dataFileSurrogate = 'humanSurrogate_rho8_d02000.csv';
+        dataFileSurrogate = 'humanSurrogate_N10000_rho8_d02000.csv';
     end
     [geneDataReal,geneInfo,structInfo] = LoadMeG(gParam);
     numRealGenes = height(geneInfo);
