@@ -1,4 +1,4 @@
-% The case study on degree-enrichment
+% Case studies of degree enrichment
 %-------------------------------------------------------------------------------
 
 resultsTablesDegree = struct();

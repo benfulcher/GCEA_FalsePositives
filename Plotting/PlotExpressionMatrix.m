@@ -7,15 +7,16 @@ if nargin < 1
 end
 
 params = GiveMeDefaultParams(whatSpecies);
-params.g.normalizationGene = 'scaledSigmoid';
+params.g.normalizationGene = 'scaledRobustSigmoid';
+params.g.normalizationRegion = 'none';
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 %-------------------------------------------------------------------------------
 % Cluster-reorder genes
-ord_col = BF_ClusterReorder(geneData','corr','average');
+ord_col = BF_ClusterReorder(geneData','euclidean','average');
 
 %-------------------------------------------------------------------------------
-% Plot:
+% Plot gene-reordered matrix:
 PlotColorMatrix(geneData(:,ord_col),structInfo);
 
 end

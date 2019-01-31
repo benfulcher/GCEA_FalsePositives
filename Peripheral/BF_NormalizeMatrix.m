@@ -211,7 +211,7 @@ function xhat = ZScore(x)
     goodVals = (~isnan(x) & isTraining);
     meanX = mean(x(goodVals));
     stdX = std(x(goodVals));
-    xhat = (x-meanX)/stdX;
+    xhat = (x - meanX)/stdX;
 end
 
 function xhat = UnityRescale(x)

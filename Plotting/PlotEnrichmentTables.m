@@ -22,32 +22,10 @@ if nargin < 3
 end
 %-------------------------------------------------------------------------------
 
-% Preliminaries:
-allTableNames = fieldnames(resultsTables);
-numTables = length(allTableNames);
-fprintf(1,'%u GO enrichment datasets\n',numTables);
+[rowVectorResults,GOTerms,allGOIDs] = CombineTables(resultsTables,whatSpecies,'pValCorr');
 
-% Get all GOIDs
-allGOIDs = structfun(@(x)x.GOID,resultsTables,'UniformOutput',false);
-allGOIDs = struct2cell(allGOIDs);
-allGOIDs = sort(unique(vertcat(allGOIDs{:})),'ascend');
-numGOIDs = length(allGOIDs);
-fprintf(1,'Annotations span %u GO categories\n',length(allGOIDs));
-
-% Match to names
-params = GiveMeDefaultParams(whatSpecies);
-params.e.sizeFilter = [0,1e6];
-GOTerms = GiveMeGOData(params);
-
-% Convert each dataset to a vector across GOIDs:
-rowVectorResults = nan(numTables,numGOIDs);
-for i = 1:numTables
-    [~,ia,ib] = intersect(allGOIDs,resultsTables.(allTableNames{i}).GOID);
-    rowVectorResults(i,ia) = resultsTables.(allTableNames{i}).pValCorr(ib);
-end
-
-% Filter max:
-underThreshold = @(x) 1-(1-x)*double(x < sigThreshold); % results over threshold are set to 1
+% Set p-value for results over threshold to 1, in rowVectorResultsTh
+underThreshold = @(x) 1-(1-x)*double(x < sigThreshold);
 rowVectorResultsTh = arrayfun(underThreshold,rowVectorResults);
 rowVectorResultsTh(isnan(rowVectorResultsTh)) = 1;
 

@@ -1,4 +1,4 @@
-function PlotColorMatrix(geneData,structInfo,colorLabelsWhere,myColorMap)
+function PlotColorMatrix(geneData,structInfo,colorLabelsWhere,myColorMap,doFlip)
 % Plots a colored data matrix, with the mouse connectome regions labeled
 
 % ------------------------------------------------------------------------------
@@ -10,8 +10,11 @@ end
 if nargin < 3 || isempty(colorLabelsWhere)
     colorLabelsWhere = 'left'; % left, bottom, both
 end
-if nargin < 5 || isempty(myColorMap)
+if nargin < 4 || isempty(myColorMap)
     myColorMap = [flipud(BF_getcmap('blues',9));1,1,1;BF_getcmap('reds',9)];
+end
+if nargin < 5
+    doFlip = true;
 end
 
 %-------------------------------------------------------------------------------
@@ -22,6 +25,13 @@ if length(rectThickness)==1
 end
 labelInd = false; % Labels individual regions rather than major regions
 plotBoundaries = [false,false];
+
+%-------------------------------------------------------------------------------
+% Flip:
+if doFlip
+    structInfo = flipud(structInfo);
+    geneData = flipud(geneData);
+end
 
 % ------------------------------------------------------------------------------
 % Plot the data matrix
