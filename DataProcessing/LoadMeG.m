@@ -193,6 +193,26 @@ if ~isempty(structInfo)
 end
 
 %-------------------------------------------------------------------------------
+% Filter on goodness
+%-------------------------------------------------------------------------------
+minGoodPropGene = 0.3;
+minGoodPropArea = 0.1;
+
+% Filter genes on threshold:
+nanPropGene = mean(isnan(geneData));
+isGoodGene = (nanPropGene < minGoodPropGene);
+fprintf(1,'Keeping %u/%u good genes\n',sum(isGoodGene),length(isGoodGene));
+geneInfo = geneInfo(isGoodGene,:);
+geneData = geneData(:,isGoodGene);
+
+% Filter areas on threshold:
+nanPropArea = mean(isnan(geneData),2);
+isGoodArea = (nanPropArea < minGoodPropArea);
+fprintf(1,'Keeping %u/%u good areas\n',sum(isGoodArea),length(isGoodArea));
+structInfo = structInfo(isGoodArea,:);
+geneData = geneData(isGoodArea,:);
+
+%-------------------------------------------------------------------------------
 % Further normalization:
 %-------------------------------------------------------------------------------
 if ~strcmp(gParam.normalizationGene,'none')
