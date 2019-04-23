@@ -20,9 +20,9 @@ params.humanOrMouse = humanOrMouse;
 
 % Filter structures:
 switch params.humanOrMouse
-case 'human'
+case {'human','surrogate-human'}
     structFilter = 'cortex'; % 'cortex', 'all'
-case 'mouse'
+case {'mouse','surrogate_mouse'}
     structFilter = 'all';
 end
 
