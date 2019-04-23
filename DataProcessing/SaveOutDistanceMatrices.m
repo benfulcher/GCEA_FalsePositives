@@ -11,4 +11,4 @@ dlmwrite('humanDistMat.csv',distMat)
 % ----------Run python code from Burt -> mouseSurrogateMaps.csv----------
 %-------------------------------------------------------------------------------
 
-VisualizeSurrogateMaps
+% VisualizeSurrogateMaps

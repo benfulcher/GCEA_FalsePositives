@@ -1,5 +1,5 @@
 function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate)
-% Get enrichment results across surrogate spatial maps
+% Compute conventional enrichment results across surrogate spatial maps
 %-------------------------------------------------------------------------------
 
 if nargin < 1
@@ -72,6 +72,7 @@ end
 %-------------------------------------------------------------------------------
 % Save out
 fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
+fileNameOut = fullfile('DataOutputs',fileNameOut);
 save(fileNameOut,'GOTableGeneric','surrogatePVals','-v7.3');
 
 end

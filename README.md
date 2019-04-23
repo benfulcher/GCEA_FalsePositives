@@ -2,6 +2,7 @@
 MouseEdge is a repository for obtaining enrichment signatures from spatial maps in human and mouse.
 
 ## Data processing
+
 ### Literature enrichment signatures
 The script for importing enrichment data reported in existing literature is `ImportLiteratureEnrichment`.
 It uses data in `/LiteratureEnrichmentData`.
@@ -17,8 +18,58 @@ The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImpor
 
 
 ## Analysis
+
+### Enrichment signatures of spatially-correlated null maps
+
+#### Generating surrogate maps
+First generate pairwise distance matrices for the regions in human cortex and mouse brain:
+```matlab
+SaveOutDistanceMatrices
+```
+This generates `mouseDistMat.csv` and `humanDistMat.csv`.
+These files can be used as input to python code by [Josh Burt et al.](https://github.com/benfulcher/surrogateMaps).
+For example, here:
+```
+python3 GenerateMapsFixed.py
+```
+
+The outputs, `mouseSurrogate_N10000_rho8_d040.csv` and `mouseSurrogate_rho10.csv`, are spatially correlated null maps that can be visualized in Matlab. For example:
+```matlab
+VisualizeSurrogateMaps('mouse');
+```
+
+#### Conventional enrichment analysis on each null map
+
+The following computes for 1000 of the null maps generated above:
+```matlab
+SurrogateEnrichment('mouse',1000,'spatialLag');
+```
+This generates results stored in the file `SurrogateGOTables_1000_mouse_spatialLag.mat` in `DataOutputs`.
+
+#### Analyzing enrichment signatures of spatially correlated null maps
+
+The results computed above can be read in and processed as a GO Table:
+```matlab
+GOTableNull = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate);
+```
+
+### Enrichment signatures of random-gene null maps
+
+### Visualizing transcriptional data
+
+Clustered row x gene expression matrices can be plotted for mouse:
+```matlab
+PlotExpressionMatrix('mouse')
+```
+
+And human:
+```matlab
+PlotExpressionMatrix('human')
+```
+
+
 ### Non-specific spatial effects
-These analyses look at quantifying nonspecific spatial patterning of gene expression maps.
+These analyses look at quantifying nonspecific spatial patterning of gene-expression maps.
 
 ```matlab
 DistanceConfoundResults()

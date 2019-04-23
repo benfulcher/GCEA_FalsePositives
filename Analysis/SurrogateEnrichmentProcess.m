@@ -1,20 +1,22 @@
-function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,whatSurrogate)
-%
-%-------------------------------------------------------------------------------
+function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate)
 
+%-------------------------------------------------------------------------------
 % Check inputs:
 if nargin < 1 || isempty(whatSpecies)
     whatSpecies = 'mouse';
     % whatSpecies = 'human';
 end
-if nargin < 2 || isempty(whatSurrogate)
+if nargin < 2 || isempty(numMaps)
+    numMaps = 1000;
+end
+if nargin < 3 || isempty(whatSurrogate)
     whatSurrogate = 'spatialLag';
     % whatSurrogate = 'spatialShuffle';
     % whatSurrogate = 'geneShuffle';
 end
 
 %-------------------------------------------------------------------------------
-theMatFile = sprintf('SurrogateGOTables_1000_%s_%s.mat',whatSpecies,whatSurrogate);
+theMatFile = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
 load(theMatFile,'GOTableGeneric','surrogatePVals');
 fprintf(1,'(Data loaded from %s)\n',theMatFile);
 fprintf(1,'Enrichment of %s nulls under a %s model\n',whatSpecies,whatSurrogate);
@@ -37,6 +39,6 @@ GOTableGeneric = sortrows(GOTableGeneric,'sumUnderSig','descend');
 GOTableGeneric.pValCorr = 1./GOTableGeneric.sumUnderSig;
 
 %-------------------------------------------------------------------------------
-% display(GOTableGeneric(1:20,:))
+display(GOTableGeneric(1:20,:))
 
 end

@@ -1,5 +1,5 @@
 function PlotExpressionMatrix(whatSpecies)
-% Plot an expression matrix of a set of genes
+% Plot an expression matrix of a set of genes across brain areas
 %-------------------------------------------------------------------------------
 
 if nargin < 1

@@ -1,5 +1,9 @@
+function VisualizeSurrogateMaps(whatSpecies)
 
-whatSpecies = 'mouse';
+if nargin < 1
+    whatSpecies = 'mouse';
+end
+
 
 switch whatSpecies
 case 'human'
@@ -40,3 +44,5 @@ end
 
 cB = colorbar;
 cB.Label.String = 'Surrogate map';
+
+end
