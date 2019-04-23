@@ -11,7 +11,7 @@ if nargin < 2 || isempty(numMaps)
 end
 if nargin < 3 || isempty(whatSurrogate)
     whatSurrogate = 'spatialLag';
-    % whatSurrogate = 'spatialShuffle';
+    % whatSurrogate = 'independentSpatialShuffle';
     % whatSurrogate = 'geneShuffle';
 end
 

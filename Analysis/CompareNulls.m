@@ -11,7 +11,7 @@ if nargin < 2
     whatSpecies = 'mouse';
 end
 if nargin < 3
-    % whatSurrogate = 'spatialShuffle';
+    % whatSurrogate = 'independentSpatialShuffle';
     whatSurrogate = 'spatialLag';
 end
 if nargin < 4

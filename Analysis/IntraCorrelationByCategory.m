@@ -38,7 +38,7 @@ numGenes = height(geneInfo);
 nullDistributionRaw = zeros(numSizes,numSamples);
 nullDistributionAbs = zeros(numSizes,numSamples);
 switch whatSurrogate
-case 'spatialShuffle'
+case 'independentSpatialShuffle'
     % Spatial shuffle case:
     fprintf(1,'(INDEPENDENT) SPATIAL SHUFFLE!!\n');
     params.g.humanOrMouse = sprintf('surrogate-%s',whatSpecies);

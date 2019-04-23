@@ -20,7 +20,7 @@ params = mouseParams;
 params.g.humanOrMouse = 'surrogate-mouse';
 
 %       (i) random noise maps:
-params.g.whatSurrogate = 'spatialShuffle';
+params.g.whatSurrogate = 'independentSpatialShuffle';
 results.mouse_SpatialNull = AnnotateIntraCorrelations(params,[],'mouseSpatialShuffle');
 
 %       (ii) gene metadata shuffled; genes assigned to categories at random:
@@ -43,7 +43,7 @@ params = humanParams;
 params.g.humanOrMouse = 'surrogate-human';
 
 %       (i) random noise maps:
-params.g.whatSurrogate = 'spatialShuffle';
+params.g.whatSurrogate = 'independentSpatialShuffle';
 results.human_SpatialNull = AnnotateIntraCorrelations(params,[],'humanSpatialShuffle');
 
 %       (ii) gene metadata shuffled; genes assigned to categories at random:

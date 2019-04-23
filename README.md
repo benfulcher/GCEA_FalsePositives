@@ -1,6 +1,30 @@
 # MouseEdge
 MouseEdge is a repository for obtaining enrichment signatures from spatial maps in human and mouse.
 
+## Raw data import
+
+The directory `/HumanData` requires three data files:
+* `100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat`
+* `100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat`
+* `100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat`
+
+The directory `/MouseData` requires:
+* `AllenGeneDataset_19419.mat`
+
+## Enrichment data
+
+This relies on a toolbox for matlab-based GO enrichment, which can be installed by cloning:
+```
+git clone git@github.com:benfulcher/GeneEnrichment.git
+```
+It is expected to be in the home directory, or otherwise accessible in the path.
+This can be modified using `GiveMeFile('EnrichmentToolbox');`
+
+It should be run to get the following data files:
+* `GOTerms_BP.mat`
+* `GOAnnotationDirect-mouse-biological_process-Prop.mat`
+* `GOAnnotationDirect-human-biological_process-Prop.mat`
+
 ## Data processing
 
 ### Literature enrichment signatures
@@ -25,7 +49,6 @@ This code computes the enrichment across 1000 actual independent random number s
 ```matlab
 SurrogateEnrichment('mouse',1000,'randomUniform');
 ```
-
 
 #### Analyzing enrichment signatures of spatially correlated null maps
 

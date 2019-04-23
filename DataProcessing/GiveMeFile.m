@@ -12,6 +12,7 @@ case 'EnrichmentToolbox'
     if ismac
         dataFile = '/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/';
     else
+        % Can install by git clone git@github.com:benfulcher/GeneEnrichment.git
         dataFile = '~/GeneEnrichment/';
     end
 case 'HumanGene_cust100_normSeparate'

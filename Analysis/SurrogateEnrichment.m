@@ -1,4 +1,4 @@
-function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate)
+function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate,customSurrogate)
 % Compute conventional enrichment results across surrogate spatial maps
 %-------------------------------------------------------------------------------
 if nargin < 1
@@ -10,11 +10,19 @@ end
 if nargin < 3
     whatSurrogate = 'spatialLag';
 end
+if nargin < 4
+    % Ability to set a custom surrogate for the real data:
+    customSurrogate = '';
+end
 
 %-------------------------------------------------------------------------------
 % Get real data:
 params = GiveMeDefaultParams(whatSpecies);
 params.g.humanOrMouse = whatSpecies;
+if ~isempty(customSurrogate)
+    fprintf(1,'Setting custom surrogate as %s\n',customSurrogate);
+    params.g.whatSurrogate = customSurrogate;
+end
 [geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
 numGenes = height(geneInfoReal);
 numAreas = height(structInfoReal);
@@ -47,6 +55,14 @@ surrogatePVals = zeros(numGOCategories,numMaps);
 for i = 1:numMaps
     fprintf(1,'%u/%u\n',i,numMaps);
     map_i = geneDataNull(:,i);
+
+    % Get randomized 'real' data for null distribution:
+    if strcmp(customSurrogate,'coordinatedSpatialShuffle')
+        rp = randperm(numAreas);
+        geneDataReal = geneDataReal(rp,:);
+        fprintf(1,'Coordinated spatial shuffle of gene-expression data at %u/%u\n',i,numMaps);
+    end
+
     geneScores = zeros(numGenesReal,1);
     for j = 1:numGenesReal
         geneScores(j) = corr(map_i,geneDataReal(:,j),'type','Spearman','rows','pairwise');

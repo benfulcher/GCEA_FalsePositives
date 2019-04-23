@@ -92,7 +92,7 @@ case {'surrogate-mouse','surrogate-human'}
         % Uniformly distributed numbers between 0 and 1
         geneData = rand(size(geneDataReal));
 
-    case 'spatialShuffle'
+    case 'independentSpatialShuffle'
         % Surrogate maps generated through (independent) random shuffling across brain areas
         % (should be consistent with random noise)
         fprintf(1,'Surrogate brain maps from independent random shuffling\n');
@@ -101,6 +101,12 @@ case {'surrogate-mouse','surrogate-human'}
             rp = randperm(numAreas);
             geneData(:,j) = geneDataReal(rp,j);
         end
+
+    case 'coordinatedSpatialShuffle'
+        % Surrogate maps generated through random shuffling across brain areas
+        fprintf(1,'Surrogate brain maps from coordinated random shuffling\n');
+        rp = randperm(numAreas);
+        geneData = geneDataReal(rp,:);
 
     case 'geneShuffle'
         % Random shuffling of genes (randomizing association with metadata)

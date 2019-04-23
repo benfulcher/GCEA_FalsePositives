@@ -3,7 +3,7 @@
 
 numGOIDs = 50;
 whatSpecies = 'mouse';
-whatSurrogate = 'spatialShuffle';
+whatSurrogate = 'independentSpatialShuffle';
 % whatSurrogate = 'spatialLag';
 numNullSamplesIntraEstimate = 100;
 numNullSamplesNullWidth = 500;
