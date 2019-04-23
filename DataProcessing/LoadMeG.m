@@ -89,30 +89,23 @@ case {'surrogate-mouse','surrogate-human'}
         geneInfo = geneInfo(rp,:);
 
     case 'randomUniform'
-        % Uniformly distributed numbers between 0 and 1
-        geneData = rand(size(geneDataReal));
+        geneData = ShuffleMyMatrix(geneDataReal,'randomUniform');
 
     case 'independentSpatialShuffle'
         % Surrogate maps generated through (independent) random shuffling across brain areas
         % (should be consistent with random noise)
         fprintf(1,'Surrogate brain maps from independent random shuffling\n');
-        geneData = geneDataReal;
-        for j = 1:numRealGenes
-            rp = randperm(numAreas);
-            geneData(:,j) = geneDataReal(rp,j);
-        end
+        geneData = ShuffleMyMatrix(geneDataReal,'independentRowShuffle');
 
     case 'coordinatedSpatialShuffle'
         % Surrogate maps generated through random shuffling across brain areas
         fprintf(1,'Surrogate brain maps from coordinated random shuffling\n');
-        rp = randperm(numAreas);
-        geneData = geneDataReal(rp,:);
+        geneData = ShuffleMyMatrix(geneDataReal,'coordinatedRowShuffle');
 
     case 'geneShuffle'
         % Random shuffling of genes (randomizing association with metadata)
         fprintf(1,'Surrogate brain maps from independent random shuffling\n');
-        rp = randperm(numRealGenes);
-        geneData = geneDataReal(:,rp);
+        geneData = ShuffleMyMatrix(geneDataReal,'coordinatedColumnShuffle');
 
     otherwise
         error('Unknown surrogate method: ''%s''',whatSurrogate);

@@ -19,10 +19,6 @@ end
 % Get real data:
 params = GiveMeDefaultParams(whatSpecies);
 params.g.humanOrMouse = whatSpecies;
-if ~isempty(customSurrogate)
-    fprintf(1,'Setting custom surrogate as %s\n',customSurrogate);
-    params.g.whatSurrogate = customSurrogate;
-end
 [geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
 numGenes = height(geneInfoReal);
 numAreas = height(structInfoReal);
@@ -57,10 +53,15 @@ for i = 1:numMaps
     map_i = geneDataNull(:,i);
 
     % Get randomized 'real' data for null distribution:
-    if strcmp(customSurrogate,'coordinatedSpatialShuffle')
-        rp = randperm(numAreas);
-        geneDataReal = geneDataReal(rp,:);
-        fprintf(1,'Coordinated spatial shuffle of gene-expression data at %u/%u\n',i,numMaps);
+    if ~isempty(customSurrogate)
+        switch customSurrogate
+        case 'coordinatedSpatialShuffle'
+            fprintf(1,'Coordinated spatial shuffle of gene-expression data at %u/%u\n',i,numMaps);
+            geneDataReal = ShuffleMyMatrix(geneDataReal,'coordinatedRowShuffle');
+        case 'independentSpatialShuffle'
+            fprintf(1,'Independent spatial shuffle of gene-expression data at %u/%u\n',i,numMaps);
+            geneDataReal = ShuffleMyMatrix(geneDataReal,'randomUniform');
+        end
     end
 
     geneScores = zeros(numGenesReal,1);
@@ -70,6 +71,7 @@ for i = 1:numMaps
             keyboard
         end
     end
+
     % Store random-gene enrichment results:
     GOTable_i = SingleEnrichment(geneScores,geneInfoReal.entrez_id,params.e);
     % Map to the generic table:
