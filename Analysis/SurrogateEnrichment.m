@@ -1,7 +1,6 @@
 function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate)
 % Compute conventional enrichment results across surrogate spatial maps
 %-------------------------------------------------------------------------------
-
 if nargin < 1
     whatSpecies = 'mouse';
 end
@@ -34,6 +33,7 @@ end
 if size(geneDataNull,1)~=numAreas
     error('Different parcellation???')
 end
+
 %-------------------------------------------------------------------------------
 % Get a generic GO Table:
 GOTableGeneric = GiveMeGOData(params,geneInfoReal.entrez_id);
@@ -41,7 +41,7 @@ numGOCategories = height(GOTableGeneric);
 
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
-% Enrichment of genes with a given random (or spatially autocorrelated) map
+% Enrichment of genes with a given null spatial map
 numGenesReal = height(geneInfoReal);
 surrogatePVals = zeros(numGOCategories,numMaps);
 for i = 1:numMaps
@@ -74,5 +74,6 @@ end
 fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
 fileNameOut = fullfile('DataOutputs',fileNameOut);
 save(fileNameOut,'GOTableGeneric','surrogatePVals','-v7.3');
+fprintf(1,'Results of %u iterations saved to %s\n',numMaps,fileNameOut);
 
 end

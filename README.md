@@ -19,6 +19,23 @@ The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImpor
 
 ## Analysis
 
+### Enrichment signatures of random spatial maps
+
+This code computes the enrichment across 1000 actual independent random number samples:
+```matlab
+SurrogateEnrichment('mouse',1000,'randomUniform');
+```
+
+
+#### Analyzing enrichment signatures of spatially correlated null maps
+
+The results computed above can be read in and processed as a GO Table:
+```matlab
+GOTableNull = SurrogateEnrichmentProcess('mouse',1000,'spatialLag');
+```
+
+
+
 ### Enrichment signatures of spatially-correlated null maps
 
 #### Generating surrogate maps
@@ -40,7 +57,7 @@ VisualizeSurrogateMaps('mouse');
 
 #### Conventional enrichment analysis on each null map
 
-The following computes for 1000 of the null maps generated above:
+This code computes the enrichment across 1000 null maps generated above:
 ```matlab
 SurrogateEnrichment('mouse',1000,'spatialLag');
 ```
@@ -50,10 +67,11 @@ This generates results stored in the file `SurrogateGOTables_1000_mouse_spatialL
 
 The results computed above can be read in and processed as a GO Table:
 ```matlab
-GOTableNull = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate);
+GOTableNull = SurrogateEnrichmentProcess('mouse',1000,'spatialLag');
 ```
 
-### Enrichment signatures of random-gene null maps
+
+
 
 ### Visualizing transcriptional data
 
