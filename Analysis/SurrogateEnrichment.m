@@ -11,7 +11,7 @@ if nargin < 3
     whatSurrogate = 'spatialLag';
 end
 if nargin < 4
-    % Ability to set a custom surrogate for the real data:
+    % Ability to set a custom surrogate for the real data (to get null samples):
     customSurrogate = '';
 end
 
@@ -89,7 +89,7 @@ end
 
 %-------------------------------------------------------------------------------
 % Save out
-fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
+fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,whatSurrogate,customSurrogate);
 fileNameOut = fullfile('DataOutputs',fileNameOut);
 save(fileNameOut,'GOTableGeneric','surrogatePVals','-v7.3');
 fprintf(1,'Results of %u iterations saved to %s\n',numMaps,fileNameOut);
