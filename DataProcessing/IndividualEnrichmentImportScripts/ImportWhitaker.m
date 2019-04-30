@@ -15,7 +15,7 @@ if nargin < 1
 end
 
 %% Import the data
-[~, ~, raw] = xlsread('/Users/benfulcher/GoogleDrive/Work/CurrentProjects/GeneExpressionEnrichment/DataSets/Whitaker/WhitakerReformatted.xlsx',whatSheet);
+[~, ~, raw] = xlsread('WhitakerReformatted.xlsx',whatSheet);
 raw = raw(2:end,:);
 stringVectors = string(raw(:,[1,2,5]));
 stringVectors(ismissing(stringVectors)) = '';

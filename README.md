@@ -28,10 +28,15 @@ It should be run to get the following data files:
 ## Data processing
 
 ### Literature enrichment signatures
-The script for importing enrichment data reported in existing literature is `ImportLiteratureEnrichment`.
-It uses data in `/LiteratureEnrichmentData`.
 
-First type of annotations are manually-curated, from studies that noted enrichment results in-text with no supplementary files for full results: `TableGOBPs.csv`.
+Information about enrichment results reported in published studies can be imported and processed by running
+```matlab
+ImportLiteratureEnrichment;
+```
+Results are saved as `LiteratureEnrichmentLoaded.mat`.
+All data is read in from the `/LiteratureEnrichmentData`.
+
+First type of annotations are manually-curated, from studies that noted enrichment results in-text with no supplementary files for full results: `TableGOBPs.csv`:
 
 The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImportScripts/`) to directly process data provided as supplementary material from the following studies:
 * `WhitakerReformatted.xlsx`: Whitaker, K. J. et al. Adolescence is associated with genomically patterned consolidation of the hubs of the human brain connectome. Proc. Natl. Acad. Sci. USA 113, 201601745–9110 (2016).

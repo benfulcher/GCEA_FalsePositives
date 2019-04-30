@@ -12,19 +12,21 @@ end
 %-------------------------------------------------------------------------------
 % Load gene-expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-% Load GO annotations:
+
+% Load GO annotations to retrieve the category of interest:
 GOTable = GiveMeGOData(params,geneInfo.entrez_id);
-% Get the category of interest:
 whatCategory = find(GOTable.GOID==whatGOID);
 if isempty(whatCategory)
     error('No matches for category %u',whatGOID);
 end
+
 % Match genes:
 theGenesEntrez = GOTable.annotations{whatCategory};
 [entrezMatched,ia,ib] = intersect(theGenesEntrez,geneInfo.entrez_id);
 fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{whatCategory},...
                     GOTable.GOName{whatCategory},GOTable.size(whatCategory));
-fprintf(1,'%u/%u genes from this GO category match\n',length(entrezMatched),length(theGenesEntrez));
+fprintf(1,'%u/%u genes from this GO category have matching records in the expression data\n',...
+                        length(entrezMatched),length(theGenesEntrez));
 numGenesGO = length(entrezMatched);
 matchMe = find(ismember(geneInfo.entrez_id,entrezMatched));
 

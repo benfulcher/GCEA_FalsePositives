@@ -1,4 +1,4 @@
-function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate)
+function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate,customSurrogate)
 
 %-------------------------------------------------------------------------------
 % Check inputs:
@@ -14,11 +14,14 @@ if nargin < 3 || isempty(whatSurrogate)
     % whatSurrogate = 'independentSpatialShuffle';
     % whatSurrogate = 'geneShuffle';
 end
+if nargin < 4
+    customSurrogate = '';
+end
 
 %-------------------------------------------------------------------------------
-theMatFile = sprintf('SurrogateGOTables_%u_%s_%s.mat',numMaps,whatSpecies,whatSurrogate);
-load(theMatFile,'GOTableGeneric','surrogatePVals');
-fprintf(1,'(Data loaded from %s)\n',theMatFile);
+fileNameIn = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,whatSurrogate,customSurrogate);
+load(fileNameIn,'GOTableGeneric','surrogatePVals');
+fprintf(1,'(Data loaded from %s)\n',fileNameIn);
 fprintf(1,'Enrichment of %s nulls under a %s model\n',whatSpecies,whatSurrogate);
 
 %-------------------------------------------------------------------------------
