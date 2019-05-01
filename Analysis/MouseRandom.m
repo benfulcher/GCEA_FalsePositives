@@ -11,9 +11,7 @@ computeMode = false;
 if computeMode
     numSamples = 20000;
     params = GiveMeDefaultParams('mouse');
-    mouseIntra = IntraCorrelationByCategory(params,'geneShuffle',numSamples);
-    fileOut = fullfile('DataOutputs',sprintf('mouseIntra_geneShuffle_%u.mat',numSamples))
-    save(fileOut,'mouseIntra','params','numSamples');
+    mouseIntra = IntraCorrelationByCategory(params,'geneShuffle',numSamples,'VE1',true);
 end
 
 %===============================================================================

@@ -1,12 +1,11 @@
-function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSamples,pValsFromWhat)
+function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSamples,pValsFromWhat,doSave)
 % Annotate intra-category coexpression for different gene-expression datasets
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Check input parameters:
 if nargin < 1
-    whatSpecies = 'mouse';
-    params = GiveMeDefaultParams(whatSpecies);
+    params = GiveMeDefaultParams('mouse');
 end
 if nargin < 2
     whatSurrogate = 'geneShuffle';
@@ -16,6 +15,9 @@ if nargin < 3
 end
 if nargin < 4
     pValsFromWhat = 'VE1';
+end
+if nargin < 5
+    doSave = true;
 end
 
 %-------------------------------------------------------------------------------
@@ -44,7 +46,7 @@ switch whatSurrogate
 case 'independentSpatialShuffle'
     % Spatial shuffle case:
     fprintf(1,'(INDEPENDENT) SPATIAL SHUFFLE!!\n');
-    params.g.humanOrMouse = sprintf('surrogate-%s',whatSpecies);
+    params.g.humanOrMouse = sprintf('surrogate-%s',params.humanOrMouse);
     parfor j = 1:numSamples
         fprintf(1,'Sample %u/%u\n',j,numSamples);
         % Get indpendently-shuffled data:
@@ -74,13 +76,13 @@ end
 % Estimate p-values from a given test statistic:
 switch pValsFromWhat
 case 'raw'
-    theField = sprintf('%s_raw',whatSpecies);
+    theField = sprintf('intracorr_raw');
     theNullDistribution = nullDistributionAbs;
 case 'abs'
-    theField = sprintf('%s_abs',whatSpecies);
+    theField = sprintf('intracorr_abs');
     theNullDistribution = nullDistributionAbs;
 case 'VE1'
-    theField = sprintf('%s_VE1',whatSpecies);
+    theField = sprintf('intracorr_VE1');
     theNullDistribution = nullDistributionVE1;
 end
 
@@ -118,5 +120,12 @@ resultsTable.pValZCorr = mafdr(pValZ,'BHFDR','true');
 % Sort:
 resultsTable = sortrows(resultsTable,'pValZ','ascend');
 % resultsTable = sortrows(resultsTable,{'pVal','pValCorr','mouse_abs'},{'ascend','ascend','descend'});
+
+%-------------------------------------------------------------------------------
+% Save out:
+if doSave
+    fileOut = fullfile('DataOutputs',sprintf('Intra_%s_%s_%s_%u.mat',params.humanOrMouse,whatSurrogate,pValsFromWhat,numSamples))
+    save(fileOut,'mouseIntra','params','numSamples');
+end
 
 end
