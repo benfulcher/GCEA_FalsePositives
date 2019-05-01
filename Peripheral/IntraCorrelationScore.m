@@ -1,4 +1,4 @@
-function [rawScore,absScore] = IntraCorrelationScore(geneMatrix)
+function [rawScore,absScore,VE1] = IntraCorrelationScore(geneMatrix)
 
 % Compute a pairwise correlation matrix:
 C = corr(geneMatrix,'rows','pairwise','type','Pearson');
@@ -14,6 +14,11 @@ absScore = nanmean(abs(corrVect));
 
 %-------------------------------------------------------------------------------
 % Alternative score is the variance explained by the first principal component:
-keyboard
+[coeff,score,latent] = pca(geneMatrix);
+perc = latent/sum(latent)*100;
+VE1 = perc(1);
+if isnan(VE1)
+    keyboard
+end
 
 end

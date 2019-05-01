@@ -1,4 +1,4 @@
-function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSamples)
+function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSamples,pValsFromWhat)
 % Annotate intra-category coexpression for different gene-expression datasets
 %-------------------------------------------------------------------------------
 
@@ -8,12 +8,14 @@ if nargin < 1
     whatSpecies = 'mouse';
     params = GiveMeDefaultParams(whatSpecies);
 end
-whatSpecies = params.humanOrMouse;
 if nargin < 2
     whatSurrogate = 'geneShuffle';
 end
 if nargin < 3
     numSamples = 500;
+end
+if nargin < 4
+    pValsFromWhat = 'VE1';
 end
 
 %-------------------------------------------------------------------------------
@@ -26,7 +28,7 @@ params.g.whatSurrogate = whatSurrogate;
 
 %-------------------------------------------------------------------------------
 % Compute intra-category correlations:
-resultsTable = AnnotateIntraCorrelations(params,[],whatSpecies);
+resultsTable = AnnotateIntraCorrelations(params,[]);
 numGOCategories = height(resultsTable);
 
 %-------------------------------------------------------------------------------
@@ -37,6 +39,7 @@ numGenes = height(geneInfo);
 
 nullDistributionRaw = zeros(numSizes,numSamples);
 nullDistributionAbs = zeros(numSizes,numSamples);
+nullDistributionVE1 = zeros(numSizes,numSamples);
 switch whatSurrogate
 case 'independentSpatialShuffle'
     % Spatial shuffle case:
@@ -48,21 +51,19 @@ case 'independentSpatialShuffle'
         [geneData,geneInfo,structInfo] = LoadMeG(params.g);
         for i = 1:numSizes
             shuffledData = geneData(:,1:uniqueSizes(i));
-            [nullDistributionRaw(i,j),nullDistributionAbs(i,j)] = IntraCorrelationScore(shuffledData);
+            [nullDistributionRaw(i,j),nullDistributionAbs(i,j),nullDistributionVE1(i,j)] = IntraCorrelationScore(shuffledData);
         end
     end
 case 'geneShuffle'
     % Shuffle genes randomly:
     fprintf(1,'GENE SHUFFLE!!\n');
-    nullDistributionRaw = zeros(numSizes,numSamples);
-    nullDistributionAbs = zeros(numSizes,numSamples);
     parfor j = 1:numSamples
         fprintf(1,'Sample %u/%u\n',j,numSamples);
         % Get indpendently shuffled data:
         geneDataShuffle = geneData(:,randperm(numGenes));
         for i = 1:numSizes
             shuffledData = geneDataShuffle(:,1:uniqueSizes(i));
-            [nullDistributionRaw(i,j),nullDistributionAbs(i,j)] = IntraCorrelationScore(shuffledData);
+            [nullDistributionRaw(i,j),nullDistributionAbs(i,j),nullDistributionVE1(i,j)] = IntraCorrelationScore(shuffledData);
         end
     end
 otherwise
@@ -70,8 +71,18 @@ otherwise
 end
 
 %-------------------------------------------------------------------------------
-theField = sprintf('%s_abs',whatSpecies);
-theNullDistribution = nullDistributionAbs;
+% Estimate p-values from a given test statistic:
+switch pValsFromWhat
+case 'raw'
+    theField = sprintf('%s_raw',whatSpecies);
+    theNullDistribution = nullDistributionAbs;
+case 'abs'
+    theField = sprintf('%s_abs',whatSpecies);
+    theNullDistribution = nullDistributionAbs;
+case 'VE1'
+    theField = sprintf('%s_VE1',whatSpecies);
+    theNullDistribution = nullDistributionVE1;
+end
 
 %-------------------------------------------------------------------------------
 % Plot:
