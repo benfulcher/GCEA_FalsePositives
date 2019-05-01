@@ -18,7 +18,7 @@ end
 % Import intra-data and random data
 %===============================================================================
 results = struct();
-resultsIntra = load(fullfile('DataOutputs','mouseIntra_geneShuffle_20k.mat'));
+resultsIntra = load('mouseIntra_geneShuffle_20k.mat');
 results.intra = resultsIntra.mouseIntra;
 results.random = SurrogateEnrichmentProcess('mouse',10000,'randomUniform','');
 results.randomNull = SurrogateEnrichmentProcess('mouse',10000,'randomUniform','independentSpatialShuffle');

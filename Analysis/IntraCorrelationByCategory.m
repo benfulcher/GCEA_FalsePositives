@@ -4,7 +4,7 @@ function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSampl
 
 %-------------------------------------------------------------------------------
 % Check input parameters:
-if nargin < 1
+if nargin < 1 || isempty(params)
     params = GiveMeDefaultParams('mouse');
 end
 if nargin < 2

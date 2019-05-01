@@ -2,7 +2,9 @@ function GOTable = GiveMeGOData(params,entrezIDs)
 % Wraps params vector into requirements for Matlab enrichment package,
 % including the function `GetFilteredGOData'
 %-------------------------------------------------------------------------------
-
+if nargin < 1
+    params = GiveMeDefaultParams();
+end
 if nargin < 2
     entrezIDs = [];
 end
