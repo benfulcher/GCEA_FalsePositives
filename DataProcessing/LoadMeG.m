@@ -74,9 +74,9 @@ case {'surrogate-mouse','surrogate-human'}
     case 'spatialLag'
         % Get the pre-computed surrogate data:
         switch gParam.humanOrMouse
-        case 'surrogate-mouse'
+        case 'mouse'
             dataFileSurrogate = 'mouseSurrogate_N10000_rho8_d040.csv';
-        case 'surrogate-human'
+        case 'human'
             dataFileSurrogate = 'humanSurrogate_N10000_rho8_d02000.csv';
         end
         % Surrogate maps pre-generated using the spatial lag model:
