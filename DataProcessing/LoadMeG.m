@@ -82,6 +82,17 @@ case {'surrogate-mouse','surrogate-human'}
         % Surrogate maps pre-generated using the spatial lag model:
         fprintf(1,'Surrogate brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
         geneData = dlmread(dataFileSurrogate,',',1,1);
+        % Reshape to match any filtering applied to the loaded data:
+        if size(geneData,1) > size(geneDataReal,1)
+            % fprintf(1,'Filtering of structures on data quality has happened\n');
+            % fprintf(1,'Filtering our spatial maps accordingly\n');
+            % % First get unfiletered version:
+            % gParam.minGoodPropArea = 1;
+            % [~,~,structInfoFull] = LoadMeG(gParam);
+            % % Match:
+            % [~,ia,ib] = intersect(structInfo.acronym,structInfoFull.acronym,'stable');
+            keyboard
+        end
         numFakeGenes = size(geneData,2);
         % Assign random gene metadata:
         rp = randperm(numRealGenes,numFakeGenes);
@@ -122,19 +133,16 @@ end
 %-------------------------------------------------------------------------------
 % Filter on goodness
 %-------------------------------------------------------------------------------
-minGoodPropGene = 0.3;
-minGoodPropArea = 0.1;
-
 % Filter genes on threshold:
-nanPropGene = mean(isnan(geneData));
-isGoodGene = (nanPropGene < minGoodPropGene);
+notNanPropGene = mean(~isnan(geneData));
+isGoodGene = (notNanPropGene >= gParam.minGoodPropGene);
 fprintf(1,'Keeping %u/%u good genes\n',sum(isGoodGene),length(isGoodGene));
 geneInfo = geneInfo(isGoodGene,:);
 geneData = geneData(:,isGoodGene);
 
 % Filter areas on threshold:
-nanPropArea = mean(isnan(geneData),2);
-isGoodArea = (nanPropArea < minGoodPropArea);
+notNanPropArea = mean(~isnan(geneData),2);
+isGoodArea = (notNanPropArea >= gParam.minGoodPropArea);
 fprintf(1,'Keeping %u/%u good areas\n',sum(isGoodArea),length(isGoodArea));
 structInfo = structInfo(isGoodArea,:);
 geneData = geneData(isGoodArea,:);

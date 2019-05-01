@@ -51,6 +51,8 @@ params.g = struct();
 params.g.humanOrMouse = humanOrMouse;
 params.g.structFilter = structFilter;
 params.g.whatSurrogate = 'spatialLag';
+params.g.minGoodPropGene = 0.5;
+params.g.minGoodPropArea = 0.5;
 switch humanOrMouse
 case 'mouse'
     params.g.energyOrDensity = 'energy'; % what gene expression data to use

@@ -44,4 +44,5 @@ GOTableGeneric.pValCorr = 1./GOTableGeneric.sumUnderSig;
 %-------------------------------------------------------------------------------
 display(GOTableGeneric(1:20,:))
 
+
 end

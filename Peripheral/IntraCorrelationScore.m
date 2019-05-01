@@ -12,4 +12,8 @@ rawScore = nanmean(corrVect);
 % Also take magnitude of any negative correlations (to count negative correlations equally):
 absScore = nanmean(abs(corrVect));
 
+%-------------------------------------------------------------------------------
+% Alternative score is the variance explained by the first principal component:
+keyboard
+
 end

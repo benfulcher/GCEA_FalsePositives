@@ -55,12 +55,29 @@ This code computes the enrichment across 1000 actual independent random number s
 SurrogateEnrichment('mouse',1000,'randomUniform');
 ```
 
-#### Analyzing enrichment signatures of spatially correlated null maps
+#### Analyzing enrichment signatures of null maps
 
-The results computed above can be read in and processed as a GO Table:
+The results computed above can be read in and processed as a GO Table for:
+
+* Spatial lag model:
 ```matlab
 GOTableNull = SurrogateEnrichmentProcess('mouse',1000,'spatialLag');
 ```
+
+* Spatially random model:
+```matlab
+SurrogateEnrichment('mouse',5000,'randomUniform','');
+```
+
+* Spatially random model (plus coordinated shuffling of genes through space) [should be equivalent to previous]:
+```matlab
+SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’coordinatedSpatialShuffle’);
+```
+
+* Spatially random model (plus independent shuffling of space, separately per gene) [should be no signal---a real null of correlated noise with noise]:
+
+SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’independentSpatialShuffle’);
+
 
 
 

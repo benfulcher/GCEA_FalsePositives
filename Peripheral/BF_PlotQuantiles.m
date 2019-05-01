@@ -1,4 +1,4 @@
-function yDataCorrected = BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure)
+function yDataCorrected = BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure,customColor)
 % Plots x-y scatter, but with mean of y plotted in quantiles of x
 % Outputs yData, corrected for the quantile means
 % Ben Fulcher
@@ -8,10 +8,13 @@ if nargin < 3 || isempty(numThresholds)
     numThresholds = 10;
 end
 if nargin < 4
-    alsoScatter = 0;
+    alsoScatter = false;
 end
 if nargin < 5
-    makeNewFigure = 0;
+    makeNewFigure = false;
+end
+if nargin < 5
+    customColor = 'r';
 end
 
 %-------------------------------------------------------------------------------
@@ -36,7 +39,7 @@ if makeNewFigure
     f = figure('color','w'); box('on');
 end
 hold on
-theColor = 'k';
+theColor = customColor;
 theStyle = '-';
 theLineWidth = 2;
 
