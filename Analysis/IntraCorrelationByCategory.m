@@ -19,6 +19,9 @@ end
 if nargin < 5
     doSave = true;
 end
+if doSave
+    doPlot = false;
+end
 
 %-------------------------------------------------------------------------------
 % Set default parameters:

@@ -47,13 +47,13 @@ ylabel(tableNames{2})
 %===============================================================================
 % Significant categories under the spatial lag model
 %===============================================================================
-results.mouseSpatialLag = SurrogateEnrichmentProcess('mouse','spatialLag');
+results.mouseSpatialLag = SurrogateEnrichmentProcess('mouse',1000,'spatialLag');
 results.humanSpatialLag = SurrogateEnrichmentProcess('human','spatialLag');
 
 %===============================================================================
 % Can we explain the final result in terms of the former characteristics?
 [rowVectorResults,GOTerms,allGOIDs,allTableNames] = CombineTables(results,'mouse',...
-    {'pValZ','meanScore','pValZ','human_abs','sumUnderSig','sumUnderSig'});
+    {'pValZ','meanScore','pValZ','human_abs','sumUnderSig','sumUnderSigx'});
 f = figure('color','w');
 isGood = (sum(~isfinite(rowVectorResults),1)==0);
 scatter(rowVectorResults(1,isGood),...
