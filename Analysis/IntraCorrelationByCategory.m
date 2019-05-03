@@ -91,11 +91,13 @@ end
 
 %-------------------------------------------------------------------------------
 % Plot:
-f = figure('color','w'); hold('on')
-h1 = histogram(resultsTable.(theField),'normalization','pdf');
-h2 = histogram(theNullDistribution(1,:),'normalization','pdf');
-h3 = histogram(theNullDistribution(end,:),'normalization','pdf');
-legend([h1,h2,h3],{'realData',sprintf('nullSize%u',uniqueSizes(1)),sprintf('nullSize%u',uniqueSizes(end))});
+if doPlot
+    f = figure('color','w'); hold('on')
+    h1 = histogram(resultsTable.(theField),'normalization','pdf');
+    h2 = histogram(theNullDistribution(1,:),'normalization','pdf');
+    h3 = histogram(theNullDistribution(end,:),'normalization','pdf');
+    legend([h1,h2,h3],{'realData',sprintf('nullSize%u',uniqueSizes(1)),sprintf('nullSize%u',uniqueSizes(end))});
+end
 
 %-------------------------------------------------------------------------------
 % Compute p-values (bigger scores are better):
@@ -127,7 +129,8 @@ resultsTable = sortrows(resultsTable,'pValZ','ascend');
 %-------------------------------------------------------------------------------
 % Save out:
 if doSave
-    fileOut = fullfile('DataOutputs',sprintf('Intra_%s_%s_%s_%u.mat',params.humanOrMouse,whatSurrogate,pValsFromWhat,numSamples))
+    fileOut = fullfile('DataOutputs',sprintf('Intra_%s_%s_%s_%u.mat',...
+                        params.humanOrMouse,whatSurrogate,pValsFromWhat,numSamples))
     save(fileOut,'mouseIntra','params','numSamples');
 end
 
