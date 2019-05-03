@@ -7,6 +7,10 @@ function resultsTable = IntraCorrelationByCategory(params,whatSurrogate,numSampl
 if nargin < 1 || isempty(params)
     params = GiveMeDefaultParams('mouse');
 end
+if ischar(params)
+    % Can specify species name:
+    params = GiveMeDefaultParams(params);
+end
 if nargin < 2
     whatSurrogate = 'geneShuffle';
 end
