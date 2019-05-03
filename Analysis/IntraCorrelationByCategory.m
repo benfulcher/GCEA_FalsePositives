@@ -131,7 +131,7 @@ resultsTable = sortrows(resultsTable,'pValZ','ascend');
 if doSave
     fileOut = fullfile('DataOutputs',sprintf('Intra_%s_%s_%s_%u.mat',...
                         params.humanOrMouse,whatSurrogate,pValsFromWhat,numSamples))
-    save(fileOut,'mouseIntra','params','numSamples');
+    save(fileOut,'resultsTable','params','numSamples');
 end
 
 end
