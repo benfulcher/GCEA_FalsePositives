@@ -17,7 +17,7 @@ whatPhenotype = 'degree';
 % Load in gene-expression data for this GO category:
 params = GiveMeDefaultParams(whatSpecies);
 [geneData,geneInfo,structInfo,categoryInfo] = GiveMeGOCategory(whatGOID,params);
-numGenes = height(geneInfo);
+numGenesGO = height(geneInfo);
 
 %-------------------------------------------------------------------------------
 % Load the phenotype map:

@@ -1,3 +1,5 @@
+% PlotCategoryNullCompare
+%-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Parameters:
@@ -19,8 +21,8 @@ categoryLabels = struct();
 [categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'independentSpatialShuffle',numNullSamples);
 
 %-------------------------------------------------------------------------------
-categoryScoresTogether = [categoryScores.spatialLag;categoryScores.randomMap];
-categoryLabelsTogether = [categoryLabels.spatialLag;categoryLabels.randomMap];
+categoryScoresTogether = [categoryScores.spatialLag; categoryScores.randomMap];
+categoryLabelsTogether = [categoryLabels.spatialLag; categoryLabels.randomMap];
 
 %-------------------------------------------------------------------------------
 % Violin plots:

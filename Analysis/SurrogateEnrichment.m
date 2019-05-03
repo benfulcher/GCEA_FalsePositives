@@ -25,10 +25,7 @@ numAreas = height(structInfoReal);
 
 %-------------------------------------------------------------------------------
 % Get surrogate data, geneDataNull (each column is a null spatial map)
-fakeFlags = struct();
-fakeFlags.mouse = 'surrogate-mouse';
-fakeFlags.human = 'surrogate-human';
-params.g.humanOrMouse = fakeFlags.(whatSpecies);
+params.g.humanOrMouse = sprintf('surrogate-%s',whatSpecies);
 params.g.whatSurrogate = whatSurrogate;
 geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
