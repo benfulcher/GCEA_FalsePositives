@@ -1,6 +1,6 @@
 function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate,customSurrogate)
 % Compute conventional enrichment results across surrogate spatial maps
-%-------------------------------------------------------------------------------
+
 if nargin < 1
     whatSpecies = 'mouse';
 end

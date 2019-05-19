@@ -1,4 +1,4 @@
-function yDataCorrected = BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure,customColor)
+function yDataCorrected = BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure,customColor,doStds)
 % Plots x-y scatter, but with mean of y plotted in quantiles of x
 % Outputs yData, corrected for the quantile means
 % Ben Fulcher
@@ -13,8 +13,11 @@ end
 if nargin < 5
     makeNewFigure = false;
 end
-if nargin < 5
+if nargin < 6
     customColor = 'r';
+end
+if nargin < 7
+    doStds = true;
 end
 
 %-------------------------------------------------------------------------------
@@ -38,7 +41,7 @@ yStds = arrayfun(@(x)std(yData(xData>=xThresholds(x) & xData < xThresholds(x+1))
 if makeNewFigure
     f = figure('color','w'); box('on');
 end
-hold on
+hold('on')
 theColor = customColor;
 theStyle = '-';
 theLineWidth = 2;
@@ -49,9 +52,11 @@ end
 
 for k = 1:numThresholds-1
     plot(xThresholds(k:k+1),ones(2,1)*yMeans(k),'LineStyle',theStyle,'LineWidth',theLineWidth,'Color',theColor)
-    plot(xThresholds(k:k+1),ones(2,1)*(yMeans(k)+yStds(k)),'LineStyle','--','LineWidth',theLineWidth,'Color',theColor)
-    plot(xThresholds(k:k+1),ones(2,1)*(yMeans(k)-yStds(k)),'LineStyle','--','LineWidth',theLineWidth,'Color',theColor)
     plot(mean(xThresholds(k:k+1)),yMeans(k),'o','MarkerSize',5,'LineStyle',theStyle,'LineWidth',theLineWidth,'Color',theColor)
+    if doStds
+        plot(xThresholds(k:k+1),ones(2,1)*(yMeans(k)+yStds(k)),'LineStyle','--','LineWidth',theLineWidth,'Color',theColor)
+        plot(xThresholds(k:k+1),ones(2,1)*(yMeans(k)-yStds(k)),'LineStyle','--','LineWidth',theLineWidth,'Color',theColor)
+    end
 end
 
 %-------------------------------------------------------------------------------
