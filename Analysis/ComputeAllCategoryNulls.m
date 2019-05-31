@@ -48,9 +48,9 @@ case 'spatialLag'
     % Get the pre-computed surrogate data:
     switch whatSpecies
     case 'mouse'
-        dataFileSurrogate = 'mouseSurrogate_N10000_rho8_d040.csv';
+        dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
     case 'human'
-        dataFileSurrogate = 'humanSurrogate_N10000_rho8_d02000.csv';
+        dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
     end
     nullMaps = dlmread(dataFileSurrogate,',',1,1);
 otherwise
