@@ -17,8 +17,8 @@ PlotCategoryExpression(whatGOIDs(2),params);
 
 categoryScores = struct();
 categoryLabels = struct();
-[categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,whatSpecies,'spatialLag',numNullSamples);
-[categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'independentSpatialShuffle',numNullSamples);
+[categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,whatSpecies,'spatialLag',numNullSamples,true);
+[categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'randomMap',numNullSamples,false);
 
 %-------------------------------------------------------------------------------
 categoryScoresTogether = [categoryScores.spatialLag; categoryScores.randomMap];

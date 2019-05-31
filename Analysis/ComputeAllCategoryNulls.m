@@ -44,6 +44,15 @@ switch whatNullType
 case 'randomMap'
     % Generate as many random maps as null samples:
     nullMaps = rand(numAreas,numNullSamples);
+case 'spatialLag'
+    % Get the pre-computed surrogate data:
+    switch whatSpecies
+    case 'mouse'
+        dataFileSurrogate = 'mouseSurrogate_N10000_rho8_d040.csv';
+    case 'human'
+        dataFileSurrogate = 'humanSurrogate_N10000_rho8_d02000.csv';
+    end
+    nullMaps = dlmread(dataFileSurrogate,',',1,1);
 otherwise
     error('Unknown null type: ''%s''',whatNullType);
 end

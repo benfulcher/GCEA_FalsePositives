@@ -1,4 +1,4 @@
-function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,whatSurrogate,numNullSamples)
+function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,whatSurrogate,numNullSamples,doRecompute)
 % Compares the coexpression of genes in a given GO category from different null spatial maps
 %-------------------------------------------------------------------------------
 
@@ -11,11 +11,13 @@ if nargin < 2
     whatSpecies = 'mouse';
 end
 if nargin < 3
-    % whatSurrogate = 'independentSpatialShuffle';
-    whatSurrogate = 'spatialLag';
+    whatSurrogate = 'randomMap'; % 'spatialLag'
 end
 if nargin < 4
     numNullSamples = 2000;
+end
+if nargin < 5
+    doRecompute = true;
 end
 whatCorr = 'Spearman';
 doPlot = false;
@@ -29,10 +31,22 @@ params.g.whatSurrogate = whatSurrogate;
 % Loop over categories and compute null distributions:
 categoryScores = cell(numGOIDs,1);
 categoryLabels = cell(numGOIDs,1);
-for i = 1:numGOIDs
-    [categoryScores{i},categoryInfo] = GiveMeCategoryNullDist(whatGOIDs(i),...
-                                                params,numNullSamples,whatCorr);
-    categoryLabels{i} = categoryInfo.GOName{1};
+if doRecompute
+    for i = 1:numGOIDs
+        [categoryScores{i},categoryInfo] = GiveMeCategoryNullDist(whatGOIDs(i),...
+                                                    params,numNullSamples,whatCorr);
+        categoryLabels{i} = categoryInfo.GOName{1};
+    end
+else
+    % Load in precomputed data (cf. ComputeAllCategoryNulls):
+    theDataFile = sprintf('RandomNull_20000_%s_%s_%s_mean.mat',whatSpecies,whatSurrogate,whatCorr);
+    fprintf(1,'Loading in precomputed null data from ''%s''\n',theDataFile);
+    load(theDataFile,'GOTable');
+    for i = 1:numGOIDs
+        whatCategory = find(GOTable.GOID==whatGOID);
+        categoryScores{i} = GOTable.categoryScores{whatCategory};
+        categoryLabels{i} = GOTable.GOName{whatCategory};
+    end
 end
 
 %===============================================================================

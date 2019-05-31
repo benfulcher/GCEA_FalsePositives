@@ -4,21 +4,23 @@
 
 % Reproduce a massive calculation
 computeMode = false;
+whatShuffle = 'independentSpatialShuffle'; % 'geneShuffle'
+whatSpecies = 'mouse';
+numNullSamples = 20000;
 
 %===============================================================================
 % Within-category correlation
 %===============================================================================
 if computeMode
-    numSamples = 20000;
     params = GiveMeDefaultParams('mouse');
-    mouseIntra = IntraCorrelationByCategory(params,'geneShuffle',numSamples,'VE1',true);
+    mouseIntra = IntraCorrelationByCategory(params,whatShuffle,numNullSamples,'VE1',true);
 end
 
 %===============================================================================
 % Import intra-data and random data
 %===============================================================================
 results = struct();
-resultsIntra = load('Intra_mouse_geneShuffle_VE1_20000.mat');
+resultsIntra = load(sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples));
 results.intra = resultsIntra.resultsTable;
 results.random = SurrogateEnrichmentProcess('mouse',10000,'randomUniform','');
 results.randomNull = SurrogateEnrichmentProcess('mouse',10000,'randomUniform','independentSpatialShuffle');
