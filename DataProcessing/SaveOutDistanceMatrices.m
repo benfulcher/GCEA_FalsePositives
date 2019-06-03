@@ -5,7 +5,8 @@ dlmwrite('mouseDistMat.csv',distMat)
 
 % Human cortex:
 distMat = GiveMeDistanceMatrix('human');
-dlmwrite('humanDistMat.csv',distMat)
+numAreas = length(distMat);
+dlmwrite(sprintf('humanDistMat_%u.csv',numAreas),distMat)
 
 %-------------------------------------------------------------------------------
 % ----------Run python code from Burt -> mouseSurrogateMaps.csv----------

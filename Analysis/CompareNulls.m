@@ -43,7 +43,7 @@ else
     fprintf(1,'Loading in precomputed null data from ''%s''\n',theDataFile);
     load(theDataFile,'GOTable');
     for i = 1:numGOIDs
-        whatCategory = find(GOTable.GOID==whatGOID);
+        whatCategory = find(GOTable.GOID==whatGOIDs(i));
         categoryScores{i} = GOTable.categoryScores{whatCategory};
         categoryLabels{i} = GOTable.GOName{whatCategory};
     end

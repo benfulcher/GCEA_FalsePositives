@@ -24,11 +24,23 @@ case 'human'
     dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
     load(dataFile,'averageDistance');
     distanceMat = (averageDistance + averageDistance')/2;
+    ROIs_distance = 1:length(distanceMat);
 
-    % Keep only cortex:
-    warning('Hard keeping first 100 cust100 cortical parcels (out of %u)',length(distanceMat));
-    distanceMat = distanceMat(1:100,1:100);
+    % Get gene-expression data to ensure a match:
+    params = GiveMeDefaultParams('human');
+    [geneData,geneInfo,structInfo] = LoadMeG(params.g);
+
+    % Get gene-expression data to ensure a match:
+    fprintf(1,'Keeping distances to correspond to the brain areas kept for the default gene-expression data\n');
+    doKeep = ismember(ROIs_distance,structInfo.ROI_ID);
+    warning('Keeping %u/%u regions for distance information',sum(doKeep),length(doKeep));
+    distanceMat = distanceMat(doKeep,doKeep);
     structFilter = 'all';
+    
+    % Keep only cortex:
+    % warning('Hard keeping first 100 cust100 cortical parcels (out of %u)',length(distanceMat));
+    % distanceMat = distanceMat(1:100,1:100);
+
 
 case 'human2017'
     % Results using data provided by Aurina in 2017
