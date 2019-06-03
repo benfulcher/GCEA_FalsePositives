@@ -76,11 +76,7 @@ case 'degree'
     % the number of connections each region makes to other regions
     %-------------------------------------------------------------------------------
     % Binary connectome data:
-    doBinarize = true;
-    [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,...
-                params.c.pThreshold,doBinarize,params.c.whatWeightMeasure,...
-                params.c.whatHemispheres,params.c.structFilter);
-    k = sum(A_bin,1)' + sum(A_bin,2);
+    k = ComputeDegree(params.humanOrMouse,true);
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
         gScore(i) = corr(k,geneData(:,i),'type',corrType,'rows','pairwise');

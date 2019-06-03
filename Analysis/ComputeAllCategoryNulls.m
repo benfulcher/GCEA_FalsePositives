@@ -1,4 +1,4 @@
-function ComputeAllCategoryNulls(params,numNullSamples,whatNullType,whatCorr,aggregateHow)
+function GOTable = ComputeAllCategoryNulls(params,numNullSamples,whatNullType,whatCorr,aggregateHow,saveOut,beVerbose)
 % Computes and saves null distribution for all GO categories
 %-------------------------------------------------------------------------------
 
@@ -24,6 +24,12 @@ end
 if nargin < 5
     aggregateHow = 'mean';
 end
+if nargin < 6
+    saveOut = true;
+end
+if nargin < 7
+    beVerbose = true;
+end
 
 %-------------------------------------------------------------------------------
 % Get real data:
@@ -40,31 +46,39 @@ numGenesReal = height(geneInfo);
 
 %-------------------------------------------------------------------------------
 % Get random vectors from real genes to use as null spatial maps:
-switch whatNullType
-case 'randomMap'
-    % Generate as many random maps as null samples:
-    nullMaps = rand(numAreas,numNullSamples);
-case 'spatialLag'
-    % Get the pre-computed surrogate data:
-    switch whatSpecies
-    case 'mouse'
-        dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
-    case 'human'
-        dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
+if ischar(whatNullType)
+    switch whatNullType
+    case 'randomMap'
+        % Generate as many random maps as null samples:
+        nullMaps = rand(numAreas,numNullSamples);
+    case 'spatialLag'
+        % Get the pre-computed surrogate data:
+        switch whatSpecies
+        case 'mouse'
+            dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
+        case 'human'
+            dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
+        end
+        nullMaps = dlmread(dataFileSurrogate,',',1,1);
+    otherwise
+        error('Unknown null type: ''%s''',whatNullType);
     end
-    nullMaps = dlmread(dataFileSurrogate,',',1,1);
-otherwise
-    error('Unknown null type: ''%s''',whatNullType);
+else
+    % Hack to specify a custom phenotype
+    nullMaps = whatNullType;
+    numNullSamples = 1;
 end
 
 %-------------------------------------------------------------------------------
 % Enrichment of genes with a given null spatial map
 categoryScores = cell(numGOCategories,1);
 for i = 1:numGOCategories
-    fprintf(1,'\n\n\nCategory %u/%u\n',i,numGOCategories);
+    if beVerbose
+        fprintf(1,'\n\n\nCategory %u/%u\n',i,numGOCategories);
 
-    fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{i},...
-                        GOTable.GOName{i},GOTable.size(i));
+        fprintf(1,'Looking in at %s:%s (%u)\n',GOTable.GOIDlabel{i},...
+                            GOTable.GOName{i},GOTable.size(i));
+    end
 
     % Match genes for this category:
     theGenesEntrez = GOTable.annotations{i};
@@ -72,17 +86,25 @@ for i = 1:numGOCategories
     geneDataCategory = geneData(:,matchMe);
     numGenesCategory = length(matchMe);
 
-    fprintf(1,'%u/%u genes from this GO category have matching records in the expression data\n',...
+    if beVerbose
+        fprintf(1,'%u/%u genes from this GO category have matching records in the expression data\n',...
                             length(matchMe),length(theGenesEntrez));
+    end
 
     % Compute the distribution of gene category scores for correlation with the null maps:
     scoresHere = nan(numGenesCategory,numNullSamples);
     for k = 1:numGenesCategory
         expressionVector = geneDataCategory(:,k);
-        parfor j = 1:numNullSamples
-            scoresHere(k,j) = corr(nullMaps(:,j),expressionVector,'type',whatCorr,'rows','pairwise');
+        if numNullSamples==1
+            scoresHere(k) = corr(nullMaps(:,1),expressionVector,'type',whatCorr,'rows','pairwise');
+        else
+            parfor j = 1:numNullSamples
+                scoresHere(k,j) = corr(nullMaps(:,j),expressionVector,'type',whatCorr,'rows','pairwise');
+            end
         end
     end
+
+    % Aggregate gene-wise scores into an overall score for the GO category
     switch aggregateHow
     case 'mean'
         categoryScores{i} = nanmean(scoresHere,1);
@@ -94,9 +116,11 @@ GOTable.categoryScores = categoryScores;
 
 %-------------------------------------------------------------------------------
 % Save out
-fileNameOut = sprintf('RandomNull_%u_%s_%s_%s_%s.mat',numNullSamples,whatSpecies,whatNullType,whatCorr,aggregateHow);
-fileNameOut = fullfile('DataOutputs',fileNameOut);
-save(fileNameOut,'GOTable','-v7.3');
-fprintf(1,'Results of %u iterations saved to %s\n',numNullSamples,fileNameOut);
+if saveOut
+    fileNameOut = sprintf('RandomNull_%u_%s_%s_%s_%s.mat',numNullSamples,whatSpecies,whatNullType,whatCorr,aggregateHow);
+    fileNameOut = fullfile('DataOutputs',fileNameOut);
+    save(fileNameOut,'GOTable','-v7.3');
+    fprintf(1,'Results of %u iterations saved to %s\n',numNullSamples,fileNameOut);
+end
 
 end

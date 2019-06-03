@@ -14,7 +14,7 @@ The directory `/MouseData` requires:
 ## Enrichment data
 
 This relies on a toolbox for matlab-based GO enrichment, which can be installed by cloning:
-```
+```bash
 git clone git@github.com:benfulcher/GeneEnrichment.git
 ```
 It is expected to be in the home directory, or otherwise accessible in the path.
@@ -39,11 +39,46 @@ All data is read in from the `/LiteratureEnrichmentData`.
 First type of annotations are manually-curated, from studies that noted enrichment results in-text with no supplementary files for full results: `TableGOBPs.csv`:
 
 The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImportScripts/`) to directly process data provided as supplementary material from the following studies:
-* `WhitakerReformatted.xlsx`: Whitaker, K. J. et al. Adolescence is associated with genomically patterned consolidation of the hubs of the human brain connectome. Proc. Natl. Acad. Sci. USA 113, 201601745–9110 (2016).
-* `Vertes-rstb20150362supp1.xlsx`: Vértes, P. E. et al. Gene transcription profiles associated with inter-modular hubs and connection distance in human functional magnetic resonance imaging networks. Phil. Trans. Roy. Soc. B 371, 20150362 (2016).
-* `Fulcher2016_connectedUnconnected_BP_TableS1.csv`, `Fulcher2016_richFeederPeripheral_BP_TableS5.csv`: Fulcher, B. D. & Fornito, A. A transcriptional signature of hub connectivity in the mouse connectome. Proc. Natl. Acad. Sci. USA 113, 1435–1440 (2016).
+* `WhitakerReformatted.xlsx`: Whitaker, K. J. et al. Adolescence is associated with genomically patterned consolidation of the hubs of the human brain connectome. _Proc. Natl. Acad. Sci. USA+ **113**, 201601745–9110 (2016).
+* `Vertes-rstb20150362supp1.xlsx`: Vértes, P. E. et al. Gene transcription profiles associated with inter-modular hubs and connection distance in human functional magnetic resonance imaging networks. _Phil. Trans. Roy. Soc. B_ **371**, 20150362 (2016).
+* `Fulcher2016_connectedUnconnected_BP_TableS1.csv`, `Fulcher2016_richFeederPeripheral_BP_TableS5.csv`: Fulcher, B. D. & Fornito, A. A transcriptional signature of hub connectivity in the mouse connectome. _Proc. Natl. Acad. Sci. USA_ **113**, 1435–1440 (2016).
 * `Tan2013-table-s6-david-200pos-transport.csv`: Tan, P. P. C., French, L. & Pavlidis, P. Neuron-Enriched Gene Expression Patterns are Regionally Anti-Correlated with Oligodendrocyte-Enriched Patterns in the Adult Mouse and Human Brain. Front. Psychiat. 7, (2013).
-* `Parkes2017_PC1.txt`, `Parkes2017_PC2.txt`, `Parkes2017_PC5.txt`, `Parkes2017_PC9.txt`: 1.	Parkes, L., Fulcher, B. D., Yücel, M. & Fornito, A. Transcriptional signatures of connectomic subregions of the human striatum. Genes, Brain and Behavior 25, 1176–663 (2017).
+* `Parkes2017_PC1.txt`, `Parkes2017_PC2.txt`, `Parkes2017_PC5.txt`, `Parkes2017_PC9.txt`: 1.	Parkes, L., Fulcher, B. D., Yücel, M. & Fornito, A. Transcriptional signatures of connectomic subregions of the human striatum. _Genes, Brain and Behavior_ **25**, 1176–663 (2017).
+
+## Precomputing
+
+### Intra-category coexpression
+
+The within-category coexpression metric computation is also precomputed:
+
+```matlab
+IntraCorrelationByCategory('mouse','geneShuffle',20000,'VE1',true)
+```
+
+This saves the results as `Intra_mouse_geneShuffle_VE1_20000.mat`.
+
+### Nulls
+
+Here is an example, computing 20,000 null samples for each GO category in mouse and human according to both randomMap and spatialLag null models:
+
+```matlab
+numNullSamples = 20000;
+species = {'mouse','human'}; numSpecies = length(species);
+nullTypes = {'randomMap','spatialLag'}; numNullTypes = length(nullTypes);
+for i = 1:numSpecies
+    for j = 1:numNullTypes
+        ComputeAllCategoryNulls(species{i},numNullSamples,nullTypes{j},'Spearman','mean')
+        ComputeAllCategoryNulls(species{i},numNullSamples,nullTypes{j},'Spearman','mean')
+    end
+end
+```
+
+Null information is saved as a cell in a new column in the GO category table.
+Each table is saved to a `.mat` file with a name like (e.g., for the code above):
+* `RandomNull_20000_mouse_randomMap_Spearman_mean.mat`
+* `RandomNull_20000_mouse_spatialLag_Spearman_mean.mat`
+* `RandomNull_20000_human_randomMap_Spearman_mean.mat`
+* `RandomNull_20000_human_spatialLag_Spearman_mean.mat`
 
 
 ## Analysis
@@ -71,12 +106,13 @@ SurrogateEnrichment('mouse',5000,'randomUniform','');
 
 * Spatially random model (plus coordinated shuffling of genes through space) [should be equivalent to previous]:
 ```matlab
-SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’coordinatedSpatialShuffle’);
+SurrogateEnrichment('mouse',10000,'randomUniform','coordinatedSpatialShuffle');
 ```
 
 * Spatially random model (plus independent shuffling of space, separately per gene) [should be no signal---a real null of correlated noise with noise]:
-
+```matlab
 SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’independentSpatialShuffle’);
+```
 
 
 
