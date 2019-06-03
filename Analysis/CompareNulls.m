@@ -39,7 +39,8 @@ if doRecompute
     end
 else
     % Load in precomputed data (cf. ComputeAllCategoryNulls):
-    theDataFile = sprintf('RandomNull_20000_%s_%s_%s_mean.mat',whatSpecies,whatSurrogate,whatCorr);
+    theDataFile = sprintf('RandomNull_20000_%s-%s_%s_%s_mean.mat',whatSpecies,...
+                                params.g.structFilter,whatSurrogate,whatCorr);
     fprintf(1,'Loading in precomputed null data from ''%s''\n',theDataFile);
     load(theDataFile,'GOTable');
     for i = 1:numGOIDs
@@ -51,7 +52,6 @@ end
 
 %===============================================================================
 if doPlot
-    %-------------------------------------------------------------------------------
     % Violin plots:
     extraParams = struct();
     extraParams.theColors = {[32,178,170]/255,[184,134,11]/255}; % [220,220,220]/255}; % [119,136,153]/255,  [184,134,11]/255, [119,136,153]/255, [220,220,220]/255};

@@ -30,7 +30,8 @@ aggregateHow = 'mean';
 %-------------------------------------------------------------------------------
 % Check for precomputed null results (ComputeAllCategoryNulls):
 numNullSamples = 20000;
-fileNameDesired = sprintf('RandomNull_%u_%s_%s_%s_%s.mat',numNullSamples,whatSpecies,whatNullModel,whatCorr,aggregateHow);
+fileNameDesired = sprintf('RandomNull_%u_%s-%s_%s_%s_%s.mat',numNullSamples,...
+                            whatSpecies,params.g.structFilter,whatNullModel,whatCorr,aggregateHow);
 nullDistributions = load(fileNameDesired,'GOTable');
 GOTableNull = nullDistributions.GOTable;
 % (The categoryScores variable is the distribution of null samples for each GO category)
