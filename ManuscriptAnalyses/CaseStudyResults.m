@@ -47,6 +47,18 @@ fprintf(1,'%u categories significant for spatial-lag null\n',countMe('mouse_spat
 
 %===============================================================================
 
+%-------------------------------------------------------------------------------
+% How correlated are degree scores with cortical scores
+%-------------------------------------------------------------------------------
+resultsTablesCortex = NodeSimpleEnrichment('isocortex',params.c.structFilter,...
+                            corrType,params);
+
+% With random gene null scores:
+PlotGOScoreScatter(resultsTablesCortex,resultsTablesDegree.mouse_randomGeneNull,{'meanScore','meanScore'});
+xlabel('cortex-noncortex')
+ylabel('degree-corr-randomgeneNull')
+
+
 %===============================================================================
 % ---2---Across the cortex only:
 %===============================================================================
@@ -77,21 +89,7 @@ PlotGOScoreScatter(resultsTablesDegree.mouse_all_randomGeneNull,...
 xlabel('degree-corr-randomGeneNull')
 ylabel('degree-corr-spatial-null')
 
-%-------------------------------------------------------------------------------
-% How correlated are degree scores with cortical scores
-%-------------------------------------------------------------------------------
-resultsTablesCortex = NodeSimpleEnrichment('isocortex',params.c.structFilter,...
-                            corrType,params);
 
-% With random gene null scores:
-PlotGOScoreScatter(resultsTablesCortex,resultsTablesDegree.mouse_all_randomGeneNull);
-xlabel('cortex-noncortex')
-ylabel('degree-corr-randomgeneNull')
-
-% With spatial null scores:
-PlotGOScoreScatter(resultsTablesCortex,resultsTablesDegree.mouse_all_spatialNullAll);
-xlabel('cortex-noncortex')
-ylabel('degree-corr-spatialNull')
 
 %-------------------------------------------------------------------------------
 % Results when permuting separately within and between cortical areas

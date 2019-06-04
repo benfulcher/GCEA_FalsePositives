@@ -7,18 +7,20 @@
 % the similarity in category scores...
 %-------------------------------------------------------------------------------
 
+params = GiveMeDefaultParams('mouse');
+
 %-------------------------------------------------------------------------------
 % Obtain the GOTables for degree:
-GOTable_simple = NodeSimpleEnrichment('degree','all');
+GOTable_simple = NodeSimpleEnrichment(params,'degree','all');
 numSig = sum(GOTable_simple.pValCorr < 0.05);
 fprintf(1,'%u significant for degree (random gene nulls)\n',numSig);
 
-GOTable_shuffle = NodeShuffleEnrichment('degree','all',200,'all');
-numSig = sum(GOTable_shuffle.pValZCorr < 0.05);
-fprintf(1,'%u significant for degree (spatial nulls)\n',numSig);
+% GOTable_shuffle = NodeShuffleEnrichment('degree','all',200,'all');
+% numSig = sum(GOTable_shuffle.pValZCorr < 0.05);
+% fprintf(1,'%u significant for degree (spatial nulls)\n',numSig);
 
 % Obtain the GOTable for ranksum expression differences in isocortex:
-GOTable_isocortex = NodeSimpleEnrichment('isocortex','all');
+GOTable_isocortex = NodeSimpleEnrichment(params,'isocortex','all');
 numSig = sum(GOTable_isocortex.pValCorr < 0.05);
 fprintf(1,'%u significant for cortex confound\n',numSig);
 

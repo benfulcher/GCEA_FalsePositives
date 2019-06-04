@@ -56,8 +56,8 @@ params.g.minGoodPropArea = 0.5;
 switch humanOrMouse
 case 'mouse'
     params.g.energyOrDensity = 'energy'; % what gene expression data to use
-    params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-    params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
+    params.g.normalizationGene = 'none'; % 'none', 'zscore', 'mixedSigmoid'
+    params.g.normalizationRegion = 'none'; % 'none', 'zscore'
     params.g.subsetOfGenes = []; % only analyze the first X genes
                                  % Set to empty, [], to use all genes
 case 'human'

@@ -1,7 +1,7 @@
-function k = ComputeDegree(whatSpecies,doBinary)
+function k = ComputeDegree(whatSpecies,doBinarize)
 
 if nargin < 1
-    doBinary = true;
+    doBinarize = true;
 end
 %-------------------------------------------------------------------------------
 

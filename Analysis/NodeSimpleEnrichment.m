@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrType,params)
+function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,structFilter,corrType)
 % Score each gene on some simple property
 
 % ---INPUTS:
@@ -17,20 +17,20 @@ function [GOTable,gScore] = NodeSimpleEnrichment(enrichWhat,structFilter,corrTyp
 %-------------------------------------------------------------------------------
 % Name an analysis, and this script loads the data and does the enrichment
 %-------------------------------------------------------------------------------
-if nargin < 1 || isempty(enrichWhat)
+if nargin < 1
+    params = GiveMeDefaultParams('mouse');
+end
+if nargin < 2 || isempty(enrichWhat)
     fprintf(1,'Mean expression by default\n');
     enrichWhat = 'meanExpression'; % raw mean expression level
 end
-if nargin < 2 || isempty(structFilter)
+if nargin < 3 || isempty(structFilter)
     fprintf(1,'No filter: all brain regions included\n');
     structFilter = 'all'; % 'all', 'isocortex'
 end
-if nargin < 3 || isempty(corrType)
+if nargin < 4 || isempty(corrType)
     corrType = 'Pearson';
     fprintf(1,'Pearson correlations by default (if relevant)\n');
-end
-if nargin < 4
-    params = GiveMeDefaultParams('mouse');
 end
 
 doRandomize = false;

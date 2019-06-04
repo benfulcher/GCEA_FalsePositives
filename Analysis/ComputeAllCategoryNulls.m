@@ -120,7 +120,7 @@ if saveOut
     fileNameOut = sprintf('RandomNull_%u_%s-%s_%s_%s_%s.mat',numNullSamples,whatSpecies,...
                                                 params.g.structFilter,whatNullType,whatCorr,aggregateHow);
     fileNameOut = fullfile('DataOutputs',fileNameOut);
-    save(fileNameOut,'GOTable','-v7.3');
+    save(fileNameOut,'GOTable','params','-v7.3');
     fprintf(1,'Results of %u iterations saved to %s\n',numNullSamples,fileNameOut);
 end
 
