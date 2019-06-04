@@ -3,6 +3,10 @@
 distMat = GiveMeDistanceMatrix('mouse','all');
 dlmwrite('mouseDistMat.csv',distMat)
 
+% Mouse:
+distMat = GiveMeDistanceMatrix('mouse','cortex');
+dlmwrite('mouseCortexDistMat.csv',distMat)
+
 % Human cortex:
 distMat = GiveMeDistanceMatrix('human');
 numAreas = length(distMat);

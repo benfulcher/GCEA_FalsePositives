@@ -55,8 +55,15 @@ if ischar(whatNullType)
         % Get the pre-computed surrogate data:
         switch whatSpecies
         case 'mouse'
-            dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
+            if strcmp(params.g.structFilter,'cortex')
+                fprintf(1,'Spatial maps for mouse cortex\n');
+                dataFileSurrogate = 'mouseCortexSurrogate_N20000_rho8_d040.csv';
+            else
+                fprintf(1,'Spatial maps for mouse whole brain\n');
+                dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
+            end
         case 'human'
+            fprintf(1,'Spatial maps for human cortex\n');
             dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
         end
         nullMaps = dlmread(dataFileSurrogate,',',1,1);
