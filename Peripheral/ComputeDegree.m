@@ -1,11 +1,12 @@
-function k = ComputeDegree(whatSpecies,doBinarize)
+function [k,structInfo] = ComputeDegree(params,doBinarize)
 
 if nargin < 1
+    params = GiveMeDefaultParams(params);
+end
+if nargin < 2
     doBinarize = true;
 end
 %-------------------------------------------------------------------------------
-
-params = GiveMeDefaultParams(whatSpecies);
 
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,...
                                             params.c.pThreshold,...

@@ -77,13 +77,14 @@ else
 end
 
 %-------------------------------------------------------------------------------
-% Histogram
+% Jittered scatter of distributions:
 extraParams = struct();
 extraParams.theColors = {[32,178,170]/255, [119,136,153]/255, [220,220,220]/255, [184,134,11]/255, [119,136,153]/255, [220,220,220]/255};
 extraParams.customSpot = '';
 extraParams.offsetRange = 0.7;
 BF_JitteredParallelScatter({intraHuman,intraHumanGeneNull,intraHumanSpatialNull,...
-                                intraMouse,intraMouseGeneNull,intraMouseSpatialNull},true,true,true,extraParams);
+                            intraMouse,intraMouseGeneNull,intraMouseSpatialNull},...
+                            true,true,true,extraParams);
 plot([0.5,6.5],[0,0],':k')
 ax = gca; f = gcf();
 ylabel('Mean intra-category correlation');

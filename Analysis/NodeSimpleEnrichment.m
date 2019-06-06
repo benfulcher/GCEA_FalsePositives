@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,structFilter,corrType)
+function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,corrType)
 % Score each gene on some simple property
 
 % ---INPUTS:
@@ -24,11 +24,7 @@ if nargin < 2 || isempty(enrichWhat)
     fprintf(1,'Mean expression by default\n');
     enrichWhat = 'meanExpression'; % raw mean expression level
 end
-if nargin < 3 || isempty(structFilter)
-    fprintf(1,'No filter: all brain regions included\n');
-    structFilter = 'all'; % 'all', 'isocortex'
-end
-if nargin < 4 || isempty(corrType)
+if nargin < 3 || isempty(corrType)
     corrType = 'Pearson';
     fprintf(1,'Pearson correlations by default (if relevant)\n');
 end
@@ -49,8 +45,6 @@ end
 %-------------------------------------------------------------------------------
 % Gene data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-% Filter structures:
-[~,geneData,structInfo] = filterStructures(structFilter,structInfo,[],geneData);
 numStructs = height(structInfo);
 numGenes = height(geneInfo);
 
@@ -76,10 +70,12 @@ case 'degree'
     % the number of connections each region makes to other regions
     %-------------------------------------------------------------------------------
     % Binary connectome data:
-    k = ComputeDegree(params.humanOrMouse,true);
+    doBinarize = true;
+    k = ComputeDegree(params,doBinarize);
     gScore = zeros(numGenes,1);
+    pVals = zeros(numGenes,1);
     for i = 1:numGenes
-        gScore(i) = corr(k,geneData(:,i),'type',corrType,'rows','pairwise');
+        [gScore(i),pVals(i)] = corr(k,geneData(:,i),'type',corrType,'rows','pairwise');
     end
 
     % Plot:
@@ -129,6 +125,10 @@ case {'cerebcortex','isocortex'}
             gScore(i) = ranksum(geneDataZ(isCTX,i),geneDataZ(~isCTX,i));
         end
     end
+    % How many are individually significant?:
+    pCorr = mafdr(gScore,'BHFDR','true');
+    fprintf(1,'%u/%u genes have corrected p < 0.05\n',sum(pCorr < 0.05),length(gScore));
+
     % Transform p-values to scores (bigger is better)
     fprintf(1,'-log10 p-values -> gene scores\n');
     gScore = -log10(gScore);

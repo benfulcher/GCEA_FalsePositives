@@ -1,17 +1,26 @@
+function NullEnrichmentTogether(whatSpecies,doLog)
 
+if nargin < 1
+    whatSpecies = 'mouse';
+end
+if nargin < 2
+    doLog = true;
+end
 
-whatSpecies = 'mouse';
+%-------------------------------------------------------------------------------
+numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
+
+%-------------------------------------------------------------------------------
 
 nullGOTables = struct();
-nullGOTables.spatialRandom = SurrogateEnrichmentProcess(whatSpecies,10000,'randomUniform','');
-% nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,10000,'randomUniform','coordinatedSpatialShuffle');
-nullGOTables.indSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,10000,'randomUniform','independentSpatialShuffle');
-nullGOTables.spatialLag = SurrogateEnrichmentProcess(whatSpecies,5000,'spatialLag','');
+nullGOTables.spatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
+% nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','coordinatedSpatialShuffle');
+nullGOTables.indSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
+nullGOTables.spatialLag = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'spatialLag','');
 
 %-------------------------------------------------------------------------------
 % Extract sum under significant values:
-sumUnderSigValues = structfun(@(x)x.sumUnderSig/10000,nullGOTables,'UniformOutput',false);
-sumUnderSigValues.spatialLag = sumUnderSigValues.spatialLag*2;% (half as many null samples)
+sumUnderSigValues = structfun(@(x)x.sumUnderSig/numNullSamples_surrogate,nullGOTables,'UniformOutput',false);
 
 %-------------------------------------------------------------------------------
 % Distribution of sumUnderSig:
@@ -22,11 +31,26 @@ sumUnderSigCell = sumUnderSigCell([3,1,2])
 % histogram(sumUnderSigCell{3},'normalization','probability')
 % histogram(sumUnderSigCell{1},'normalization','probability')
 % histogram(sumUnderSigCell{2},'normalization','probability')
-BF_JitteredParallelScatter(sumUnderSigCell)
+
+%-------------------------------------------------------------------------------
+% Figure
+
+if doLog
+    % ***As log***:
+    log10Data = cellfun(@(x)log10(x),sumUnderSigCell,'UniformOutput',false);
+    log10Data = cellfun(@(x)x(isfinite(x)),log10Data,'UniformOutput',false);
+    BF_JitteredParallelScatter(log10Data);
+else
+    % ***As linear***:
+    BF_JitteredParallelScatter(sumUnderSigCell);
+end
+
 ax = gca();
-ax.XTick = 1:4;
+ax.XTick = 1:3;
 ax.XTickLabel = fields([3,1,2]);
-ylabel('Proportion significant under random null')
+ylabel('RPS (false positive rate)')
 title('Distribution over GO categories')
 f = gcf();
 f.Position = [1000        1121         273         217];
+
+end

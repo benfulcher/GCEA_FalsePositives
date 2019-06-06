@@ -18,7 +18,6 @@ end
 %-------------------------------------------------------------------------------
 % Get real data:
 params = GiveMeDefaultParams(whatSpecies);
-params.g.humanOrMouse = whatSpecies;
 [geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
 numGenes = height(geneInfoReal);
 numAreas = height(structInfoReal);

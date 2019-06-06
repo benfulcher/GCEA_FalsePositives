@@ -1,72 +1,84 @@
-% Case studies of degree enrichment
+function CaseStudyResults(whatSpecies,whatAnalysis)
+%-------------------------------------------------------------------------------
+% Case studies of degree enrichment in mouse brain, mouse cortex, and human cortex
 %-------------------------------------------------------------------------------
 
-resultsTablesDegree = struct();
+if nargin < 1
+    whatSpecies = 'mouse';
+end
+if nargin < 2
+    whatAnalyais = 'wholeBrain';
+end
+
+
+%-------------------------------------------------------------------------------
 
 % Set general parameters common to all analyses:
-whatSpecies = 'mouse';
-params = GiveMeDefaultParams(whatSpecies);
 corrType = 'Spearman';
+thresholdSig = 0.05; % Category significance threshold for listing out to screen:
+params = GiveMeDefaultParams(whatSpecies);
 
-% Num nulls for shuffle-based enrichment:
-numNulls = 20000;
-% Category significance threshold for listing out to screen:
-thresholdSig = 0.05;
+switch whatAnalysis
+case 'wholeBrain'
+    params.c.structFilter = 'all';
+    params.g.structFilter = 'all';
+    %===============================================================================
+    % ---1---Across the whole brain:
+    %===============================================================================
+    resultsTablesDegree = struct();
+    % (i) random-gene null:
+    resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
+    % (ii) random phenotype null:
+    resultsTablesDegree.mouse_randomMap = PerformEnrichment(params,'degree','randomMap');
+    % (iii) spatial lag null:
+    resultsTablesDegree.mouse_spatialLag = PerformEnrichment(params,'degree','spatialLag');
 
-%===============================================================================
-% ---1---Across the whole brain:
-%===============================================================================
-params.c.structFilter = 'all';
-% (i) random gene null:
-resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment('degree',...
-                                        params.c.structFilter,corrType,params);
-% (ii) random phenotype null:
-resultsTablesDegree.mouse_randomMap = PerformEnrichment('degree','mouse','randomMap');
-% (iii) spatial lag null:
-resultsTablesDegree.mouse_spatialLag = PerformEnrichment('degree','mouse','spatialLag');
+    % Statistics on significance
+    countMe = @(x)sum(resultsTablesDegree.(x).pValZCorr < thresholdSig);
+    fprintf(1,'%u categories significant for random gene null\n',countMe('mouse_randomGeneNull'));
+    fprintf(1,'%u categories significant for random phenotype null\n',countMe('mouse_randomMap'));
+    fprintf(1,'%u categories significant for spatial-lag null\n',countMe('mouse_spatialLag'));
 
-% Statistics on significance
-countMe = @(x)sum(resultsTablesDegree.(x).pValZCorr < thresholdSig);
-fprintf(1,'%u categories significant for random gene null\n',countMe('mouse_randomGeneNull'));
-fprintf(1,'%u categories significant for random phenotype null\n',countMe('mouse_randomMap'));
-fprintf(1,'%u categories significant for spatial-lag null\n',countMe('mouse_spatialLag'));
+    %-------------------------------------------------------------------------------
+    % Do scores correlate with intracategory coexpression?
+    %-------------------------------------------------------------------------------
+    % Obtain the GOTable for ranksum expression differences in isocortex:
+    GOTable_isocortex = NodeSimpleEnrichment(params,'isocortex','all');
+    PlotGOScoreScatter(resultsTablesDegree.mouse_randomGeneNull,GOTable_isocortex,{'meanScore','meanScore'});
+    xlabel('GO category score (mean Spearman correlation with degree)')
+    ylabel('GO category score (-log10 p-value ranksum test isocortex)')
 
-% Do scores correlate with intracategory coexpression?
-% resultsTablesDegree.mouse_all_randomGeneNull.meanScore
-
-
-
-% shuffleWhat = 'all'; % random shuffling
-% resultsTablesDegree.mouse_all_spatialNullAll = NodeShuffleEnrichment('degree',...
-%                 shuffleWhat,numNulls,params.c.structFilter,params);
-
-% (iii) spatial null (cortex constrained):
-% shuffleWhat = 'twoIsocortex';
-% resultsTablesDegree.mouse_all_spatialNull_twoIsocortex = NodeShuffleEnrichment('degree',...
-%                 shuffleWhat,numNulls,params.c.structFilter,params);
-
-%===============================================================================
-
-%-------------------------------------------------------------------------------
-% How correlated are degree scores with cortical scores
-%-------------------------------------------------------------------------------
-resultsTablesCortex = NodeSimpleEnrichment('isocortex',params.c.structFilter,...
-                            corrType,params);
-
-% With random gene null scores:
-PlotGOScoreScatter(resultsTablesCortex,resultsTablesDegree.mouse_randomGeneNull,{'meanScore','meanScore'});
-xlabel('cortex-noncortex')
-ylabel('degree-corr-randomgeneNull')
+    % Does degree differ cortical/non-cortical?
+    [k,structInfo] = ComputeDegree(params.humanOrMouse,true);
+    kCortex = k(strcmp(structInfo.divisionLabel,'Isocortex'));
+    kNotCotex = k(~strcmp(structInfo.divisionLabel,'Isocortex'));
+    fprintf(1,'Cortex: <k> = %.2f, s_k = %.2f\n',mean(kCortex),std(kCortex));
+    fprintf(1,'Not-cortex: <k> = %.2f, s_k = %.2f\n',mean(kNotCotex),std(kNotCotex));
+    p = ranksum(kCortex,kNotCotex)
 
 
-%===============================================================================
-% ---2---Across the cortex only:
-%===============================================================================
-params.c.structFilter = 'isocortex';
+case 'cortexOnly'
+    %===============================================================================
+    % ---2---Across the cortex only:
+    %===============================================================================
+    params.c.structFilter = 'cortex';
+    params.g.structFilter = 'cortex';
 
-% (i) randomGene null:
-[resultsTablesDegree.mouse_ctx_randomGene,gScores] = NodeSimpleEnrichment('degree',...
-                                        params.c.structFilter,corrType,params);
+    resultsTablesDegree = struct();
+    % (i) random-gene null:
+    resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
+    % (ii) random phenotype null:
+    resultsTablesDegree.mouse_randomMap = PerformEnrichment(params,'degree','randomMap');
+    % (iii) spatial lag null:
+    resultsTablesDegree.mouse_spatialLag = PerformEnrichment(params,'degree','spatialLag');
+
+    % Statistics on significance
+    countMe = @(x)sum(resultsTablesDegree.(x).pValZCorr < thresholdSig);
+    fprintf(1,'%u categories significant for random gene null\n',countMe('mouse_randomGeneNull'));
+    fprintf(1,'%u categories significant for random phenotype null\n',countMe('mouse_randomMap'));
+    fprintf(1,'%u categories significant for spatial-lag null\n',countMe('mouse_spatialLag'));
+
+end
 
 
 f = figure('color','w');
@@ -88,7 +100,6 @@ PlotGOScoreScatter(resultsTablesDegree.mouse_all_randomGeneNull,...
                     resultsTablesDegree.mouse_all_spatialNullAll,{'pValCorr','pValZCorr'});
 xlabel('degree-corr-randomGeneNull')
 ylabel('degree-corr-spatial-null')
-
 
 
 %-------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-function GOTablePhenotype = PerformEnrichment(myPhenotype,whatSpecies,whatNullModel)
+function GOTablePhenotype = PerformEnrichment(params,myPhenotype,whatNullModel)
 % PerformEnrichment  Compute enrichment in different GO categories according to
 %                       a given null model
 % Assumes the null samples have been precomputed using ComputeAllCategoryNulls
@@ -12,12 +12,11 @@ function GOTablePhenotype = PerformEnrichment(myPhenotype,whatSpecies,whatNullMo
 % INPUTS:
 %-------------------------------------------------------------------------------
 if nargin < 1
-    myPhenotype = 'degree';
+    params = GiveMeDefaultParams(params);
 end
 if nargin < 2
-    whatSpecies = 'mouse';
+    myPhenotype = 'degree';
 end
-params = GiveMeDefaultParams(whatSpecies);
 if nargin < 3
     whatNullModel = 'randomMap'; % 'spatialLag'
 end
@@ -31,7 +30,7 @@ aggregateHow = 'mean';
 % Check for precomputed null results (ComputeAllCategoryNulls):
 numNullSamples = 20000;
 fileNameDesired = sprintf('RandomNull_%u_%s-%s_%s_%s_%s.mat',numNullSamples,...
-                            whatSpecies,params.g.structFilter,whatNullModel,whatCorr,aggregateHow);
+                            params.humanOrMouse,params.g.structFilter,whatNullModel,whatCorr,aggregateHow);
 nullDistributions = load(fileNameDesired,'GOTable');
 GOTableNull = nullDistributions.GOTable;
 % (The categoryScores variable is the distribution of null samples for each GO category)
@@ -41,13 +40,13 @@ GOTableNull = nullDistributions.GOTable;
 %-------------------------------------------------------------------------------
 switch myPhenotype
 case 'degree'
-    myPhenotype = ComputeDegree(whatSpecies,'binary');
+    myPhenotype = ComputeDegree(params,'binary');
 end
 
 %-------------------------------------------------------------------------------
 % Assign equivalent scores to phenotype
 %-------------------------------------------------------------------------------
-GOTablePhenotype = ComputeAllCategoryNulls(params,1,myPhenotype,whatCorr,aggregateHow,false);
+GOTablePhenotype = ComputeAllCategoryNulls(params,1,myPhenotype,whatCorr,aggregateHow,false,false);
 
 % Check that we have the same GO category IDs in both cases:
 if ~all(GOTableNull.GOID==GOTablePhenotype.GOID)
@@ -59,7 +58,7 @@ numCategories = height(GOTablePhenotype);
 % Estimate p-values:
 %-------------------------------------------------------------------------------
 GOTablePhenotype = EstimatePVals(GOTableNull.categoryScores,[GOTablePhenotype.categoryScores{:}],'right',GOTablePhenotype);
-
+GOTablePhenotype = sortrows(GOTablePhenotype,'pValZ','ascend');
 
 numSig = sum(GOTablePhenotype.pValZCorr < params.e.sigThresh);
 fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
