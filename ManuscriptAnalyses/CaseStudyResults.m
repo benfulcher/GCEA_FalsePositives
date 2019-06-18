@@ -9,36 +9,46 @@ end
 if nargin < 2
     whatAnalyais = 'wholeBrain';
 end
-
-
 %-------------------------------------------------------------------------------
 
 % Set general parameters common to all analyses:
 corrType = 'Spearman';
-thresholdSig = 0.05; % Category significance threshold for listing out to screen:
 params = GiveMeDefaultParams(whatSpecies);
 
 switch whatAnalysis
 case 'wholeBrain'
+    % ---Across the whole brain:
     params.c.structFilter = 'all';
     params.g.structFilter = 'all';
-    %===============================================================================
-    % ---1---Across the whole brain:
-    %===============================================================================
-    resultsTablesDegree = struct();
-    % (i) random-gene null:
-    resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
-    % (ii) random phenotype null:
-    resultsTablesDegree.mouse_randomMap = PerformEnrichment(params,'degree','randomMap');
-    % (iii) spatial lag null:
-    resultsTablesDegree.mouse_spatialLag = PerformEnrichment(params,'degree','spatialLag');
+case 'cortexOnly'
+    % ---Across the cortex only:
+    params.c.structFilter = 'cortex';
+    params.g.structFilter = 'cortex';
+end
 
-    % Statistics on significance
-    countMe = @(x)sum(resultsTablesDegree.(x).pValZCorr < thresholdSig);
-    fprintf(1,'%u categories significant for random gene null\n',countMe('mouse_randomGeneNull'));
-    fprintf(1,'%u categories significant for random phenotype null\n',countMe('mouse_randomMap'));
-    fprintf(1,'%u categories significant for spatial-lag null\n',countMe('mouse_spatialLag'));
+%-------------------------------------------------------------------------------
+% Compute results:
+%-------------------------------------------------------------------------------
+resultsTablesDegree = struct();
+% (i) random-gene null:
+resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
+% (ii) random phenotype null:
+resultsTablesDegree.mouse_randomMap = PerformEnrichment(params,'degree','randomMap');
+% (iii) spatial lag null:
+resultsTablesDegree.mouse_spatialLag = PerformEnrichment(params,'degree','spatialLag');
 
+% Statistics on significance
+whatPField = 'pValZCorr';
+countMe = @(x)sum(resultsTablesDegree.(x).(whatPField) < params.e.sigThresh);
+fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('mouse_randomGeneNull'),whatPField);
+fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('mouse_randomMap'),whatPField);
+fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('mouse_spatialLag'),whatPField);
+
+%-------------------------------------------------------------------------------
+% Extra analysis-specific analyses
+%-------------------------------------------------------------------------------
+switch whatAnalysis
+case 'wholeBrain'
     %-------------------------------------------------------------------------------
     % Do scores correlate with intracategory coexpression?
     %-------------------------------------------------------------------------------
@@ -54,29 +64,19 @@ case 'wholeBrain'
     kNotCotex = k(~strcmp(structInfo.divisionLabel,'Isocortex'));
     fprintf(1,'Cortex: <k> = %.2f, s_k = %.2f\n',mean(kCortex),std(kCortex));
     fprintf(1,'Not-cortex: <k> = %.2f, s_k = %.2f\n',mean(kNotCotex),std(kNotCotex));
-    p = ranksum(kCortex,kNotCotex)
-
+    p = ranksum(kCortex,kNotCotex);
 
 case 'cortexOnly'
-    %===============================================================================
-    % ---2---Across the cortex only:
-    %===============================================================================
-    params.c.structFilter = 'cortex';
-    params.g.structFilter = 'cortex';
-
-    resultsTablesDegree = struct();
-    % (i) random-gene null:
-    resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
-    % (ii) random phenotype null:
-    resultsTablesDegree.mouse_randomMap = PerformEnrichment(params,'degree','randomMap');
-    % (iii) spatial lag null:
-    resultsTablesDegree.mouse_spatialLag = PerformEnrichment(params,'degree','spatialLag');
-
-    % Statistics on significance
-    countMe = @(x)sum(resultsTablesDegree.(x).pValZCorr < thresholdSig);
-    fprintf(1,'%u categories significant for random gene null\n',countMe('mouse_randomGeneNull'));
-    fprintf(1,'%u categories significant for random phenotype null\n',countMe('mouse_randomMap'));
-    fprintf(1,'%u categories significant for spatial-lag null\n',countMe('mouse_spatialLag'));
+    % Rearrange to look at p-values for each of the top categories
+    topWhat = 20;
+    for i = 1:topWhat
+        fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultsTablesDegree.mouse_randomGeneNull.GOName{i});
+        fprintf(1,'Random-gene: %s = %.2f\n',whatPField,resultsTablesDegree.mouse_randomGeneNull.(whatPField)(i));
+        isHere = find(resultsTablesDegree.mouse_randomMap.GOID==resultsTablesDegree.mouse_randomGeneNull.GOID(i));
+        fprintf(1,'Random phenotype: %s = %.2f\n',whatPField,resultsTablesDegree.mouse_randomMap.(whatPField)(isHere));
+        isHere = find(resultsTablesDegree.mouse_randomMap.GOID==resultsTablesDegree.mouse_spatialLag.GOID(i));
+        fprintf(1,'mouse_spatialLag: %s = %.2f\n',whatPField,resultsTablesDegree.mouse_spatialLag.(whatPField)(isHere));
+    end
 
 end
 

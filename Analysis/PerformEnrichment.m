@@ -61,9 +61,9 @@ GOTablePhenotype = EstimatePVals(GOTableNull.categoryScores,[GOTablePhenotype.ca
 GOTablePhenotype = sortrows(GOTablePhenotype,'pValZ','ascend');
 
 numSig = sum(GOTablePhenotype.pValZCorr < params.e.sigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
+fprintf(1,'%u significant categories at pZ_corr < %.2f\n',numSig,params.e.sigThresh);
 
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-ix_GO = ListCategories(geneInfo,GOTablePhenotype,20,'pValZ');
+ListCategories(geneInfo,GOTablePhenotype,20,'pValZ');
 
 end

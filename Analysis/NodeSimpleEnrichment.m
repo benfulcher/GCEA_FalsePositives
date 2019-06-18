@@ -165,9 +165,10 @@ end
 %-------------------------------------------------------------------------------
 GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,params.e);
 
-% ANALYSIS:
-numSig = sum(GOTable.pValCorr < params.e.sigThresh);
-fprintf(1,'%u significant categories at p_corr < %.2f\n',numSig,params.e.sigThresh);
+%-------------------------------------------------------------------------------
+% Count significant under corrected permutation testing:
+numSig = sum(GOTable.pValPermCorr < params.e.sigThresh);
+fprintf(1,'%u significant categories at pPerm_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
 
 end

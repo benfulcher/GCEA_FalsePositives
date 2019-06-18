@@ -75,9 +75,9 @@ case {'surrogate-mouse','surrogate-human'}
         % Get the pre-computed surrogate data:
         switch gParam.humanOrMouse
         case 'mouse'
-            dataFileSurrogate = 'mouseSurrogate_N10000_rho8_d040.csv';
+            dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
         case 'human'
-            dataFileSurrogate = 'humanSurrogate_N10000_rho8_d02000.csv';
+            dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
         end
         % Surrogate maps pre-generated using the spatial lag model:
         fprintf(1,'Surrogate brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
@@ -91,13 +91,19 @@ case {'surrogate-mouse','surrogate-human'}
             % [~,~,structInfoFull] = LoadMeG(gParam);
             % % Match:
             % [~,ia,ib] = intersect(structInfo.acronym,structInfoFull.acronym,'stable');
-            keyboard
+            % keyboard
+            warning('~~~data do not match~~~')
         end
-        numFakeGenes = size(geneData,2);
+
         % Assign random gene metadata:
-        rp = randperm(numRealGenes,numFakeGenes);
-        fprintf(1,'Assigning metadata to genes at RANDOM (%u/%u genes)\n',numFakeGenes,numRealGenes);
-        geneInfo = geneInfo(rp,:);
+        numFakeGenes = size(geneData,2);
+        if numFakeGenes > numRealGenes
+            geneData = geneData(:,1:numRealGenes);
+        else
+            rp = randperm(numRealGenes,numFakeGenes);
+            fprintf(1,'Assigning metadata to genes at RANDOM (%u/%u genes)\n',numFakeGenes,numRealGenes);
+            geneInfo = geneInfo(rp,:);
+        end
 
     case 'randomUniform'
         geneData = ShuffleMyMatrix(geneDataReal,'randomUniform');
