@@ -14,8 +14,8 @@ results.intraMouse = resultsIntraMouse.resultsTable;
 resultsIntraHuman = load(sprintf('Intra_human_%s_%s_%u.mat',whatShuffle,theIntraCategoryStat,numSamples));
 results.intraHuman = resultsIntraHuman.resultsTable;
 
-% [rowVectorResults,GOTerms,allGOIDs,tableNames] = CombineTables(results,'mouse',{'pValZ','pValZ'});
-[rowVectorResults,GOTerms,allGOIDs,tableNames] = CombineTables(results,'mouse',{'intracorr_VE1','intracorr_VE1'});
+% [rowVectorResults,allGOIDs,tableNames] = CombineTables(results,'mouse',{'pValZ','pValZ'});
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,'mouse',{'intracorr_VE1','intracorr_VE1'});
 
 
 f = figure('color','w');

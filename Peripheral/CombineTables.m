@@ -1,4 +1,4 @@
-function [rowVectorResults,GOTerms,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,customField)
+function [rowVectorResults,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,customField)
 % Structure of results tables (from GO enrichment analysis)
 %-------------------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ numGOIDs = length(allGOIDs);
 fprintf(1,'Annotations span %u GO categories\n',length(allGOIDs));
 
 % Match to names
-params = GiveMeDefaultParams(whatSpecies);
-params.e.sizeFilter = [0,1e6];
-GOTerms = GiveMeGOData(params);
+% params = GiveMeDefaultParams(whatSpecies);
+% params.e.sizeFilter = [0,1e6];
+% GOTerms = GiveMeGOData(params);
 
 % Convert each dataset to a vector across GOIDs:
 rowVectorResults = nan(numTables,numGOIDs);

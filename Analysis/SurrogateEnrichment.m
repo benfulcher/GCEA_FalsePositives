@@ -38,6 +38,7 @@ end
 % Get a generic GO Table:
 GOTableGeneric = GiveMeGOData(params,geneInfoReal.entrez_id);
 numGOCategories = height(GOTableGeneric);
+keyboard
 
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------

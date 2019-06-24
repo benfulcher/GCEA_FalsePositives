@@ -21,7 +21,7 @@ if nargin < 3
     whatSpecies = '';
 end
 %-------------------------------------------------------------------------------
-[rowVectorResults,GOTerms,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,'pValCorr');
+[rowVectorResults,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,'pValCorr');
 numTables = length(allTableNames);
 
 % Set p-value for results over threshold to 1, in rowVectorResultsTh
@@ -90,6 +90,7 @@ for i = 1:numTrimmed
     else
         GONamesSort{i} = sprintf('%s(%u)',GOTerms.GOName{weHere},GOTerms.size(weHere));
     end
+    fprintf(1,'%u %s(%u)\n',allGOIDsSort(i),GOTerms.GOName{weHere},GOTerms.size(weHere));
 end
 
 %-------------------------------------------------------------------------------

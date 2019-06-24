@@ -39,7 +39,7 @@ if doRecompute
     end
 else
     % Load in precomputed data (cf. ComputeAllCategoryNulls):
-    theDataFile = sprintf('RandomNull_20000_%s-%s_%s_%s_mean.mat',whatSpecies,...
+    theDataFile = sprintf('RandomNull_%u_%s-%s_%s_%s_mean.mat',numNullSamples,whatSpecies,...
                                 params.g.structFilter,whatSurrogate,whatCorr);
     fprintf(1,'Loading in precomputed null data from ''%s''\n',theDataFile);
     load(theDataFile,'GOTable');
@@ -80,4 +80,5 @@ if doPlot
     xlabel(sprintf('%s correlation',whatCorr))
     title(sprintf('%u nulls of %s',numNullSamples,whatSurrogate))
 end
+
 end

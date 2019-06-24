@@ -14,7 +14,7 @@ minAnnotations = 20; % restrict GO categories to being this size.
 % Get default parameters:
 params = GiveMeDefaultParams(whatSpecies);
 % only consider categories with at least theCategorySize annotations
-params.e.sizeFilter = [minAnnotations,200];
+params.e.sizeFilter(1) = minAnnotations;
 params.e.sizeFix = minAnnotations;
 
 %-------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ theRange = round(linspace(1,height(GO_intraCoexp),numGOIDs));
 GOIDs = GO_intraCoexp.GOID(theRange);
 GONames = GO_intraCoexp.GOName(theRange);
 pValZCorrs = GO_intraCoexp.pValZCorr(theRange);
-meanIntraCorr = GO_intraCoexp.mouse(theRange);
+VE1 = GO_intraCoexp.intracorr_VE1(theRange);
 
 %-------------------------------------------------------------------------------
 % Estimate null width under the specified null model
@@ -41,8 +41,8 @@ end
 %-------------------------------------------------------------------------------
 % Plot:
 f = figure('color','w');
-plot(meanIntraCorr,nullWidth,'ok');
+plot(VE1,nullWidth,'ok');
 xlabel('mean intra-category correlation')
 ylabel(sprintf('%s:nullWidth',whatSurrogate))
-[r,p] = corr(meanIntraCorr,nullWidth);
+[r,p] = corr(VE1,nullWidth);
 title(sprintf('r = %.3g, p = %.3g',r,p))

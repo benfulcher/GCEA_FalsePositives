@@ -6,7 +6,7 @@ function resultsTablesSpecies = LiteratureLook(whatSpecies,theThreshold,doPlot)
 % Check inputs:
 %-------------------------------------------------------------------------------
 if nargin < 1
-    whatSpecies = 'human'; % 'mouse','human','both'
+    whatSpecies = 'both'; % 'mouse','human','both'
 end
 if nargin < 2
     % Threshold for displaying a category as "significant"

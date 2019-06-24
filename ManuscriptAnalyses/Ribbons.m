@@ -37,7 +37,7 @@ results.humanIntra.pValCorr = results.humanIntra.pValZCorr;
 % Are coexpression scores related to spatial correlation scores?
 justMouseResults = struct('mouseDistance',results.mouseDistance,'mouseIntra',results.mouseIntra);
 % e.g., for mouse:
-[rowVectorResults,GOTerms,allGOIDs,tableNames] = CombineTables(justMouseResults,'mouse',...
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(justMouseResults,'mouse',...
     {'pValZ','pValZ'});
 % {'meanScore','mouse'});
 plot(rowVectorResults(1,:),rowVectorResults(2,:),'.k')
@@ -52,7 +52,7 @@ results.humanSpatialLag = SurrogateEnrichmentProcess('human','spatialLag');
 
 %===============================================================================
 % Can we explain the final result in terms of the former characteristics?
-[rowVectorResults,GOTerms,allGOIDs,allTableNames] = CombineTables(results,'mouse',...
+[rowVectorResults,allGOIDs,allTableNames] = CombineTables(results,'mouse',...
     {'pValZ','meanScore','pValZ','human_abs','sumUnderSig','sumUnderSigx'});
 f = figure('color','w');
 isGood = (sum(~isfinite(rowVectorResults),1)==0);
