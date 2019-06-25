@@ -20,9 +20,16 @@ maxCategories = 200; % show at most this many categories
 if nargin < 3
     whatSpecies = '';
 end
+
 %-------------------------------------------------------------------------------
 [rowVectorResults,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,'pValCorr');
 numTables = length(allTableNames);
+
+% Retrieve full GO information:
+params = GiveMeDefaultParams(whatSpecies);
+params.e.sizeFilter = [0,1e6];
+GOTerms = GiveMeGOData(params);
+
 
 % Set p-value for results over threshold to 1, in rowVectorResultsTh
 underThreshold = @(x) 1-(1-x)*double(x < sigThreshold);
@@ -88,7 +95,7 @@ for i = 1:numTrimmed
     if ~any(weHere)
         GONamesSort{i} = sprintf('<unknown> (ID:%u)',allGOIDsSort(i));
     else
-        GONamesSort{i} = sprintf('%s(%u)',GOTerms.GOName{weHere},GOTerms.size(weHere));
+        GONamesSort{i} = sprintf('[%u]%s(%u)',GOTerms.GOID(weHere),GOTerms.GOName{weHere},GOTerms.size(weHere));
     end
     fprintf(1,'%u %s(%u)\n',allGOIDsSort(i),GOTerms.GOName{weHere},GOTerms.size(weHere));
 end
@@ -104,9 +111,9 @@ ax.TickLabelInterpreter = 'none';
 ax.YTick = 1:sum(~hasNoAnnotations);
 % ax.XTickLabel = allGOIDsSort;
 ax.YTickLabel = GONamesSort;
-colormap([flipud(BF_getcmap('purplebluegreen',9));1,1,1])
+colormap([flipud(BF_getcmap('purplebluegreen',9));1,1,1]);
 caxis([0,sigThreshold*1.2]);
-title(whatSpecies)
+title(whatSpecies);
 
 cB = colorbar();
 cB.Label.String = 'pCorr';

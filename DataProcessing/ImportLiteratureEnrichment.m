@@ -16,18 +16,19 @@ end
 % From a range of published studies:
 manualDataFile = 'TableGOBPs.csv';
 TableGOBPs = readtable(manualDataFile);
-% Split of species identifier:
-speciesID = TableGOBPs(1,3:end);
-TableGOBPs = TableGOBPs(2:end,:);
+% Split off species identifier:
+% speciesID = TableGOBPs(1,3:end);
+% TableGOBPs = TableGOBPs(3:end,:);
 % Give user feedback:
 numManual = height(TableGOBPs);
+numStudies = length(TableGOBPs.Properties.VariableNames)-2;
 fprintf(1,'Loaded manual annotations for %u GO Terms across %u studies from %s\n',...
-            numManual,length(TableGOBPs.Properties.VariableNames)-2,manualDataFile);
+            numManual,numStudies,manualDataFile);
 
 %-------------------------------------------------------------------------------
 % Load in data on GO category annotations:
 params = GiveMeDefaultParams();
-params.e.sizeFilter = [1,1e5];
+params.e.sizeFilter = [1,1e6];
 if filterOnOurGenes
     % (Only look at categories with annotations for genes in our set)
     [~,geneInfo] = LoadMeG(params.g);
@@ -47,7 +48,7 @@ GOIDsMatches = nan(numManual,1);
 for i = 1:numManual
     itsHere = find(strcmp(TableGOBPs.GOCategory{i},GOTerms.GOName));
     if isempty(itsHere)
-        warning('There is GO category called: ''%s''',TableGOBPs.GOCategory{i})
+        warning('There is no GO category called: ''%s''',TableGOBPs.GOCategory{i})
     else
         matchMe(i) = itsHere;
         GOIDsMatches(i) = GOTerms.GOID(matchMe(i));
@@ -66,20 +67,30 @@ fprintf(1,'%u manual result tables\n',numManualResults);
 
 for i = 1:numManualResults
     theData = TableGOBPs.(theManualResultNames{i});
-    hasHits = ~cellfun(@isempty,theData); % ~isnan(theData);
+
+    if isnumeric(theData)
+        hasHits = ~isnan(theData);
+    else
+        hasHits = ~cellfun(@isempty,theData);
+    end
 
     theGOIDs = GOIDsMatches(hasHits);
     isValid = ~isnan(theGOIDs);
     GOID = theGOIDs(isValid);
 
     theData = theData(hasHits);
-    try
-        theData = cellfun(@(x)str2num(x),theData);
+
+    if isnumeric(theData)
         hasPVals = any(theData < 1);
-    catch
-        fprintf(1,'Non-numeric data for %s---treating all marked categories as significant\n',...
-                            theManualResultNames{i});
-        hasPVals = false;
+    else
+        try
+            theData = cellfun(@(x)str2num(x),theData);
+            hasPVals = any(theData < 1);
+        catch
+            fprintf(1,'Non-numeric data for %s---treating all marked categories as significant\n',...
+                                theManualResultNames{i});
+            hasPVals = false;
+        end
     end
 
     if hasPVals

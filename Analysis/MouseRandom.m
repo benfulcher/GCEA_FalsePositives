@@ -8,7 +8,7 @@ end
 if nargin < 2
     whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 end
-
+whatShuffle = 'independentSpatialShuffle';
 %-------------------------------------------------------------------------------
 % Reproduce a massive calculation
 computeMode = false;
@@ -27,7 +27,6 @@ else
 end
 results.intra = resultsIntra.resultsTable;
 results.randomReal = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
-% results.randomSpatialCoord = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','coordinatedSpatialShuffle');
 results.randomSpatialInd = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
 
 [rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'pValZCorr','sumUnderSig','sumUnderSig'});
@@ -84,7 +83,7 @@ numThresholds = 11;
 numBins = numThresholds-1;
 % xThresholds = arrayfun(@(x)quantile(categorySizesMatched,x),linspace(0,1,numThresholds));
 xThresholds = round(linspace(min(categorySizesMatched),max(categorySizesMatched),numThresholds));
-xThresholds(end) = xThresholds(end) + eps; % make sure all data included in final bin
+xThresholds(end) = xThresholds(end) + eps; % make sure all data is included in final bin
 corrInSizeFPSR = zeros(numBins,2);
 corrInSizeNullWidth = zeros(numBins,2);
 for i = 1:numBins
@@ -92,12 +91,12 @@ for i = 1:numBins
     [corrInSizeFPSR(i,1),corrInSizeFPSR(i,2)] = corr(intracorr_VE1(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
     [corrInSizeNullWidth(i,1),corrInSizeNullWidth(i,2)] = corr(randomMapNullWidth(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
 end
-corrIgnoreSizeFPSR = corr(intracorr_VE1,sumUnderSig,'type','Spearman','rows','pairwise');
-corrIgnoreSizeNullWidth = corr(randomMapNullWidth,sumUnderSig,'type','Spearman','rows','pairwise');
+[corrIgnoreSizeFPSR,p] = corr(intracorr_VE1,sumUnderSig,'type','Spearman','rows','pairwise');
+[corrIgnoreSizeNullWidth,p] = corr(randomMapNullWidth,sumUnderSig,'type','Spearman','rows','pairwise');
 
 f = figure('color','w'); hold('on')
 for k = 1:numBins
-    plot(xThresholds(k:k+1),ones(2,1)*corrInSize(k),'LineStyle','-','LineWidth',2,'Color','k')
+    plot(xThresholds(k:k+1),ones(2,1)*corrInSizeFPSR(k),'LineStyle','-','LineWidth',2,'Color','k')
 end
 
 

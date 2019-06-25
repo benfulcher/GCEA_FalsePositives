@@ -14,7 +14,12 @@ absScore = nanmean(abs(corrVect));
 
 %-------------------------------------------------------------------------------
 % Alternative score is the variance explained by the first principal component:
-[coeff,score,latent] = pca(geneMatrix);
+normGeneMatrix = BF_NormalizeMatrix(geneMatrix,'zscore');
+if any(isnan(normGeneMatrix))
+    [coeff,score,latent] = pca(normGeneMatrix,'Algorithm','als');
+else
+    [coeff,score,latent] = pca(normGeneMatrix);
+end
 perc = latent/sum(latent)*100;
 VE1 = perc(1);
 if isnan(VE1)
