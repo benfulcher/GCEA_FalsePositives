@@ -53,9 +53,12 @@ for j = 1:numStructs
     rectangle('Position',[-(numGenes/ratNum+1)*structScores(j),-0.5+j,(numGenes/ratNum+1)*structScores(j),1], ...
                 'FaceColor',colorHere,'EdgeColor',colorHere)
 end
-% Add text:
-for j = 1:numStructs
-    text(-numGenes/(ratNum*1.2),j,structInfo.acronym(j),'FontSize',9)
+
+% Add acronym text if available:
+if ismember(structInfo.Properties.VariableNames,'acronym')
+    for j = 1:numStructs
+        text(-numGenes/(ratNum*1.2),j,structInfo.acronym(j),'FontSize',9)
+    end
 end
 
 xlim([-numGenes/ratNum,numGenes+1])

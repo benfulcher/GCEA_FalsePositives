@@ -8,7 +8,7 @@ end
 if nargin < 2
     whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 end
-whatShuffle = 'independentSpatialShuffle';
+
 %-------------------------------------------------------------------------------
 % Reproduce a massive calculation
 computeMode = false;
@@ -23,13 +23,16 @@ if computeMode
     params = GiveMeDefaultParams(whatSpecies);
     resultsIntra = IntraCorrelationByCategory(params,whatShuffle,numNullSamples_VE1,'VE1',true);
 else
-    resultsIntra = load(sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples_VE1));
+    fileNameIn = sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples_VE1);
+    resultsIntra = load(fileNameIn);
+    fprintf(1,'Importing intra-category coexpression data from %s\n',fileNameIn);
 end
 results.intra = resultsIntra.resultsTable;
+results.distinctiveness = AnnotateDistinctivenessScore(params);
 results.randomReal = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
 results.randomSpatialInd = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
 
-[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'pValZCorr','sumUnderSig','sumUnderSig'});
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'pValZCorr','distinctiveness_abs','sumUnderSig','sumUnderSig'});
 
 %-------------------------------------------------------------------------------
 f = figure('color','w');
@@ -56,13 +59,14 @@ f.Position = [1000        1117         326         221];
 % Estimate null width first using FPSR
 
 % Take category sizes from results.randomReal:
-[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','sumUnderSig','sumUnderSig'});
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','distinctiveness_raw','sumUnderSig','sumUnderSig'});
 [allGOIDsMatched,ia,ib] = intersect(allGOIDs,results.randomReal.GOID,'stable');
 categorySizesMatched = results.randomReal.size(ib);
 intracorr_VE1 = rowVectorResults(1,ia)';
-sumUnderSig = rowVectorResults(2,ia)';
+distinctiveness = rowVectorResults(2,ia)';
+sumUnderSig = rowVectorResults(3,ia)';
 
-% Match to better estimates (null width):
+% Match to estimates of null width under random spatial maps:
 numNullSamples = 20000;
 whatSurrogate = 'randomMap';
 whatCorr = 'Spearman';
@@ -78,9 +82,9 @@ for i = 1:length(allGOIDsMatched)
     end
 end
 
-% Bin the category sizes:
-numThresholds = 11;
-numBins = numThresholds-1;
+% Compute correlations with VE1 in binned category sizes:
+numBins = 10;
+numThresholds = numBins + 1;
 % xThresholds = arrayfun(@(x)quantile(categorySizesMatched,x),linspace(0,1,numThresholds));
 xThresholds = round(linspace(min(categorySizesMatched),max(categorySizesMatched),numThresholds));
 xThresholds(end) = xThresholds(end) + eps; % make sure all data is included in final bin
@@ -88,16 +92,27 @@ corrInSizeFPSR = zeros(numBins,2);
 corrInSizeNullWidth = zeros(numBins,2);
 for i = 1:numBins
     isInThreshold = (categorySizesMatched>=xThresholds(i) & categorySizesMatched < xThresholds(i+1));
-    [corrInSizeFPSR(i,1),corrInSizeFPSR(i,2)] = corr(intracorr_VE1(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
+    [corrInSizeFPSR(i,1),corrInSizeFPSR(i,2)] = corr(distinctiveness(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
     [corrInSizeNullWidth(i,1),corrInSizeNullWidth(i,2)] = corr(randomMapNullWidth(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
 end
 [corrIgnoreSizeFPSR,p] = corr(intracorr_VE1,sumUnderSig,'type','Spearman','rows','pairwise');
 [corrIgnoreSizeNullWidth,p] = corr(randomMapNullWidth,sumUnderSig,'type','Spearman','rows','pairwise');
 
+fprintf('Average over %u bins of category size: Spearman correlation of VE1 with FPSR: %.2g\n',...
+                        numBins,mean(corrInSizeFPSR(:,1)));
+fprintf('Average over %u bins of category size: Spearman correlation of VE1 with random-map null width: %.2g\n',...
+                        numBins,mean(corrInSizeNullWidth(:,1)));
+
 f = figure('color','w'); hold('on')
 for k = 1:numBins
     plot(xThresholds(k:k+1),ones(2,1)*corrInSizeFPSR(k),'LineStyle','-','LineWidth',2,'Color','k')
 end
+
+%-------------------------------------------------------------------------------
+% What about the distinctiveness of the genes in the category
+GOTable = AnnotateDistinctivenessScore(params);
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','sumUnderSig','sumUnderSig'});
+
 
 
 end

@@ -97,6 +97,22 @@ case 'mouse-Ypma'
     theAdjMat = W;
     adjPVals = [];
 
+case 'human-HCP'
+     % Let's do 15% density by default:
+     fprintf(1,'HCP parcellation degree at 15%% density\n');
+     C = load('HCP_200_15.mat','GrFA');
+     theAdjMat = C.GrFA;
+
+     % Take just left hemisphere:
+     isLeftCortex = 1:100;
+     theAdjMat = theAdjMat(isLeftCortex,isLeftCortex);
+
+     % Just to fill this output (not used for human data):
+     adjPVals = [];
+
+     % Get ROI names (regionAcronyms):
+     regionAcronyms = isLeftCortex;
+
 case {'human-HCP-HCP','human-HCP-APARC'}
     % Get the 100-HCP group connectome [Group connectomes are made by removing least
     % consistent (in terms of weight) links to reach the average density of
@@ -160,37 +176,38 @@ if ismember(whatFilter,{'isocortex','cortex'})
         keepStruct = strcmp(structInfo.divisionLabel,'Isocortex');
         theAdjMat = theAdjMat(keepStruct,keepStruct);
     elseif strcmp(whatData(1:5),'human')
-        isCTX = regionStruct.isCortex;
-        theAdjMat = theAdjMat(isCTX,isCTX);
-        regionStruct = regionStruct(isCTX,:);
-        regionAcronyms = regionAcronyms(isCTX);
+        fprintf(1,'NOT ACTUALLY FILTERING HUMAN DATA\n');
+    %     isCTX = regionStruct.isCortex;
+    %     theAdjMat = theAdjMat(isCTX,isCTX);
+    %     regionStruct = regionStruct(isCTX,:);
+    %     regionAcronyms = regionAcronyms(isCTX);
     else
         error('Unknown label for organism -- are you a human or are you a mouse?');
     end
 end
 
-if strcmp(whatData(1:5),'human')
-    switch whatHemispheres
-    case 'right'
-        % Keep right hemisphere only (human data)
-        isRight = structInfo.isRight;
-        theAdjMat = theAdjMat(isRight,isRight);
-        regionAcronyms = regionAcronyms(isRight);
-        structInfo = structInfo(isRight,:);
-        fprintf(1,'Filtered to %u right-hemisphere ROIs\n',sum(isRight));
-    case 'left'
-        % Keep left hemisphere only (human data)
-        isLeft = structInfo.isLeft;
-        theAdjMat = theAdjMat(isLeft,isLeft);
-        regionAcronyms = regionAcronyms(isLeft);
-        structInfo = structInfo(isLeft,:);
-        fprintf(1,'Filtered to %u left-hemisphere ROIs\n',sum(isLeft));
-    case 'both'
-        % yeah
-    otherwise
-        error('What do you mean %s hemisphere?!',whatHemispheres);
-    end
-end
+% if strcmp(whatData(1:5),'human')
+%     switch whatHemispheres
+%     case 'right'
+%         % Keep right hemisphere only (human data)
+%         isRight = structInfo.isRight;
+%         theAdjMat = theAdjMat(isRight,isRight);
+%         regionAcronyms = regionAcronyms(isRight);
+%         structInfo = structInfo(isRight,:);
+%         fprintf(1,'Filtered to %u right-hemisphere ROIs\n',sum(isRight));
+%     case 'left'
+%         % Keep left hemisphere only (human data)
+%         isLeft = structInfo.isLeft;
+%         theAdjMat = theAdjMat(isLeft,isLeft);
+%         regionAcronyms = regionAcronyms(isLeft);
+%         structInfo = structInfo(isLeft,:);
+%         fprintf(1,'Filtered to %u left-hemisphere ROIs\n',sum(isLeft));
+%     case 'both'
+%         % yeah
+%     otherwise
+%         error('What do you mean %s hemisphere?!',whatHemispheres);
+%     end
+% end
 
 % ------------------------------------------------------------------------------
 function AdjThresh = filterP(AdjIn,pValues)

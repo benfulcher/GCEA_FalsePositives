@@ -1,13 +1,13 @@
 function CaseStudyResults(whatSpecies,whatAnalysis)
-%-------------------------------------------------------------------------------
-% Case studies of degree enrichment in mouse brain, mouse cortex, and human cortex
+% Case study of degree enrichment in mouse brain, mouse cortex, and human cortex
 %-------------------------------------------------------------------------------
 
 if nargin < 1
-    whatSpecies = 'mouse';
+    % whatSpecies = 'mouse';
+    whatSpecies = 'human';
 end
 if nargin < 2
-    whatAnalyais = 'wholeBrain';
+    whatAnalysis = 'cortex';
 end
 %-------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ case 'wholeBrain'
     % ---Across the whole brain:
     params.c.structFilter = 'all';
     params.g.structFilter = 'all';
-case 'cortexOnly'
+case 'cortex'
     % ---Across the cortex only:
     params.c.structFilter = 'cortex';
     params.g.structFilter = 'cortex';
@@ -31,18 +31,18 @@ end
 %-------------------------------------------------------------------------------
 resultsTablesDegree = struct();
 % (i) random-gene null:
-resultsTablesDegree.mouse_randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
+resultsTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
 % (ii) random phenotype null:
-resultsTablesDegree.mouse_randomMap = PerformEnrichment(params,'degree','randomMap');
+resultsTablesDegree.randomMap = PerformEnrichment(params,'degree','randomMap');
 % (iii) spatial lag null:
-resultsTablesDegree.mouse_spatialLag = PerformEnrichment(params,'degree','spatialLag');
+resultsTablesDegree.spatialLag = PerformEnrichment(params,'degree','spatialLag');
 
-% Statistics on significance
+% List significant categories under each null:
 whatPField = 'pValZCorr';
 countMe = @(x)sum(resultsTablesDegree.(x).(whatPField) < params.e.sigThresh);
-fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('mouse_randomGeneNull'),whatPField);
-fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('mouse_randomMap'),whatPField);
-fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('mouse_spatialLag'),whatPField);
+fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('randomGeneNull'),whatPField);
+fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('randomMap'),whatPField);
+fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('spatialLag'),whatPField);
 
 %-------------------------------------------------------------------------------
 % Extra analysis-specific analyses
@@ -54,7 +54,7 @@ case 'wholeBrain'
     %-------------------------------------------------------------------------------
     % Obtain the GOTable for ranksum expression differences in isocortex:
     GOTable_isocortex = NodeSimpleEnrichment(params,'isocortex','all');
-    PlotGOScoreScatter(resultsTablesDegree.mouse_randomGeneNull,GOTable_isocortex,{'meanScore','meanScore'});
+    PlotGOScoreScatter(resultsTablesDegree.randomGeneNull,GOTable_isocortex,{'meanScore','meanScore'});
     xlabel('GO category score (mean Spearman correlation with degree)')
     ylabel('GO category score (-log10 p-value ranksum test isocortex)')
 
@@ -66,18 +66,17 @@ case 'wholeBrain'
     fprintf(1,'Not-cortex: <k> = %.2f, s_k = %.2f\n',mean(kNotCotex),std(kNotCotex));
     p = ranksum(kCortex,kNotCotex);
 
-case 'cortexOnly'
+case 'cortex'
     % Rearrange to look at p-values for each of the top categories
     topWhat = 20;
     for i = 1:topWhat
-        fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultsTablesDegree.mouse_randomGeneNull.GOName{i});
-        fprintf(1,'Random-gene: %s = %.2f\n',whatPField,resultsTablesDegree.mouse_randomGeneNull.(whatPField)(i));
-        isHere = find(resultsTablesDegree.mouse_randomMap.GOID==resultsTablesDegree.mouse_randomGeneNull.GOID(i));
-        fprintf(1,'Random phenotype: %s = %.2f\n',whatPField,resultsTablesDegree.mouse_randomMap.(whatPField)(isHere));
-        isHere = find(resultsTablesDegree.mouse_randomMap.GOID==resultsTablesDegree.mouse_spatialLag.GOID(i));
-        fprintf(1,'mouse_spatialLag: %s = %.2f\n',whatPField,resultsTablesDegree.mouse_spatialLag.(whatPField)(isHere));
+        fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultsTablesDegree.randomGeneNull.GOName{i});
+        fprintf(1,'Random-gene: %s = %.2g\n',whatPField,resultsTablesDegree.randomGeneNull.(whatPField)(i));
+        isHere = find(resultsTablesDegree.randomMap.GOID==resultsTablesDegree.randomGeneNull.GOID(i));
+        fprintf(1,'Random phenotype: %s = %.2g\n',whatPField,resultsTablesDegree.randomMap.(whatPField)(isHere));
+        isHere = find(resultsTablesDegree.randomMap.GOID==resultsTablesDegree.spatialLag.GOID(i));
+        fprintf(1,'spatialLag: %s = %.2g\n',whatPField,resultsTablesDegree.spatialLag.(whatPField)(isHere));
     end
-
 end
 
 

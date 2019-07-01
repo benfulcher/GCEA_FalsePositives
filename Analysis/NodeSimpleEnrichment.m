@@ -71,7 +71,10 @@ case 'degree'
     %-------------------------------------------------------------------------------
     % Binary connectome data:
     doBinarize = true;
-    k = ComputeDegree(params,doBinarize);
+    [k,structInfoConn] = ComputeDegree(params,doBinarize);
+    if ~all(structInfoConn.ROI_ID==structInfo.ROI_ID)
+        error('Connectivity data doesn''t match gene-expression data');
+    end
     gScore = zeros(numGenes,1);
     pVals = zeros(numGenes,1);
     for i = 1:numGenes
