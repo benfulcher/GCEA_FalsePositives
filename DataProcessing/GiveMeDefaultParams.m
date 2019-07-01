@@ -90,8 +90,8 @@ case 'human'
 end
 
 params.e.processFilter = 'biological_process';
-params.e.sizeFilter = [10,100];
-params.e.numSamples = 20000; % number of null samples when computing gene-score significance
+params.e.sizeFilter = [10,200];
+params.e.numSamples = 40000; % number of null samples when computing gene-score significance
 params.e.sigThresh = 0.05; % display categories with corrected p-value below this threshold
 params.e.sizeFix = []; % set the number of annotations to all categories to be a fixed value
                        % (mainly useful for )
