@@ -167,6 +167,10 @@ resultsTables.Fulcher2016conn = readtable('Fulcher2016_connectedUnconnected_BP_T
 % (rich+feed versus peripheral comparison) [done at a pairwise level]:
 resultsTables.Fulcher2016rich = readtable('Fulcher2016_richFeederPeripheral_BP_TableS5.csv');
 
+% ---Meijer:
+
+resultsTables.Meijer2019stress = ImportMeijer();
+
 %-------------------------------------------------------------------------------
 % Ok, so now we have resultsTables from all data combined :-D
 % Now we need to separate into human and mouse studies
