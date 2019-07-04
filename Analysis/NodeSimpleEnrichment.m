@@ -25,8 +25,8 @@ if nargin < 2 || isempty(enrichWhat)
     enrichWhat = 'meanExpression'; % raw mean expression level
 end
 if nargin < 3 || isempty(corrType)
-    corrType = 'Pearson';
-    fprintf(1,'Pearson correlations by default (if relevant)\n');
+    corrType = 'Spearman';
+    fprintf(1,'Spearman correlations by default (if relevant)\n');
 end
 
 doRandomize = false;
@@ -72,8 +72,15 @@ case 'degree'
     % Binary connectome data:
     doBinarize = true;
     [k,structInfoConn] = ComputeDegree(params,doBinarize);
-    if ~all(structInfoConn.ROI_ID==structInfo.ROI_ID)
-        error('Connectivity data doesn''t match gene-expression data');
+    switch params.humanOrMouse
+    case 'human'
+        if ~all(structInfoConn.ROI_ID==structInfo.ROI_ID)
+            error('Connectivity data doesn''t match gene-expression data');
+        end
+    case 'mouse'
+        if ~all(structInfoConn.id==structInfo.id)
+            error('Connectivity data doesn''t match gene-expression data');
+        end
     end
     gScore = zeros(numGenes,1);
     pVals = zeros(numGenes,1);
@@ -151,10 +158,10 @@ case 'genePC'
     end
 
     % Score genes for correlation with the leading expression PC:
-    fprintf(1,'Scoring genes by their correlation to PC1\n');
+    fprintf(1,'Scoring genes by their absolute correlation to PC1\n');
     gScore = zeros(numGenes,1);
     for i = 1:numGenes
-        gScore(i) = corr(pcScore(:,1),geneData(:,i),'type',corrType,'rows','pairwise');
+        gScore(i) = abs(corr(pcScore(:,1),geneData(:,i),'type',corrType,'rows','pairwise'));
     end
 end
 

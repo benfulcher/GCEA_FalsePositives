@@ -97,7 +97,7 @@ title(textLabel,'interpreter','none')
 
 %-------------------------------------------------------------------------------
 % List GO categories with significant p-values:
-numSig = sum(GOTable.pValCorr < params.e.sigThresh);
+numSig = sum(GOTable.pValZCorr < params.e.sigThresh);
 fprintf(1,'%u GO categories have p_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
 

@@ -1,4 +1,4 @@
-function params = GiveMeDefaultParams(humanOrMouse)
+function params = GiveMeDefaultParams(humanOrMouse,structFilter)
 % Produces a parameter vector of default values for processing and analysis
 %
 % Gives a unified parameter structure broken into 4 components:
@@ -13,17 +13,18 @@ if nargin < 1 || isempty(humanOrMouse)
     humanOrMouse = 'mouse';
     fprintf(1,'Mouse by default. Cute.\n');
 end
-
 % Initialize:
 params = struct();
 params.humanOrMouse = humanOrMouse;
 
-% Filter structures:
-switch params.humanOrMouse
-case {'human','surrogate-human'}
-    structFilter = 'cortex'; % 'cortex', 'all'
-case {'mouse','surrogate_mouse'}
-    structFilter = 'all'; % 'cortex', 'all'
+if nargin < 2
+    % Default structure filter:
+    switch humanOrMouse
+    case {'human','surrogate-human'}
+        structFilter = 'cortex'; % 'cortex', 'all'
+    case {'mouse','surrogate_mouse'}
+        structFilter = 'all'; % 'cortex', 'all'
+    end
 end
 
 %-------------------------------------------------------------------------------

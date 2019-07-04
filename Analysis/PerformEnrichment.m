@@ -41,6 +41,8 @@ GOTableNull = nullDistributions.GOTable;
 switch myPhenotype
 case 'degree'
     myPhenotype = ComputeDegree(params,'binary');
+otherwise
+    error('Unknown phenotype type ''%s''',myPhenotype);
 end
 
 %-------------------------------------------------------------------------------
@@ -49,7 +51,7 @@ end
 GOTablePhenotype = ComputeAllCategoryNulls(params,1,myPhenotype,whatCorr,aggregateHow,false,false);
 
 % Check that we have the same GO category IDs in both cases:
-if ~all(GOTableNull.GOID==GOTablePhenotype.GOID)
+if ~(height(GOTableNull)==height(GOTablePhenotype)) && ~all(GOTableNull.GOID==GOTablePhenotype.GOID)
     error('Error matching GO Categories to precomputed null data...');
 end
 numCategories = height(GOTablePhenotype);

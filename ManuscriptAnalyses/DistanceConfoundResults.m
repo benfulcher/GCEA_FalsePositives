@@ -17,11 +17,11 @@ params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
 
 % ---Whole brain:
 params.c.structFilter = 'all';
-results.mouse_all = geneEnrichmentDistance(params);
+results.mouseBrain = geneEnrichmentDistance(params);
 
 % ---Just isocortex:
 params.c.structFilter = 'isocortex';
-results.mouse_ctx = geneEnrichmentDistance(params);
+results.mouseCtx = geneEnrichmentDistance(params);
 
 % ---Just non-cortical areas:
 % params.c.structFilter = 'notCortex';
@@ -34,13 +34,9 @@ params = GiveMeDefaultParams('human');
 params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
 params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
 
-% ---Whole brain:
-% params.c.structFilter = 'all';
-% results.human_all = geneEnrichmentDistance(params);
-
 % ---Just cortex:
-params.c.structFilter = 'cortex';
-results.human_ctx = geneEnrichmentDistance(params);
+results.human = geneEnrichmentDistance(params);
+
 
 %-------------------------------------------------------------------------------
 % Visualize any overlapping spatial signatures:

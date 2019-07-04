@@ -1,4 +1,4 @@
-function CaseStudyResults(whatSpecies,whatAnalysis)
+function CaseStudyResults(whatSpecies,structFilter)
 % Case study of degree enrichment in mouse brain, mouse cortex, and human cortex
 %-------------------------------------------------------------------------------
 
@@ -7,24 +7,13 @@ if nargin < 1
     whatSpecies = 'human';
 end
 if nargin < 2
-    whatAnalysis = 'cortex';
+    structFilter = 'all'; % 'cortex', 'all'
 end
+corrType = 'Spearman';
 %-------------------------------------------------------------------------------
 
 % Set general parameters common to all analyses:
-corrType = 'Spearman';
-params = GiveMeDefaultParams(whatSpecies);
-
-switch whatAnalysis
-case 'wholeBrain'
-    % ---Across the whole brain:
-    params.c.structFilter = 'all';
-    params.g.structFilter = 'all';
-case 'cortex'
-    % ---Across the cortex only:
-    params.c.structFilter = 'cortex';
-    params.g.structFilter = 'cortex';
-end
+params = GiveMeDefaultParams(whatSpecies,structFilter);
 
 %-------------------------------------------------------------------------------
 % Compute results:

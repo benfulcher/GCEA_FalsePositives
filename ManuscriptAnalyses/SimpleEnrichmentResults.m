@@ -1,39 +1,70 @@
+function SimpleEnrichmentResults(whatAnalysis)
 %===============================================================================
 % Confound characterization analyses
 %===============================================================================
 
-%===============================================================================
-% Mean/variance expression levels:
-%===============================================================================
-resultsTablesMean = struct();
-resultsTablesVar = struct();
+if nargin < 1
+    whatAnalysis = 'mean';
+end
 
-%-------------------------------------------------------------------------------
-% First we do mouse stuff:
-whatSpecies = 'mouse';
-params = GiveMeDefaultParams(whatSpecies);
-params.g.normalizationGene = 'none';
-% mean expression (whole brain):
-resultsTablesMean.mouse_all = NodeSimpleEnrichment('meanExpression','all','',params);
-% mean expression (cortical areas):
-resultsTablesMean.mouse_ctx = NodeSimpleEnrichment('meanExpression','cortex','',params);
-% variance (whole brain):
-resultsTablesVar.mouse_all = NodeSimpleEnrichment('varExpression','all','',params);
-% variance (cortical areas):
-resultsTablesVar.mouse_ctx = NodeSimpleEnrichment('varExpression','cortex','',params);
+results = struct();
+switch whatAnalysis
+case 'mean'
+    %===============================================================================
+    % Mean expression levels:
+    %===============================================================================
+    params = GiveMeDefaultParams('mouse');
+    results.mouseBrain = NodeSimpleEnrichment(params,'meanExpression');
+    params = GiveMeDefaultParams('mouse','cortex');
+    results.mouseCtx = NodeSimpleEnrichment(params,'meanExpression');
+    params = GiveMeDefaultParams('human');
+    results.human = NodeSimpleEnrichment(params,'meanExpression');
+case 'var'
+    params = GiveMeDefaultParams('mouse','all');
+    results.mouseBrain = NodeSimpleEnrichment(params,'varExpression');
+    params = GiveMeDefaultParams('mouse','cortex');
+    results.mouseCtx = NodeSimpleEnrichment(params,'varExpression');
+    params = GiveMeDefaultParams('human');
+    results.human = NodeSimpleEnrichment(params,'varExpression');
+case 'gradient'
+    % (Note that z-score normalization of columns occurs subsequently within the
+    % enrichment code)
+    params = GiveMeDefaultParams('mouse','all');
+    params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
+    params.g.normalizationRegion = 'none'; % 'none', 'mixedSigmoid'
+    results.mouseBrain = NodeSimpleEnrichment(params,'genePC');
+    params = GiveMeDefaultParams('mouse','cortex');
+    params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
+    params.g.normalizationRegion = 'none'; % 'none', 'mixedSigmoid'
+    results.mouseCtx = NodeSimpleEnrichment(params,'genePC');
+    params = GiveMeDefaultParams('human');
+    params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
+    params.g.normalizationRegion = 'none'; % 'none', 'mixedSigmoid'
+    results.human = NodeSimpleEnrichment(params,'genePC');
+end
 
-%-------------------------------------------------------------------------------
-% Then we do human stuff:
-whatSpecies = 'human';
-params = GiveMeDefaultParams(whatSpecies);
-params.g.whatParcellation = 'HCP';
-params.g.normalizationInternal = 'none';
-params.g.normalizationGene = 'none';
-params.g.normalizationRegion = 'none';
-% MEAN:
-resultsTablesMean.human_HCP = NodeSimpleEnrichment('meanExpression','cortex','',params);
-% VARIANCE:
-resultsTablesVar.human_HCP = NodeSimpleEnrichment('varExpression','cortex','',params);
+[commonGOIDs,ia,ib] = intersect(results.mouseBrain.GOID,results.human.GOID);
+
+GOName = results.mouseBrain.GOName(ia);
+GOIDlabel = results.mouseBrain.GOIDlabel(ia);
+GOID = commonGOIDs;
+sizeMouse = results.mouseBrain.size(ia);
+sizeHuman = results.human.size(ib);
+meanScoreMouseBrain = results.mouseBrain.meanScore(ia);
+meanScoreMouseCortex = results.mouseCtx.meanScore(ia);
+meanScoreHuman = results.human.meanScore(ib);
+pValZCorrMouseBrain = results.mouseBrain.pValZCorr(ia);
+pValZCorrMouseCortex = results.mouseCtx.pValZCorr(ia);
+pValZCorrHuman = results.human.pValZCorr(ib);
+
+newTable = table(GOName,GOIDlabel,GOID,sizeMouse,sizeHuman,...
+                meanScoreMouseBrain,meanScoreMouseCortex,meanScoreHuman,...
+                pValZCorrMouseBrain,pValZCorrMouseCortex,pValZCorrHuman);
+meanScoreSum = newTable.pValZCorrMouseBrain + newTable.pValZCorrHuman;
+[~,ix] = sort(meanScoreSum,'ascend');
+newTable = newTable(ix,:);
+
+
 
 %-------------------------------------------------------------------------------
 % Visualize results
@@ -50,25 +81,7 @@ title('Enrichment by expression variance across the brain')
 %===============================================================================
 resultsTablesPC1 = struct();
 
-% (Note that z-score normalization of columns occurs subsequently within the
-% enrichment code)
 
-whatSpecies = 'mouse';
-params = GiveMeDefaultParams(whatSpecies);
-params.g.normalizationGene = 'mixedSigmoid'; % 'none', 'mixedSigmoid'
-params.g.normalizationRegion = 'none'; % 'none', 'mixedSigmoid'
-structFilter = 'all';
-[resultsTablesPC1.mouse_all] = NodeSimpleEnrichment('genePC',structFilter,'',params);
-structFilter = 'isocortex';
-[resultsTablesPC1.mouse_ctx] = NodeSimpleEnrichment('genePC',structFilter,'',params);
-
-whatSpecies = 'human';
-params = GiveMeDefaultParams(whatSpecies);
-params.g.whatParcellation = 'HCP';
-params.g.normalizationInternal = 'robustSigmoid';
-params.g.normalizationGene = 'none';
-params.g.normalizationRegion = 'none';
-[resultsTablesPC1.human_HCP,gScore] = NodeSimpleEnrichment('genePC','all','',whatSpecies,params);
 
 % Give summary to screen:
 thresholdSig = 0.05;

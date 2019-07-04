@@ -21,7 +21,12 @@ k = sum(A_bin,1)' + sum(A_bin,2);
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
 % Match structures:
-[~,ia,ib] = intersect(regionAcronyms,structInfo.ROI_ID,'stable');
+switch params.humanOrMouse
+case 'human'
+    [~,ia,ib] = intersect(regionAcronyms,structInfo.ROI_ID,'stable');
+case 'mouse'
+    [~,ia,ib] = intersect(regionAcronyms,structInfo.acronym,'stable');
+end
 k = k(ia);
 structInfo = structInfo(ib,:);
 

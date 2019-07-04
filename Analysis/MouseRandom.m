@@ -19,8 +19,8 @@ numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
 % Import (or compute) intra-category correlation data and surrogate random data
 %===============================================================================
 results = struct();
+params = GiveMeDefaultParams(whatSpecies);
 if computeMode
-    params = GiveMeDefaultParams(whatSpecies);
     resultsIntra = IntraCorrelationByCategory(params,whatShuffle,numNullSamples_VE1,'VE1',true);
 else
     fileNameIn = sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples_VE1);

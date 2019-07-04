@@ -3,7 +3,40 @@
 %-------------------------------------------------------------------------------
 % Annotate intra-category correlations for different gene expression datasets
 %-------------------------------------------------------------------------------
+numNullSamples_VE1 = 20000; % (Intra_*_VE1_20000.mat)
+numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
+whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
+
+
+fileNameIn = @(whatSpecies) sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples_VE1);
+%-------------------------------------------------------------------------------
 results = struct();
+resultsIntraMouse = load(fileNameIn('mouse'));
+results.mouse = resultsIntraMouse.resultsTable;
+resultsIntraHuman = load(fileNameIn('human'));
+results.human = resultsIntraHuman.resultsTable;
+
+[commonGOIDs,ia,ib] = intersect(results.mouse.GOID,results.human.GOID);
+
+GOName = results.mouse.GOName(ia);
+GOIDlabel = results.mouse.GOIDlabel(ia);
+GOID = commonGOIDs;
+sizeMouse = results.mouse.size(ia);
+sizeHuman = results.human.size(ib);
+intraVE1_mouse = results.mouse.intracorr_VE1(ia);
+intraVE1_human = results.human.intracorr_VE1(ib);
+newTable = table(GOName,GOIDlabel,GOID,sizeMouse,sizeHuman,intraVE1_mouse,intraVE1_human);
+VE1_sum = intraVE1_mouse + intraVE1_human;
+[~,ix] = sort(VE1_sum,'descend');
+newTable = newTable(ix,:);
+
+%===============================================================================
+%===============================================================================
+%===============================================================================
+% OLDER STUFF:
+%===============================================================================
+%===============================================================================
+%===============================================================================
 
 %-------------------------------------------------------------------------------
 % Get default parameters:
