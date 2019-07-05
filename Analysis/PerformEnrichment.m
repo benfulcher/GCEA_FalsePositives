@@ -31,8 +31,15 @@ aggregateHow = 'mean';
 numNullSamples = 20000;
 fileNameDesired = sprintf('RandomNull_%u_%s-%s_%s_%s_%s.mat',numNullSamples,...
                             params.humanOrMouse,params.g.structFilter,whatNullModel,whatCorr,aggregateHow);
-nullDistributions = load(fileNameDesired,'GOTable');
-GOTableNull = nullDistributions.GOTable;
+preComputedData = load(fileNameDesired);
+GOTableNull = preComputedData.GOTable;
+if isfield(preComputedData,'params')
+    warning('***OVER-RIDING DETAILED PARAMETERS FROM THE LOADED FILE: %s\n',fileNameDesired);
+    params = preComputedData.params;
+else
+    warning('***THIS IS AN OLD FILE: %s\n',fileNameDesired);
+    params.e.sizeFilter = [10,100];
+end
 % (The categoryScores variable is the distribution of null samples for each GO category)
 
 %-------------------------------------------------------------------------------

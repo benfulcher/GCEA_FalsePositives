@@ -7,35 +7,54 @@
 % Store results tables in this struct:
 results = struct();
 
-%-------------------------------------------------------------------------------
-% Mouse
-%-------------------------------------------------------------------------------
-params = GiveMeDefaultParams('mouse');
-% To make GCC scores make sense -- expression needs to be [0,1] normalized:
-params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
+% NB: To make self-correlation make sense, expression needs to be normalized
 
-% ---Whole brain:
-params.c.structFilter = 'all';
+%-------------------------------------------------------------------------------
+% Mouse brain
+params = GiveMeDefaultParams('mouse','all');
+params.g.normalizationGene = 'zscore';
+params.g.normalizationRegion = 'zscore';
 results.mouseBrain = geneEnrichmentDistance(params);
 
-% ---Just isocortex:
-params.c.structFilter = 'isocortex';
+% Mouse cortex:
+params = GiveMeDefaultParams('mouse','cortex');
+params.g.normalizationGene = 'zscore';
+params.g.normalizationRegion = 'zscore';
 results.mouseCtx = geneEnrichmentDistance(params);
 
-% ---Just non-cortical areas:
+% Human
+params = GiveMeDefaultParams('human','cortex');
+params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
+params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
+results.human = geneEnrichmentDistance(params);
+
+% Mouse non-cortex:
 % params.c.structFilter = 'notCortex';
 % results.mouse_notCtx = geneEnrichmentDistance(params);
 
 %-------------------------------------------------------------------------------
-% Human
-%-------------------------------------------------------------------------------
-params = GiveMeDefaultParams('human');
-params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
 
-% ---Just cortex:
-results.human = geneEnrichmentDistance(params);
+%-------------------------------------------------------------------------------
+% Assemble a joint table:
+[commonGOIDs,ia,ib] = intersect(results.mouseBrain.GOID,results.human.GOID);
+
+GOName = results.mouseBrain.GOName(ia);
+GOIDlabel = results.mouseBrain.GOIDlabel(ia);
+GOID = commonGOIDs;
+meanScoreMouseBrain = results.mouseBrain.meanScore(ia);
+pValZCorrMouseBrain = results.mouseBrain.pValZCorr(ia);
+meanScoreMouseCtx = results.mouseCtx.meanScore(ia);
+pValZCorrMouseCtx = results.mouseCtx.pValZCorr(ia);
+meanScoreHuman = results.human.meanScore(ib);
+pValZCorrHuman = results.human.pValZCorr(ib);
+
+newTable = table(GOName,GOIDlabel,GOID,...
+                meanScoreMouseBrain,meanScoreMouseCtx,meanScoreHuman,...
+                pValZCorrMouseBrain,pValZCorrMouseCtx,pValZCorrHuman);
+meanScoreSum = newTable.meanScoreMouseBrain + newTable.meanScoreMouseCtx + newTable.meanScoreHuman;
+[~,ix] = sort(meanScoreSum,'descend');
+newTable = newTable(ix,:);
+
 
 
 %-------------------------------------------------------------------------------
@@ -46,4 +65,9 @@ PlotEnrichmentTables(results,thresholdSig);
 %-------------------------------------------------------------------------------
 % Investigate specific categories through specific visualizations:
 whatCategoryIndex = 1; % (NB: index not ID)
-VisualizeDistanceEnrichment(results.mouse_all,whatCategoryIndex,params);
+VisualizeDistanceEnrichment(results.mouseBrain,whatCategoryIndex,params);
+
+%===============================================================================
+function paramStruct = makeZscored(paramStruct)
+    %
+end

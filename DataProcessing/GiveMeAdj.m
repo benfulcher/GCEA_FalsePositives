@@ -97,9 +97,9 @@ case 'mouse-Ypma'
     theAdjMat = W;
     adjPVals = [];
 
-case 'human-HCP'
+case {'human','human-HCP'}
      % Let's do 15% density by default:
-     fprintf(1,'HCP parcellation degree at 15%% density\n');
+     fprintf(1,'Rand-100 parcellation at 15%% density\n');
      C = load('HCP_200_15.mat','GrFA');
      theAdjMat = C.GrFA;
 
