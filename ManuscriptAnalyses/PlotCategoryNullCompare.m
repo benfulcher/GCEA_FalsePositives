@@ -17,7 +17,6 @@ resultsIntraSized = resultsIntra.resultsTable(isInSizeRange,:)
 % Parameters:
 % whatGOIDs = [7215,32612];
 whatGOIDs = [31638,61001];
-whatSpecies = 'mouse';
 numNullSamples = 20000;
 whatCorr = 'Spearman';
 
@@ -25,15 +24,22 @@ whatCorr = 'Spearman';
 theColors = [[32,178,170]/255;[184,134,11]/255];
 % [220,220,220]/255}; % [119,136,153]/255, [119,136,153]/255, [220,220,220]/255};
 
+
 %-------------------------------------------------------------------------------
 % Plot information about a category
-categoryWhat = 1;
+categoryWhat = 2;
 params = GiveMeDefaultParams(whatSpecies);
 PlotCategoryIntraCorr(whatGOIDs(categoryWhat),params,whatCorr);
 PlotCategoryExpression(whatGOIDs(categoryWhat),params);
 
 %-------------------------------------------------------------------------------
+% FPSR for this category?
+numNullSamples_surrogate = 10000;
+FPSR_random = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
+FPSR_thisCategory = FPSR_random.sumUnderSig(FPSR_random.GOID==whatGOIDs(categoryWhat));
+FPSR_random(4285,:)
 
+%-------------------------------------------------------------------------------
 categoryScores = struct();
 categoryLabels = struct();
 fprintf(1,'Computing distribution of null spatial-lag category scores for %u GO categories\n',length(whatGOIDs));

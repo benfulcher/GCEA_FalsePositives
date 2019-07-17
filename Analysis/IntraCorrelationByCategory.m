@@ -84,7 +84,7 @@ end
 switch pValsFromWhat
 case 'raw'
     theField = sprintf('intracorr_raw');
-    theNullDistribution = nullDistributionAbs;
+    theNullDistribution = nullDistributionRaw;
 case 'abs'
     theField = sprintf('intracorr_abs');
     theNullDistribution = nullDistributionAbs;

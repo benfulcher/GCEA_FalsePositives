@@ -1,18 +1,20 @@
-function MouseRandom(whatSpecies,whatShuffle)
+function MouseRandom(whatSpecies,whatShuffle,whatIntraStat)
 %-------------------------------------------------------------------------------
 % MouseRandom
 %-------------------------------------------------------------------------------
 if nargin < 1
-    whatSpecies = 'mouse';
+    whatSpecies = 'human';
 end
 if nargin < 2
     whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 end
+if nargin < 3
+    whatIntraStat = 'VE1';
+end
 
 %-------------------------------------------------------------------------------
-% Reproduce a massive calculation
-computeMode = false;
-numNullSamples_VE1 = 20000; % (Intra_*_VE1_20000.mat)
+computeMode = false; % Reproduce a massive calculation
+numNullSamples_intraCorr = 20000; % (Intra_*_*_20000.mat)
 numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
 
 %===============================================================================
@@ -21,25 +23,25 @@ numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
 results = struct();
 params = GiveMeDefaultParams(whatSpecies);
 if computeMode
-    resultsIntra = IntraCorrelationByCategory(params,whatShuffle,numNullSamples_VE1,'VE1',true);
+    resultsIntra = IntraCorrelationByCategory(params,whatShuffle,numNullSamples_intraCorr,whatIntraStat,true);
 else
-    fileNameIn = sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples_VE1);
+    fileNameIn = sprintf('Intra_%s_%s_%s_%u.mat',whatSpecies,whatShuffle,whatIntraStat,numNullSamples_intraCorr);
     resultsIntra = load(fileNameIn);
     fprintf(1,'Importing intra-category coexpression data from %s\n',fileNameIn);
 end
 results.intra = resultsIntra.resultsTable;
-results.distinctiveness = AnnotateDistinctivenessScore(params);
+% results.distinctiveness = AnnotateDistinctivenessScore(params);
 results.randomReal = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
 results.randomSpatialInd = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
 
-[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'pValZCorr','distinctiveness_abs','sumUnderSig','sumUnderSig'});
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'pValZCorr','sumUnderSig','sumUnderSig'});
 
 %-------------------------------------------------------------------------------
 f = figure('color','w');
 hold('on')
 pRandomNull = plot(rowVectorResults(1,:),rowVectorResults(2,:)/numNullSamples_surrogate,'.k');
 pIntraNull = plot(rowVectorResults(1,:),rowVectorResults(3,:)/numNullSamples_surrogate,'.r');
-xlabel(sprintf('%s-IntraClassVE1',tableNames{1}));
+xlabel(sprintf('%s-IntraClass%s',tableNames{1},whatIntraStat));
 ylabel(sprintf('%s-propSignificantRandomPermutation',tableNames{2}));
 axis('square')
 legend('intraCorr','randomChance')
@@ -59,12 +61,11 @@ f.Position = [1000        1117         326         221];
 % Estimate null width first using FPSR
 
 % Take category sizes from results.randomReal:
-[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','distinctiveness_raw','sumUnderSig','sumUnderSig'});
+[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','sumUnderSig','sumUnderSig'});
 [allGOIDsMatched,ia,ib] = intersect(allGOIDs,results.randomReal.GOID,'stable');
 categorySizesMatched = results.randomReal.size(ib);
 intracorr_VE1 = rowVectorResults(1,ia)';
-distinctiveness = rowVectorResults(2,ia)';
-sumUnderSig = rowVectorResults(3,ia)';
+sumUnderSig = rowVectorResults(2,ia)';
 
 % Match to estimates of null width under random spatial maps:
 numNullSamples = 20000;
@@ -92,7 +93,7 @@ corrInSizeFPSR = zeros(numBins,2);
 corrInSizeNullWidth = zeros(numBins,2);
 for i = 1:numBins
     isInThreshold = (categorySizesMatched>=xThresholds(i) & categorySizesMatched < xThresholds(i+1));
-    [corrInSizeFPSR(i,1),corrInSizeFPSR(i,2)] = corr(distinctiveness(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
+    [corrInSizeFPSR(i,1),corrInSizeFPSR(i,2)] = corr(intracorr_VE1(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
     [corrInSizeNullWidth(i,1),corrInSizeNullWidth(i,2)] = corr(randomMapNullWidth(isInThreshold),sumUnderSig(isInThreshold),'type','Spearman','rows','pairwise');
 end
 [corrIgnoreSizeFPSR,p] = corr(intracorr_VE1,sumUnderSig,'type','Spearman','rows','pairwise');
@@ -101,17 +102,22 @@ end
 fprintf('Average over %u bins of category size: Spearman correlation of VE1 with FPSR: %.2g\n',...
                         numBins,mean(corrInSizeFPSR(:,1)));
 fprintf('Average over %u bins of category size: Spearman correlation of VE1 with random-map null width: %.2g\n',...
-                        numBins,mean(corrInSizeNullWidth(:,1)));
+                        numBins,nanmean(corrInSizeNullWidth(:,1)));
 
+%-------------------------------------------------------------------------------
 f = figure('color','w'); hold('on')
+xlabel('Category size bins')
+ylabel('Mean FPSR in bin')
+title(whatSpecies)
 for k = 1:numBins
     plot(xThresholds(k:k+1),ones(2,1)*corrInSizeFPSR(k),'LineStyle','-','LineWidth',2,'Color','k')
 end
 
+
 %-------------------------------------------------------------------------------
 % What about the distinctiveness of the genes in the category
-GOTable = AnnotateDistinctivenessScore(params);
-[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','sumUnderSig','sumUnderSig'});
+% GOTable = AnnotateDistinctivenessScore(params);
+% [rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_VE1','sumUnderSig','sumUnderSig'});
 
 
 
