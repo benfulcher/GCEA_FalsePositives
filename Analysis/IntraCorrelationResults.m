@@ -3,7 +3,7 @@
 %-------------------------------------------------------------------------------
 % Annotate intra-category correlations for different gene expression datasets
 %-------------------------------------------------------------------------------
-numNullSamples_VE1 = 20000; % (Intra_*_VE1_20000.mat)
+numNullSamples_coExp = 20000; % (Intra_*_*_20000.mat)
 numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
 whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 
@@ -29,6 +29,9 @@ newTable = table(GOName,GOIDlabel,GOID,sizeMouse,sizeHuman,intraVE1_mouse,intraV
 VE1_sum = intraVE1_mouse + intraVE1_human;
 [~,ix] = sort(VE1_sum,'descend');
 newTable = newTable(ix,:);
+
+
+
 
 %===============================================================================
 %===============================================================================

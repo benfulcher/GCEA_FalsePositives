@@ -7,7 +7,7 @@ if nargin < 1 || isempty(whatSpecies)
     % whatSpecies = 'human';
 end
 if nargin < 2 || isempty(numMaps)
-    numMaps = 1000;
+    numMaps = 10000;
 end
 if nargin < 3 || isempty(whatSurrogate)
     whatSurrogate = 'spatialLag';

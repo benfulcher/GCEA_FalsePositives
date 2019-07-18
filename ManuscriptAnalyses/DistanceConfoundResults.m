@@ -66,8 +66,3 @@ PlotEnrichmentTables(results,thresholdSig);
 % Investigate specific categories through specific visualizations:
 whatCategoryIndex = 1; % (NB: index not ID)
 VisualizeDistanceEnrichment(results.mouseBrain,whatCategoryIndex,params);
-
-%===============================================================================
-function paramStruct = makeZscored(paramStruct)
-    %
-end

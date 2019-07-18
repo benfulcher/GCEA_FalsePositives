@@ -9,7 +9,7 @@ if nargin < 2
     whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 end
 if nargin < 3
-    whatIntraStat = 'VE1';
+    whatIntraStat = 'raw';
 end
 
 %-------------------------------------------------------------------------------
@@ -30,31 +30,58 @@ else
     fprintf(1,'Importing intra-category coexpression data from %s\n',fileNameIn);
 end
 results.intra = resultsIntra.resultsTable;
-% results.distinctiveness = AnnotateDistinctivenessScore(params);
 results.randomReal = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
-results.randomSpatialInd = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
+% results.randomSpatialInd = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
+% [rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'intracorr_raw','sumUnderSig','sumUnderSig'});
 
-[rowVectorResults,allGOIDs,tableNames] = CombineTables(results,whatSpecies,{'pValZCorr','sumUnderSig','sumUnderSig'});
+[~,ia,ib] = intersect(results.intra.GOID,results.randomReal.GOID);
+GOTableCombined = results.intra(ia,:);
+GOTableCombined.FPSR_random = results.randomReal.sumUnderSig(ib)/numNullSamples_surrogate;
+
+%-------------------------------------------------------------------------------
+% What about as a function of category size:
+numBins = 1;
+binEdges = linspace(min(GOTableCombined.size),max(GOTableCombined.size)+eps,numBins+1);
+isInBin = @(x) (GOTableCombined.size>=binEdges(x) & GOTableCombined.size < binEdges(x+1));
+binIndex = arrayfun(@(x)isInBin(x),1:numBins,'UniformOutput',false);
 
 %-------------------------------------------------------------------------------
 f = figure('color','w');
+theXfield = 'intracorr_raw';
+theYfield = 'FPSR_random';
 hold('on')
-pRandomNull = plot(rowVectorResults(1,:),rowVectorResults(2,:)/numNullSamples_surrogate,'.k');
-pIntraNull = plot(rowVectorResults(1,:),rowVectorResults(3,:)/numNullSamples_surrogate,'.r');
+if numBins==1
+    plot(GOTableCombined.(theXfield),GOTableCombined.(theYfield),'.k');
+else
+    colors = BF_getcmap('spectral',numBins,1);
+    ph = cell(numBins,1);
+    for k = 1:numBins
+        ph{k} = plot(GOTableCombined.(theXfield)(binIndex{k}),GOTableCombined.(theYfield)(binIndex{k}),'.','color',colors{k});
+    end
+    legend([ph{:}],arrayfun(@(x)sprintf('Bin%u',x),1:numBins,'UniformOutput',false))
+end
 xlabel(sprintf('%s-IntraClass%s',tableNames{1},whatIntraStat));
 ylabel(sprintf('%s-propSignificantRandomPermutation',tableNames{2}));
 axis('square')
-legend('intraCorr','randomChance')
 
 %-------------------------------------------------------------------------------
-f = figure('color','w');
-hold('on');
-numBins = 10;
-BF_PlotQuantiles(rowVectorResults(1,:),rowVectorResults(2,:)/numNullSamples_surrogate,numBins,false,false,'k',false);
-BF_PlotQuantiles(rowVectorResults(1,:),rowVectorResults(3,:)/numNullSamples_surrogate,numBins,false,false,[27,158,119]/255,false);
-ylabel('Probability of p < 0.05 (random null)')
-xlabel('p-value of intra-category VE1')
+f = figure('color','w'); hold('on');
+numQuantileBins = 10;
+theColor = BF_getcmap('spectral',3,1);
+if numBins==1
+    BF_PlotQuantiles(GOTableCombined.(theXfield),GOTableCombined.(theYfield),...
+            numQuantileBins,false,false,theColor{1},false);
+else
+    for k = 1:numBins
+        BF_PlotQuantiles(GOTableCombined.(theXfield)(binIndex{k}),GOTableCombined.(theYfield)(binIndex{k}),...
+                numQuantileBins,false,false,colors{k},false);
+    end
+end
+% BF_PlotQuantiles(rowVectorResults(1,:),rowVectorResults(3,:)/numNullSamples_surrogate,numBins,false,false,[27,158,119]/255,false);
+ylabel('FPSR (random null)')
+xlabel(sprintf('intra-category %s',whatIntraStat))
 f.Position = [1000        1117         326         221];
+title(whatSpecies)
 
 %-------------------------------------------------------------------------------
 % Is intra-category correlation related to that category's null width?
