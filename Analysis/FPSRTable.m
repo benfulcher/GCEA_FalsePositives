@@ -58,7 +58,7 @@ weAreHere = strcmp(GOTerms.GOName,theCategoryName);
 display(GOTerms(weAreHere,:));
 theCategoryID = GOTerms.GOID(weAreHere);
 
-theCategoryID = 7612;
+theCategoryID = 31638;
 rowID = GOTableCombined.GOID==theCategoryID;
 
 display(GOTableCombined(rowID,:));

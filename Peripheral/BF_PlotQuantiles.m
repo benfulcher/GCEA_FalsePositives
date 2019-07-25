@@ -1,12 +1,13 @@
-function yDataCorrected = BF_PlotQuantiles(xData,yData,numThresholds,alsoScatter,makeNewFigure,customColor,doStds)
+function yDataCorrected = BF_PlotQuantiles(xData,yData,numBins,alsoScatter,makeNewFigure,customColor,doStds)
 % Plots x-y scatter, but with mean of y plotted in quantiles of x
 % Outputs yData, corrected for the quantile means
 % Ben Fulcher
 %-------------------------------------------------------------------------------
 
-if nargin < 3 || isempty(numThresholds)
-    numThresholds = 10;
+if nargin < 3 || isempty(numBins)
+    numBins = 10;
 end
+numThresholds = numBins + 1;
 if nargin < 4
     alsoScatter = false;
 end

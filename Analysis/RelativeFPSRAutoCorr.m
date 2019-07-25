@@ -1,3 +1,4 @@
+function RelativeFPSRAutoCorr()
 % Does adding spatial autocorrelation to phenotypes boost the correlations to
 % GO categories containing genes with high spatial autocorrelation?
 
@@ -34,12 +35,16 @@ for s = 1:2
     GOTableCombined.(whatSpecies{s}).meanACscore = results.meanScore(ib);
 end
 
+%-------------------------------------------------------------------------------
 f = figure('color','w'); hold('on')
-numBins = 11;
-spectralColors = BF_getcmap('spectral',3,1);
-theColors = {'k',spectralColors{1}};
+numBins = 10;
+theColors = GiveMeColors('mouseHuman');
 for s = 1:2
-    BF_PlotQuantiles(GOTableCombined.(whatSpecies{s}).meanACscore,GOTableCombined.(whatSpecies{s}).relDiffFPSR,numBins,false,false,theColors{s},false);
-    xlabel('Mean autocorrelation score')
+    BF_PlotQuantiles(GOTableCombined.(whatSpecies{s}).meanACscore,GOTableCombined.(whatSpecies{s}).relDiffFPSR,...
+                        numBins,false,false,theColors(s,:),false);
+    xlabel('Spatial autocorrelation score')
     ylabel('Relative FPSR(AC) - FPSR(random) (%)')
+end
+f.Position = [1000        1159         239         179];
+
 end

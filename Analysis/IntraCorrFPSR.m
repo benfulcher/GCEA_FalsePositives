@@ -25,18 +25,18 @@ f = figure('color','w'); hold('on');
 theXfield = 'intracorr_raw';
 theYfield = 'FPSR_random';
 numQuantileBins = 10;
-spectralColors = BF_getcmap('spectral',3,1);
-theColors = {'k',spectralColors{1}};
+theColors = GiveMeColors('mouseHuman');
 for s = 1:2
     [~,ia,ib] = intersect(results.(whatSpecies{s}).intra.GOID,results.(whatSpecies{s}).randomReal.GOID);
     GOTableCombined = results.(whatSpecies{s}).intra(ia,:);
-    GOTableCombined.FPSR_random = results.(whatSpecies{s}).randomReal.sumUnderSig(ib)/numNullSamples_surrogate;
+    GOTableCombined.FPSR_random = 100*results.(whatSpecies{s}).randomReal.sumUnderSig(ib)/numNullSamples_surrogate;
+
     BF_PlotQuantiles(GOTableCombined.(theXfield),GOTableCombined.(theYfield),...
-            numQuantileBins,false,false,theColors{s},false);
+            numQuantileBins,false,false,theColors(s,:),false);
 end
-ylabel('FPSR (random null)')
-xlabel(sprintf('intra-category %s',whatIntraStat))
-f.Position = [1000        1117         326         221];
+ylabel('FPSR-random (%)')
+xlabel(sprintf('Intra-category correlation, %s',whatIntraStat))
+f.Position = [1000        1159         239         179];
 
 
 end

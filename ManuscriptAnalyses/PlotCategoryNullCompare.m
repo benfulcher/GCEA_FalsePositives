@@ -4,11 +4,13 @@
 %-------------------------------------------------------------------------------
 % Find two good candidates:
 
-% Load VE1 scores:
+% Load intra-category correlation scores:
 whatSpecies = 'mouse';
 whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
-numNullSamples_VE1 = 20000; % (Intra_*_VE1_20000.mat)
-resultsIntra = load(sprintf('Intra_%s_%s_VE1_%u.mat',whatSpecies,whatShuffle,numNullSamples_VE1));
+whatIntraStat = 'raw';
+numNullSamples_intraCorr = 20000; % (Intra_*_*_20000.mat)
+fileNameIntra = sprintf('Intra_%s_%s_%s_%u.mat',whatSpecies,whatShuffle,whatIntraStat,numNullSamples_intraCorr);
+resultsIntra = load(fileNameIntra);
 categorySizeRange = [40,42];
 isInSizeRange = (resultsIntra.resultsTable.size >= categorySizeRange(1)) & (resultsIntra.resultsTable.size <= categorySizeRange(2))
 resultsIntraSized = resultsIntra.resultsTable(isInSizeRange,:)
@@ -16,16 +18,17 @@ resultsIntraSized = resultsIntra.resultsTable(isInSizeRange,:)
 %-------------------------------------------------------------------------------
 % Parameters:
 % whatGOIDs = [7215,32612];
-whatGOIDs = [31638,61001];
+whatGOIDs = [61001,31638];
 numNullSamples = 20000;
 whatCorr = 'Spearman';
 
 % Assign colors:
-theColors = [[32,178,170]/255;[184,134,11]/255];
+theColors = GiveMeColors('twoGOCategories');
+% theColors = [[32,178,170]/255;[184,134,11]/255];
 % [220,220,220]/255}; % [119,136,153]/255, [119,136,153]/255, [220,220,220]/255};
 
 
-%-------------------------------------------------------------------------------
+%===============================================================================
 % Plot information about a category
 categoryWhat = 2;
 params = GiveMeDefaultParams(whatSpecies);
@@ -38,7 +41,10 @@ numNullSamples_surrogate = 10000;
 FPSR_random = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
 FPSR_thisCategory = FPSR_random.sumUnderSig(FPSR_random.GOID==whatGOIDs(categoryWhat));
 FPSR_random(4285,:)
+%===============================================================================
 
+%===============================================================================
+% Plot FPSR distributions
 %-------------------------------------------------------------------------------
 categoryScores = struct();
 categoryLabels = struct();
@@ -48,18 +54,19 @@ fprintf(1,'Computing distribution of null random-map category scores for %u GO c
 [categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'randomMap',numNullSamples,false);
 
 %-------------------------------------------------------------------------------
-categoryScoresTogether = [categoryScores.spatialLag; categoryScores.randomMap];
-categoryLabelsTogether = [categoryLabels.spatialLag; categoryLabels.randomMap];
-
 % Tests of variance:
-[h,p] = vartest2(categoryScores.spatialLag{1},categoryScores.spatialLag{2})
-[h,p] = vartest2(categoryScores.randomMap{1},categoryScores.randomMap{2})
+[h,p] = vartest2(categoryScores.spatialLag{1},categoryScores.spatialLag{2});
+[h,p] = vartest2(categoryScores.randomMap{1},categoryScores.randomMap{2});
+
+%-------------------------------------------------------------------------------
+categoryScoresTogether = [categoryScores.randomMap; categoryScores.spatialLag];
+categoryLabelsTogether = [categoryLabels.randomMap; categoryLabels.spatialLag];
 
 %-------------------------------------------------------------------------------
 % Violin plots:
 f = figure('color','w');
 extraParams = struct();
-extraParams.theColors = {theColors(1,:),theColors(2,:),brighten(theColors(1,:),+0.5),brighten(theColors(2,:),+0.5)};
+extraParams.theColors = {theColors(1,:),theColors(2,:),theColors(1,:),theColors(2,:)};
 extraParams.customSpot = '';
 extraParams.offsetRange = 0.7;
 BF_JitteredParallelScatter(categoryScoresTogether,true,true,false,extraParams);
@@ -70,3 +77,5 @@ ylabel('Mean category score')
 xlabel('GO category')
 title(sprintf('%u nulls',numNullSamples))
 f.Position = [1000        1078         341         260];
+maxDev = max([abs(min([categoryScoresTogether{:}])),max([categoryScoresTogether{:}])]);
+ax.YLim = [-maxDev,maxDev];
