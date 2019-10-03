@@ -1,7 +1,7 @@
 function NullEnrichmentTogether(whatSpecies,doLog)
 
 if nargin < 1
-    whatSpecies = 'mouse';
+    whatSpecies = 'human';
 end
 if nargin < 2
     doLog = true;
@@ -26,7 +26,11 @@ sumUnderSigValues = structfun(@(x)x.sumUnderSig/numNullSamples_surrogate,nullGOT
 % Distribution of sumUnderSig:
 fields = fieldnames(nullGOTables);
 sumUnderSigCell = struct2cell(sumUnderSigValues);
-sumUnderSigCell = sumUnderSigCell([3,1,2])
+
+permutationKeep = [2,1,3];
+
+sumUnderSigCell = sumUnderSigCell(permutationKeep);
+
 % f = figure('color','w'); hold('on')
 % histogram(sumUnderSigCell{3},'normalization','probability')
 % histogram(sumUnderSigCell{1},'normalization','probability')
@@ -34,21 +38,16 @@ sumUnderSigCell = sumUnderSigCell([3,1,2])
 
 %-------------------------------------------------------------------------------
 % Figure
-
-if doLog
-    % ***As log***:
-    log10Data = cellfun(@(x)log10(x),sumUnderSigCell,'UniformOutput',false);
-    log10Data = cellfun(@(x)x(isfinite(x)),log10Data,'UniformOutput',false);
-    BF_JitteredParallelScatter(log10Data);
-else
-    % ***As linear***:
-    BF_JitteredParallelScatter(sumUnderSigCell);
-end
+extraParams = struct();
+extraParams.doLog = true;
+extraParams.customSpot = '';
+extraParams.theColors = GiveMeColors('nullModels');
+BF_JitteredParallelScatter(sumUnderSigCell,false,true,true,extraParams)
 
 ax = gca();
 ax.XTick = 1:3;
-ax.XTickLabel = fields([3,1,2]);
-ylabel('RPS (false positive rate)')
+ax.XTickLabel = fields(permutationKeep);
+ylabel('False-positive significance rate (FPSR)')
 title('Distribution over GO categories')
 f = gcf();
 f.Position = [1000        1121         273         217];

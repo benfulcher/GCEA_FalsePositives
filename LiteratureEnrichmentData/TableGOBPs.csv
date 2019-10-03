@@ -1,4 +1,4 @@
-GO Category,ID,Betzel2019_48Hz,Betzel2019_14Hz,Anderson2018-limbicn505,Anderson2019-PVALB,Anderson2019-SST,Liu2019-PLS3,Liu2019-PLS1,Wen2018,Diez2018-localDynConnMap,Diez2018-DistrConnMap,Diez2018-localDynConnMapUnbiased,Diez2018-DistrConnMapUnbiased,Ko2013-neuron,Ko2013-astrocyte,Ko2013-oligodendrocyte,Ritchie2018-T1T2pos,Ritchie2018-T1T2neg,Forest2017-blue,Forest2017-green,Forest2017-pink,Liu2017-ChronicSZ,Liu2017-Autism,Liu2017-MiddleInsularArea,Liu-bioRxiv-LeftHippocampus,Kuncheva2017-Cluster1-REVIGOTop,Kuncheva2017-Cluster2-REVIGOTop,Kuncheva2017-Cluster3-REVIGOTop-1-InTopList-2,Romme2016-top100-ConsensusPathDB,Romme2016-top540BF-PANTHER-rawP-isSig,Romme2016-top200-PANTHER (raw-p),Romme2016-top100-PANTHER (raw-p),Mills2018-BPNoDistCorr,Mills2018-DistCorr,Ji2014-primaryInjectionDriven(PID),Ji2014-allInjectionDriven(AID),Fahkry2015,Rubinov2015-S3-TopCategories,Rubinov2015-S4-bottom25perc,Richiardi2015-Panther,Tan2013-Positive100-isSig,Tan2013-Negative100-isSig,French2011-outgoing,French2011-incoming,Grothe2018-neurodegeneration-vulnerable,Romero-Garcia2019,Yao2017,Liu2019_inhib  human,Pineiro2019young_up  human,Pineiro2019young_down human,Pineiro2019old_up  human
+GO Category,ID,Betzel2019_48Hz,Betzel2019_14Hz,Anderson2018-limbicn505,Anderson2019-PVALB,Anderson2019-SST,Liu2019-PLS3,Liu2019-PLS1,Wen2018,Diez2018-localDynConnMap,Diez2018-DistrConnMap,Diez2018-localDynConnMapUnbiased,Diez2018-DistrConnMapUnbiased,Ko2013-neuron,Ko2013-astrocyte,Ko2013-oligodendrocyte,Ritchie2018-T1T2pos,Ritchie2018-T1T2neg,Forest2017-blue,Forest2017-green,Forest2017-pink,Liu2017-ChronicSZ,Liu2017-Autism,Liu2017-MiddleInsularArea,Liu-bioRxiv-LeftHippocampus,Kuncheva2017-Cluster1-REVIGOTop,Kuncheva2017-Cluster2-REVIGOTop,Kuncheva2017-Cluster3-REVIGOTop-1-InTopList-2,Romme2016-top100-ConsensusPathDB,Romme2016-top540BF-PANTHER-rawP-isSig,Romme2016-top200-PANTHER (raw-p),Romme2016-top100-PANTHER (raw-p),Mills2018-BPNoDistCorr,Mills2018-DistCorr,Ji2014-primaryInjectionDriven(PID),Ji2014-allInjectionDriven(AID),Fahkry2015,Rubinov2015-S3-TopCategories,Rubinov2015-S4-bottom25perc,Richiardi2015-Panther,Tan2013-Positive100-isSig,Tan2013-Negative100-isSig,French2011-outgoing,French2011-incoming,Grothe2018_neurodegeneration_vulnerable,Romero-Garcia2019,Yao2017,Liu2019_inhib,Pineiro2019young_up,Pineiro2019young_down,Pineiro2019old_up
 acid secretion,GO:0046717,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 activation of adenylate cyclase activity,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2sig,,,,,,,,,,,,,,
 adenylate cyclase-activating dopamine receptor signaling pathway,GO:0007191,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0031,,,,
@@ -20,10 +20,10 @@ cell migration,GO:0016477,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.06,,,,,,,0.
 cell morphogenesis,,,,,,,,,,,,,,,,,,,,,,,,,4.77E-08,,,,,,,,,,,,,,,,,,,,,,,,,,
 cell morphogenesis involved in differentiation,GO:0000904,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.05,,0.005,,,,,,
 cell morphogenesis involved in neuron differentiation,GO:0048667,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.07,,,,,,,,
-cell part morphogenesis,GO:0032990,,,2.14E-02,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.06,,,,,,,,3.38844E-06
+cell part morphogenesis,GO:0032990,,,2.14E-02,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.06,,,,,,,,3.39E-06
 cell projection,,,,,,,,,,,,,,,,,,,6.86E-12,0.636,3.83E-03,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 cell projection organization,,,,,,,,,,,,,,,,,,,9.79E-08,0.842,0.189,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-cell projection morphogenesis,GO:0048858,,,1.41E-02,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.06,,,,,,,,3.38844E-06
+cell projection morphogenesis,GO:0048858,,,1.41E-02,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.06,,,,,,,,3.39E-06
 cell-cell adhesion,GO:0098609,,,,,,,,0.010924715,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2.84E-02,,,,,,,,0.000011,,,
 cell-cell signaling,,,,,,,,,,,,,,,,,,,5.68E-07,0.0818,0.139,,1.01E-19,,,,,,1.37E-05,,,2.80E-07,,,1sig,1sig,,,,1.00E-14,,,,,,,,,,,
 cellular process,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.30E-03,,,,,,,,,,,
@@ -89,10 +89,10 @@ NAD binding,,,,,,,,,,,,,,,,,,,,,4.58E-04,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 nervous system development,GO:0007417,,,1.01E-02,,,,,,,,1.27E-04,5.02E-04,,,,,,9.09E-08,0.202,0.354,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,
 neurogenesis,,,,,,,,,,,,,,,,,,,,,,2.26E-08,5.07E-14,,8.30E-06,,,,,,,,,,,,,,,,,,,,,,,,,,0.000436516
 neurological system process,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2sig,3sig,,,,1.00E-14,,,,,,,,,,,
-neuron development,,,,,,,,,,,,,,,,,,,,,,,,,2.52E-09,,,,,,,,,,,,,,,,,,,,0.009,,,,,,6.91831E-05
+neuron development,,,,,,,,,,,,,,,,,,,,,,,,,2.52E-09,,,,,,,,,,,,,,,,,,,,0.009,,,,,,6.92E-05
 neuron differentiation,,,,,,,,,,,,,,,,,,,5.41E-05,0.2,0.665,,7.75E-13,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.000354813
 neuron projection development,GO:0031175,,,,,,,,,,,,,8.50E-08,,,,,,,,,,,9.23E-11,,,,,,,,,,,,,,,,,,4.63E-03,,,,,,,,
-neuron projection morphogenesis,GO:0048812,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.08,,,,,,,,1.58489E-05
+neuron projection morphogenesis,GO:0048812,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.08,,,,,,,,1.58E-05
 neuron-neuron synaptic transmission,GO:0007270,,,,,,,,,4.84E-04,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.0029,,,,
 neurotransmitter secretion,GO:0007269,,,,,,,,,,5.02E-06,,,,,,,,,,,,,,,,,,2.20E-03,,,,,,1sig,,2sig,,,2.71E-02,,,,,,,,,,,
 "nuclear-transcribed mRNA catabolic process, nonsense-mediated decay",GO:0000184,,,,,,,,1.37E-06,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -322,33 +322,33 @@ transmembrane receptor protein kinase activity,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 temperature homeostasis,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.000023,,,
 signal transduction,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.000036,,0.038904514,
 cofactor metabolic process,GO:0051186,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.003467369,,
-small molecule metabolic process ,GO:0044281,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.006606934,,
+small molecule metabolic process,GO:0044281,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.006606934,,
 cellular catabolic process,GO:0044248,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.009549926,,
-carboxylic acid metabolic process ,GO:0019752,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.011220185,,
-catabolic process ,GO:0009056,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.013489629,,
+carboxylic acid metabolic process,GO:0019752,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.011220185,,
+catabolic process,GO:0009056,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.013489629,,
 organonitrogen compound biosynthetic process,GO:1901566,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.015488166,,
 generation of precursor metabolites and energy,GO:0006091,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.031622777,,
 oxoacid metabolic process,GO:0043436,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.037153523,,
 organic acid metabolic process,GO:0006082,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.041686938,,
 cellular response to stress,GO:0033554,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.020892961,,
-cellular response to stimulus ,GO:0051716 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.001698244,
+cellular response to stimulus,GO:0051716 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.001698244,
 response to stimulus,GO:0050896 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.002344229,
 cell surface receptor signaling pathway,GO:0007166 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.004265795,
-positive regulation of biological process ,GO:0048518 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.009549926,
-regulation of response to stimulus ,GO:0048583 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.014454398,
+positive regulation of biological process,GO:0048518 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.009549926,
+regulation of response to stimulus,GO:0048583 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.014454398,
 response to organic substance,GO:0010033 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.015135612,
 cell motility,GO:0048870 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.019054607,
 localization of cell,GO:0051674 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.019054607,
 positive regulation of cellular process,GO:0048522 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.023442288,
 regulation of cell motility,GO:2000145 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.027542287,
 regulation of locomotion,GO:0040012 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.030902954,
-regulation of protein phosphorylation ,GO:0001932 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.031622777,
+regulation of protein phosphorylation,GO:0001932 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.031622777,
 regulation of protein kinase activity,GO:0045859 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.032359366,
 regulation of cell migration,GO:0030334 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.035481339,
-regulation of protein modification process ,GO:0031399 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.041686938,
-plasma membrane bounded cell projection morphogenesis,GO:0120039 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.2658E-06
-generation of neurons ,GO:0048699 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0738E-05
-modulation of chemical synaptic transmission ,GO:0050804 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.006309573
-regulation of trans-synaptic signaling ,GO:0099177 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.006309573
-regulation of cell communication ,GO:0010646 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.00616595
+regulation of protein modification process,GO:0031399 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.041686938,
+plasma membrane bounded cell projection morphogenesis,GO:0120039 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.27E-06
+generation of neurons,GO:0048699 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.07E-05
+modulation of chemical synaptic transmission,GO:0050804 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.006309573
+regulation of trans-synaptic signaling,GO:0099177 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.006309573
+regulation of cell communication,GO:0010646 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.00616595
 regulation of signal transduction,GO:0009966 ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0.011220185

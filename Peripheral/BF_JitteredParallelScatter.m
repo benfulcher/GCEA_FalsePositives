@@ -37,7 +37,7 @@ function [ff,xx] = BF_JitteredParallelScatter(dataCell,addMeans,doveTail,makeFig
 % ------------------------------------------------------------------------------
 
 if nargin < 2
-    addMeans = 1;
+    addMeans = true;
     % Add strip for mean of each group by default
 end
 
@@ -96,6 +96,13 @@ else
     % fprintf(1,'Using custom colors\n');
 end
 
+% Make logarithmic
+if isfield(extraParams,'doLog')
+    doLog = extraParams.doLog;
+else
+    doLog = false;
+end
+
 % ------------------------------------------------------------------------------
 
 % Reset random number generator for reproducibility:
@@ -104,7 +111,8 @@ rng('default');
 if makeFigure
     figure('color','w');
 end
-hold on; box('on');
+hold('on'); box('on');
+ax = gca();
 
 % ------------------------------------------------------------------------------
 % Add kernel distribution
@@ -113,21 +121,31 @@ if doveTail
     ff = cell(numGroups,1);
     xx = cell(numGroups,1);
     for i = 1:numGroups
-        if isempty(dataCell{i})
+        theData = dataCell{i};
+        if isempty(theData)
             continue
         end
-        if any(isnan(dataCell{i}))
+        if any(isnan(theData))
             warning('NaNs in dataCell')
         end
-        [f, x] = ksdensity(dataCell{i},'npoints',500);
-        f = f/max(f);
+        if doLog
+            % Make logarithms of positive component of the data:
+            theData = log10(theData(theData>0));
+        end
+        [f,x] = ksdensity(theData,'npoints',500);
+
         % Only keep range where data exists:
-        minKeep = max([1,find(x>=min(dataCell{i}),1,'first')]);
-        maxKeep = min([length(x),find(x>=max(dataCell{i}),1,'first')]);
-        keepR = minKeep:maxKeep;
-        % keepR = (x>=min(dataCell{i}) & x<=max(dataCell{i}));
-        x = x(keepR);
-        f = f(keepR);
+        % minKeep = max([1,find(x>=min(theData),1,'first')]);
+        % maxKeep = min([length(x),find(x>=max(theData),1,'first')]);
+        % keepR = minKeep:maxKeep;
+        keepR = (x>=min(theData) & x<=max(theData));
+        x = x(keepR); f = f(keepR);
+        f = f/max(f);
+
+        if doLog
+            x = 10.^x;
+            ax.YScale = 'log';
+        end
         plot(customOffset+i+f*offsetRange/2,x,'-','color',theColors{i},'LineWidth',2)
         plot(customOffset+i-f*offsetRange/2,x,'-','color',theColors{i},'LineWidth',2)
 
@@ -163,21 +181,25 @@ end
 % ------------------------------------------------------------------------------
 % Add strips for means and stds:
 % ------------------------------------------------------------------------------
-brightenAmount = -0.3;
-if any(cellfun(@(x)any(isnan(x)),dataCell)), warning('NaNs in data'); end
-for i = 1:numGroups
-    try
-        brightColor = brighten(theColors{i},brightenAmount);
-    catch
-        brightColor = theColors{i};
+if addMeans
+    brightenAmount = -0.3;
+    if any(cellfun(@(x)any(isnan(x)),dataCell))
+        warning('NaNs in data');
     end
+    for i = 1:numGroups
+        try
+            brightColor = brighten(theColors{i},brightenAmount);
+        catch
+            brightColor = theColors{i};
+        end
 
-    plot([customOffset + i - offsetRange/2,customOffset + i + offsetRange/2],nanmean(dataCell{i})*ones(2,1),'-',...
-                            'color',brightColor,'LineWidth',2)
-    % plot([customOffset + i - offsetRange/2,customOffset + i + offsetRange/2],(nanmean(dataCell{i})-nanstd(dataCell{i}))*ones(2,1),'--',...
-                            % 'color',brightColor,'LineWidth',2)
-    % plot([customOffset + i - offsetRange/2,customOffset + i + offsetRange/2],(nanmean(dataCell{i})+nanstd(dataCell{i}))*ones(2,1),'--',...
-                            % 'color',brightColor,'LineWidth',2)
+        plot([customOffset + i - offsetRange/2,customOffset + i + offsetRange/2],nanmean(dataCell{i})*ones(2,1),'-',...
+                                'color',brightColor,'LineWidth',2)
+        % plot([customOffset + i - offsetRange/2,customOffset + i + offsetRange/2],(nanmean(dataCell{i})-nanstd(dataCell{i}))*ones(2,1),'--',...
+                                % 'color',brightColor,'LineWidth',2)
+        % plot([customOffset + i - offsetRange/2,customOffset + i + offsetRange/2],(nanmean(dataCell{i})+nanstd(dataCell{i}))*ones(2,1),'--',...
+                                % 'color',brightColor,'LineWidth',2)
+    end
 end
 
 end

@@ -168,7 +168,6 @@ resultsTables.Fulcher2016conn = readtable('Fulcher2016_connectedUnconnected_BP_T
 resultsTables.Fulcher2016rich = readtable('Fulcher2016_richFeederPeripheral_BP_TableS5.csv');
 
 % ---Meijer:
-
 resultsTables.Meijer2019stress = ImportMeijer();
 
 %-------------------------------------------------------------------------------
@@ -185,6 +184,7 @@ for i = 1:length(allTableNames)
     isHere = strcmp(S{1},allTableNames{i});
     if ~any(isHere)
         warning('No annotation found for %s',allTableNames{i})
+        keyboard
         mouseOrHuman(i) = NaN;
     else
         mouseOrHuman(i) = S{2}(isHere);
