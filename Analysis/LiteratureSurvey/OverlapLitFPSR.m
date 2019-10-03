@@ -1,49 +1,10 @@
-
-% Whether to filter by a particular species:
+% Set parameters:
 whatSpecies = 'human';
-%-------------------------------------------------------------------------------
-
-% Load literature annotations:
-load('LiteratureEnrichmentLoaded.mat','resultsTables','mouseOrHuman');
-
-% Filter on species:
-isSpeciesOfinterest = (mouseOrHuman==whatSpecies);
-fNames = fieldnames(resultsTables);
-resultsTables = rmfield(resultsTables,fNames(~isSpeciesOfinterest));
-
-% Thresholds so that (i) only annotations with below-threshold significance are included, and
-% (ii) only studies containing such below-threshold categories are filtered
-% -> resultsTablesTh
 pValCorrThreshold = 0.05;
-resultsTablesTh = resultsTables;
-resultsTablesTh = structfun(@(x)x(x.pValCorr<=pValCorrThreshold,:),resultsTablesTh,'UniformOutput',false);
-emptyIndex = find(structfun(@(x)(height(x)==0),resultsTablesTh));
-numEmpty = length(emptyIndex);
-allFields = fieldnames(resultsTablesTh);
-emptyFields = allFields(emptyIndex);
-for i = 1:numEmpty
-    resultsTablesTh = rmfield(resultsTablesTh,emptyFields{i});
-end
 
-% Convert to a table of GO categories, annotated by a list of studies
-allFlaggedGOIDs = structfun(@(x)x.GOID,resultsTablesTh,'UniformOutput',false);
-allFlaggedGOIDs = struct2cell(allFlaggedGOIDs);
-allFlaggedGOIDs = unique(vertcat(allFlaggedGOIDs{:}));
-
-% Now form a table:
-% LiteratureGOTable = table();
-numGOIDs = length(allFlaggedGOIDs);
-studyList = cell(numGOIDs,1);
-allFields = fieldnames(resultsTablesTh);
-for i = 1:numGOIDs
-    isListed = structfun(@(x)ismember(allFlaggedGOIDs(i),x.GOID),resultsTablesTh);
-    studyList{i} = allFields(isListed);
-end
-GOID = allFlaggedGOIDs;
-LiteratureGOTable = table(GOID,studyList);
-numStudies = cellfun(@length,studyList);
-[~,ix] = sort(numStudies,'descend');
-LiteratureGOTable = LiteratureGOTable(ix,:);
+%-------------------------------------------------------------------------------
+% Retrieve information about how literature results are distributed across categories:
+LitTable = MakeLiteratureTable(whatSpecies,pValCorrThreshold);
 
 %-------------------------------------------------------------------------------
 % Now we'll get the FPSR data:
@@ -51,13 +12,13 @@ numNullSamples_surrogate = 10000;
 GOTable_FPSR = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
 
 % If at least X studies have quoted it at pCorr < 0.05, then we label it as a "reported category":
-GOID_reported_1 = GOID(numStudies==1);
-GOID_reported_2 = GOID(numStudies==2);
-GOID_reported_3plus = GOID(numStudies>=3);
-GOID_reported_2plus = GOID(numStudies>=2);
+GOID_reported_1 = LitTable.GOID(LitTable.numStudies==1);
+GOID_reported_2 = LitTable.GOID(LitTable.numStudies==2);
+GOID_reported_3plus = LitTable.GOID(LitTable.numStudies>=3);
+GOID_reported_2plus = LitTable.GOID(LitTable.numStudies>=2);
 
 % Split into reported and unreported categories:
-GOTable_notReported = GOTable_FPSR(~ismember(GOTable_FPSR.GOID,GOID),:);
+GOTable_notReported = GOTable_FPSR(~ismember(GOTable_FPSR.GOID,LitTable.GOID),:);
 GOTable_reported1 = GOTable_FPSR(ismember(GOTable_FPSR.GOID,GOID_reported_1),:);
 GOTable_reported2 = GOTable_FPSR(ismember(GOTable_FPSR.GOID,GOID_reported_2),:);
 GOTable_reported_3plus = GOTable_FPSR(ismember(GOTable_FPSR.GOID,GOID_reported_3plus),:);

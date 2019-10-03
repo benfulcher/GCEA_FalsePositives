@@ -1,6 +1,5 @@
 % IntraCorrTable
 
-
 whatSpecies = {'mouse','human'};
 whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 whatIntraStat = 'raw';
