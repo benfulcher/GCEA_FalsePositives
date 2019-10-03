@@ -7,7 +7,6 @@ end
 %-------------------------------------------------------------------------------
 % Tell them what it is:
 params = GiveMeDefaultParams('mouse');
-params.e.
 GOTable = GiveMeGOData(params);
 % Get the category of interest:
 whatCategory = find(GOTable.GOID==whatGOID);

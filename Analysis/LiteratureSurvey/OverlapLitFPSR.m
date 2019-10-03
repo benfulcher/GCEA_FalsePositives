@@ -46,7 +46,7 @@ numStudies = cellfun(@length,studyList);
 LiteratureGOTable = LiteratureGOTable(ix,:);
 
 %-------------------------------------------------------------------------------
-% Now we'll get the mouse FPSR data:
+% Now we'll get the FPSR data:
 numNullSamples_surrogate = 10000;
 GOTable_FPSR = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
 
