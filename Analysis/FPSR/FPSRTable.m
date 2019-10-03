@@ -1,6 +1,4 @@
 
-
-
 %-------------------------------------------------------------------------------
 % DATA LOADING (DO ONCE)
 %-------------------------------------------------------------------------------
@@ -40,6 +38,7 @@ myScore = GOTableCombined.sumUnderSigMouse + GOTableCombined.sumUnderSigMouseAC 
 [~,ix] = sort(myScore,'descend');
 GOTableCombined = GOTableCombined(ix,:);
 display(GOTableCombined(1:100,:))
+
 
 %===============================================================================
 % Look up a specific category:

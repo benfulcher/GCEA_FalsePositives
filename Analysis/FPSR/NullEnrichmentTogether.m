@@ -13,10 +13,10 @@ numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
 %-------------------------------------------------------------------------------
 
 nullGOTables = struct();
-nullGOTables.spatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
+nullGOTables.SBPrandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
 % nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','coordinatedSpatialShuffle');
-nullGOTables.indSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
-nullGOTables.spatialLag = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'spatialLag','');
+nullGOTables.reference = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
+nullGOTables.SBPspatial = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'spatialLag','');
 
 %-------------------------------------------------------------------------------
 % Extract sum under significant values:
