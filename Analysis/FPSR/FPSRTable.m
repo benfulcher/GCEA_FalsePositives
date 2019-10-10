@@ -2,13 +2,22 @@
 %-------------------------------------------------------------------------------
 % DATA LOADING (DO ONCE)
 %-------------------------------------------------------------------------------
+numNullSamples = 10000;
 % Load in the null data:
-GOTableNullMouseRandom = SurrogateEnrichmentProcess('mouse',10000,'randomUniform','');
-GOTableNullMouseAC = SurrogateEnrichmentProcess('mouse',10000,'spatialLag','');
-GOTableNullHuman = SurrogateEnrichmentProcess('human',10000,'randomUniform','');
-GOTableNullHumanAC = SurrogateEnrichmentProcess('human',10000,'spatialLag','');
+GOTableNullMouseRandom = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','');
+GOTableNullMouseAC = SurrogateEnrichmentProcess('mouse',numNullSamples,'spatialLag','');
+GOTableNullHuman = SurrogateEnrichmentProcess('human',numNullSamples,'randomUniform','');
+GOTableNullHumanAC = SurrogateEnrichmentProcess('human',numNullSamples,'spatialLag','');
+% Now the reference data:
+GOTableNullMouseRef = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','independentSpatialShuffle');
+GOTableNullHumanRef = SurrogateEnrichmentProcess('human',numNullSamples,'randomUniform','independentSpatialShuffle');
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
+% Some simple stats:
+
+propMouseRef0 = mean(GOTableNullMouseRef.sumUnderSig==0);
+propHumanRef0 = mean(GOTableNullHumanRef.sumUnderSig==0);
+
 
 %-------------------------------------------------------------------------------
 % COMBINE:
@@ -29,6 +38,14 @@ GOTableCombined.sumUnderSigHuman = GOTableNullHuman.sumUnderSig(ib);
 [~,ia,ib] = intersect(GOTableCombined.GOID,GOTableNullHumanAC.GOID);
 GOTableCombined = GOTableCombined(ia,:);
 GOTableCombined.sumUnderSigHumanAC = GOTableNullHumanAC.sumUnderSig(ib);
+% Add mouse reference:
+[~,ia,ib] = intersect(GOTableCombined.GOID,GOTableNullMouseRef.GOID);
+GOTableCombined = GOTableCombined(ia,:);
+GOTableCombined.refMouse = GOTableNullMouseRef.sumUnderSig(ib);
+% Add human reference:
+[~,ia,ib] = intersect(GOTableCombined.GOID,GOTableNullHumanRef.GOID);
+GOTableCombined = GOTableCombined(ia,:);
+GOTableCombined.refHuman = GOTableNullHumanRef.sumUnderSig(ib);
 
 %-------------------------------------------------------------------------------
 % Sort
@@ -39,6 +56,15 @@ myScore = GOTableCombined.sumUnderSigMouse + GOTableCombined.sumUnderSigMouseAC 
 GOTableCombined = GOTableCombined(ix,:);
 display(GOTableCombined(1:100,:))
 
+
+%-------------------------------------------------------------------------------
+% Exhibited an increase:
+didIncreaseMouseSBPrand = mean(GOTableCombined.sumUnderSigMouse>GOTableCombined.refMouse);
+didIncreaseHumanSBPrand = mean(GOTableCombined.sumUnderSigHuman>GOTableCombined.refHuman);
+% foldChangeMouse = GOTableCombined.sumUnderSigMouseAC./GOTableCombined.refMouse;
+
+meanIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC-GOTableCombined.sumUnderSigMouse)/10000;
+meanIncreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC-GOTableCombined.sumUnderSigHuman)/10000;
 
 %===============================================================================
 % Look up a specific category:

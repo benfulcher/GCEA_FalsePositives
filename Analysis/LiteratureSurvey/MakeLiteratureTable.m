@@ -19,6 +19,8 @@ end
 % Load literature annotations:
 load('LiteratureEnrichmentLoaded.mat','resultsTables','mouseOrHuman');
 
+% Give some basic info
+
 % Filter on species:
 isSpeciesOfinterest = (mouseOrHuman==whatSpecies);
 fNames = fieldnames(resultsTables);

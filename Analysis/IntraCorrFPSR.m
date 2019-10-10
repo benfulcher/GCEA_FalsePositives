@@ -38,5 +38,4 @@ ylabel('FPSR-random (%)')
 xlabel(sprintf('Intra-category correlation, %s',whatIntraStat))
 f.Position = [1000        1159         239         179];
 
-
 end

@@ -12,8 +12,8 @@ results = struct();
 %-------------------------------------------------------------------------------
 % Mouse brain
 params = GiveMeDefaultParams('mouse','all');
-params.g.normalizationGene = 'zscore';
-params.g.normalizationRegion = 'zscore';
+params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
+params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
 results.mouseBrain = geneEnrichmentDistance(params);
 
 % Mouse cortex:
@@ -24,8 +24,8 @@ results.mouseCtx = geneEnrichmentDistance(params);
 
 % Human
 params = GiveMeDefaultParams('human','cortex');
-params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
+params.g.normalizationGene = 'zscore';
+params.g.normalizationRegion = 'zscore';
 results.human = geneEnrichmentDistance(params);
 
 % Mouse non-cortex:
@@ -55,6 +55,26 @@ meanScoreSum = newTable.meanScoreMouseBrain + newTable.meanScoreMouseCtx + newTa
 [~,ix] = sort(meanScoreSum,'descend');
 newTable = newTable(ix,:);
 
+%-------------------------------------------------------------------------------
+% Save it to csv file:
+IDLabel = newTable.GOIDlabel;
+CategoryName = newTable.GOName;
+ID = newTable.GOID;
+MeanSpatialAutocorrelationScore_MouseBrain = newTable.meanScoreMouseBrain;
+MeanSpatialAutocorrelationScore_MouseCortex = newTable.meanScoreMouseCtx;
+MeanSpatialAutocorrelationScore_Human = newTable.meanScoreHuman;
+FDRpVal_MouseBrain = newTable.pValZCorrMouseBrain;
+FDRpVal_MouseCortex = newTable.pValZCorrMouseCtx;
+FDRpVal_Human = newTable.pValZCorrHuman;
+T = table(CategoryName,IDLabel,ID,MeanSpatialAutocorrelationScore_MouseBrain,...
+                        MeanSpatialAutocorrelationScore_MouseCortex,...
+                        MeanSpatialAutocorrelationScore_Human,...
+                        FDRpVal_MouseBrain,...
+                        FDRpVal_MouseCortex,...
+                        FDRpVal_Human);
+fileOut = fullfile('SupplementaryTables','SpatialAutocorrelationScores.csv');
+writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
+fprintf(1,'Saved spatial autocorrelation scores to %s\n',fileOut);
 
 
 %-------------------------------------------------------------------------------

@@ -32,4 +32,14 @@ GOTableCombined = GOTableCombined(ix,:);
 
 display(GOTableCombined(1:50,:))
 
-% Output to table
+%-------------------------------------------------------------------------------
+% Output to csv for paper:
+IDLabel = GOTableCombined.GOIDlabel;
+CategoryName = GOTableCombined.GOName;
+ID = GOTableCombined.GOID;
+WithinCategoryCoexpMouse = GOTableCombined.intracorr_raw;
+WithinCategoryCoexpHuman = GOTableCombined.intracorr_raw_human;
+T = table(CategoryName,IDLabel,ID,WithinCategoryCoexpMouse,WithinCategoryCoexpHuman);
+fileOut = fullfile('SupplementaryTables','WithinCategoryCoexp.csv');
+writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
+fprintf(1,'Saved within-category coexpression results to %s\n',fileOut);
