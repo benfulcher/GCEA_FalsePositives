@@ -1,11 +1,13 @@
 function [k,structInfo] = ComputeDegree(params,doBinarize)
-
+% Compute the degree across areas of a given brain parcellation
+%-------------------------------------------------------------------------------
 if nargin < 1
     params = GiveMeDefaultParams(params);
 end
 if nargin < 2
     doBinarize = true;
 end
+
 %-------------------------------------------------------------------------------
 % Compute the binary degree for each brain region:
 [A_bin,regionAcronyms,adjPVals] = GiveMeAdj(params.c.connectomeSource,...

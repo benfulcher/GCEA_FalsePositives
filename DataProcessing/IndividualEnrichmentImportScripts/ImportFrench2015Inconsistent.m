@@ -99,3 +99,5 @@ ResultsTable.GeneMembers = rawStringColumns(:, 3);
 GOID = ResultsTable.ID;
 pValCorr = ResultsTable.CorrectedPvalue;
 FilteredTable = table(GOID,pValCorr);
+
+end

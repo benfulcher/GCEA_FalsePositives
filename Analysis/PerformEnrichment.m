@@ -66,7 +66,8 @@ numCategories = height(GOTablePhenotype);
 %-------------------------------------------------------------------------------
 % Estimate p-values:
 %-------------------------------------------------------------------------------
-GOTablePhenotype = EstimatePVals(GOTableNull.categoryScores,[GOTablePhenotype.categoryScores{:}],'right',GOTablePhenotype);
+GOTablePhenotype = EstimatePVals(GOTableNull.categoryScores,...
+                        [GOTablePhenotype.categoryScores{:}],'right',GOTablePhenotype);
 GOTablePhenotype = sortrows(GOTablePhenotype,'pValZ','ascend');
 
 numSig = sum(GOTablePhenotype.pValZCorr < params.e.sigThresh);

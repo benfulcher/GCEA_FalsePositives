@@ -9,27 +9,37 @@ if nargin < 2
 end
 corrType = 'Spearman';
 %-------------------------------------------------------------------------------
+fileNameAnalysis = fullfile('DataOutputs',sprintf('CaseStudyDegree_%s_%s.mat',whatSpecies,structFilter));
 
-% Set general parameters common to all analyses:
-params = GiveMeDefaultParams(whatSpecies,structFilter);
+% Load existing results, or recompute
+if exist(fileNameAnalysis,'file')
+    load(fileNameAnalysis)
+else
+    % Set general parameters common to all analyses:
+    params = GiveMeDefaultParams(whatSpecies,structFilter);
 
-%-------------------------------------------------------------------------------
-% Compute results:
-%-------------------------------------------------------------------------------
-resultTablesDegree = struct();
-% (i) random-gene null:
-resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
-% (ii) random phenotype null:
-resultTablesDegree.randomMap = PerformEnrichment(params,'degree','randomMap');
-% (iii) spatial lag null:
-resultTablesDegree.spatialLag = PerformEnrichment(params,'degree','spatialLag');
+    %-------------------------------------------------------------------------------
+    % Compute results:
+    %-------------------------------------------------------------------------------
+    resultTablesDegree = struct();
+    % (i) random-gene null:
+    resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
+    % (ii) random phenotype null:
+    resultTablesDegree.randomMap = PerformEnrichment(params,'degree','randomMap');
+    % (iii) spatial lag null:
+    resultTablesDegree.spatialLag = PerformEnrichment(params,'degree','spatialLag');
 
-% List significant categories under each null:
-whatPField = 'pValZCorr';
-countMe = @(x)sum(resultTablesDegree.(x).(whatPField) < params.e.sigThresh);
-fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('randomGeneNull'),whatPField);
-fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('randomMap'),whatPField);
-fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('spatialLag'),whatPField);
+    % List significant categories under each null:
+    whatPField = 'pValZCorr';
+    countMe = @(x)sum(resultTablesDegree.(x).(whatPField) < params.e.sigThresh);
+    fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('randomGeneNull'),whatPField);
+    fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('randomMap'),whatPField);
+    fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('spatialLag'),whatPField);
+
+    % Save:
+    save(fileNameAnalysis,'resultTablesDegree','params','corrType');
+    fprintf(1,'Saved results to %s\n',fileNameAnalysis);
+end
 
 %-------------------------------------------------------------------------------
 % Assemble a joint table:
@@ -50,6 +60,22 @@ meanScoreSum = newTable.pValZCorrRandomGene + newTable.pValZCorrRandomMap;
 newTable = newTable(ix,:);
 
 %-------------------------------------------------------------------------------
+% Save out to csv for paper:
+
+IDLabel = newTable.GOIDlabel;
+CategoryName = newTable.GOName;
+ID = newTable.GOID;
+FDRpValue_randomGene = newTable.pValZCorrRandomGene;
+FDRpValue_SBPrandom = newTable.pValZCorrRandomMap;
+FDRpValue_SBPspatial = newTable.pValZCorrSpatialLag;
+
+T = table(CategoryName,IDLabel,ID,FDRpValue_randomGene,FDRpValue_SBPrandom,...
+                    FDRpValue_SBPspatial);
+fileOut = fullfile('SupplementaryTables',sprintf('EnrichmentThreeWays_%s_%s.csv',whatSpecies,structFilter));
+writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
+fprintf(1,'Saved all FPSR results to %s\n',fileOut);
+
+%-------------------------------------------------------------------------------
 % Extra analysis-specific analyses
 %-------------------------------------------------------------------------------
 switch structFilter
@@ -64,7 +90,7 @@ case 'all'
     ylabel('GO category score (-log10 p-value ranksum test isocortex)')
 
     % Does degree differ cortical/non-cortical?
-    [k,structInfo] = ComputeDegree(params.humanOrMouse,true);
+    [k,structInfo] = ComputeDegree(params,true);
     kCortex = k(strcmp(structInfo.divisionLabel,'Isocortex'));
     kNotCotex = k(~strcmp(structInfo.divisionLabel,'Isocortex'));
     fprintf(1,'Cortex: <k> = %.2f, s_k = %.2f\n',mean(kCortex),std(kCortex));

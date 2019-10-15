@@ -181,4 +181,18 @@ numSig = sum(GOTable.pValPermCorr < params.e.sigThresh);
 fprintf(1,'%u significant categories at pPerm_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
 
+%-------------------------------------------------------------------------------
+% Output csv for the isocortex results:
+if strcmp(enrichWhat,'isocortex')
+    IDLabel = GOTable.GOIDlabel;
+    CategoryName = GOTable.GOName;
+    ID = GOTable.GOID;
+    MeanNLog10RankSumPValue = GOTable.meanScore;
+    GSEA_normApprox_pFDR = GOTable.pValZCorr;
+    T = table(CategoryName,IDLabel,ID,MeanNLog10RankSumPValue,GSEA_normApprox_pFDR);
+    fileOut = fullfile('SupplementaryTables','MouseIsocortexRanksumGSEA.csv');
+    writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
+    fprintf(1,'Saved isocortex GSEA results to %s\n',fileOut);
+end
+
 end

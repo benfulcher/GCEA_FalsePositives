@@ -1,4 +1,4 @@
-function FilteredTable = ImportTan2013()
+function filteredTable = ImportTan2013()
 %% Import data from text file.
 % Script for importing data from the following text file:
 %
@@ -50,20 +50,19 @@ fclose(fileID);
 % script.
 
 %% Create output variable
-ResultsTable = table(dataArray{1:end-1}, 'VariableNames', {'Category','Term','Count','VarName4','PValue','Genes','ListTotal','PopHits','PopTotal','FoldEnrichment','Bonferroni','Benjamini','FDR'});
+resultsTable = table(dataArray{1:end-1}, 'VariableNames', {'Category','Term','Count','VarName4','PValue','Genes','ListTotal','PopHits','PopTotal','FoldEnrichment','Bonferroni','Benjamini','FDR'});
 
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 % Just take BPs:
-isBP = ResultsTable.Category=='GOTERM_BP_FAT';
+isBP = resultsTable.Category=='GOTERM_BP_FAT';
 fprintf(1,'Filtering to %u GO-BP results\n',sum(isBP));
-ResultsTable = ResultsTable(isBP,:);
+resultsTable = resultsTable(isBP,:);
 
 % Now just take the necessary columns
-pValCorr = ResultsTable.Benjamini;
+pValCorr = resultsTable.Benjamini;
 GOtoNumber = @(x)str2num(x(4:10));
-GOID = cellfun(GOtoNumber,ResultsTable.Term);
-FilteredTable = sortrows(table(GOID,pValCorr),'pValCorr');
-
+GOID = cellfun(GOtoNumber,resultsTable.Term);
+filteredTable = sortrows(table(GOID,pValCorr),'pValCorr');
 
 end
