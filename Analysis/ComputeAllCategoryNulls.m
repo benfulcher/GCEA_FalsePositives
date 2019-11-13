@@ -1,5 +1,5 @@
 function GOTable = ComputeAllCategoryNulls(params,numNullSamples,whatNullType,whatCorr,aggregateHow,saveOut,beVerbose)
-% Computes and saves null distribution for all GO categories
+% Computes null distribution for all GO categories
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------

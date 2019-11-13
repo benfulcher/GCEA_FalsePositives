@@ -47,7 +47,8 @@ end
 %-------------------------------------------------------------------------------
 switch myPhenotype
 case 'degree'
-    myPhenotype = ComputeDegree(params,'binary');
+    doBinarize = true;
+    myPhenotype = ComputeDegree(params,doBinarize);
 otherwise
     error('Unknown phenotype type ''%s''',myPhenotype);
 end

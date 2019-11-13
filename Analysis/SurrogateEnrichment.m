@@ -65,7 +65,7 @@ for i = 1:numMaps
     for j = 1:numGenesReal
         geneScores(j) = corr(map_i,geneDataReal(:,j),'type','Spearman','rows','pairwise');
         if isnan(geneScores(j))
-            keyboard
+            error('Error computing gene score for map %u and gene %u',i,j);
         end
     end
 
@@ -76,8 +76,10 @@ for i = 1:numMaps
     if ~(ia==1:height(GOTableGeneric))
         error('Could not map to generic table');
     end
+    % These stored p-values are NOT FDR-corrected:
     surrogatePVals(:,i) = GOTable_i.pVal(ib);
-    % List GO categories with significant p-values:
+
+    % List GO categories with significant (corrected) p-values:
     numSig = sum(GOTable_i.pValCorr < params.e.sigThresh);
     fprintf(1,'Iteration %u/%u (%s-%s): %u GO categories have p_corr < %.2f\n',...
                 i,numMaps,whatSpecies,whatSurrogate,numSig,params.e.sigThresh);
@@ -86,7 +88,8 @@ end
 
 %-------------------------------------------------------------------------------
 % Save out
-fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,whatSurrogate,customSurrogate);
+fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,...
+                                                whatSurrogate,customSurrogate);
 fileNameOut = fullfile('DataOutputs',fileNameOut);
 save(fileNameOut,'GOTableGeneric','surrogatePVals','-v7.3');
 fprintf(1,'Results of %u iterations saved to %s\n',numMaps,fileNameOut);
