@@ -6,3 +6,7 @@
 *DistMat.csv
 MGI_IDs.csv
 .DS_Store
+.dropbox
+*.csv
+*.zip
+*.xlsx
