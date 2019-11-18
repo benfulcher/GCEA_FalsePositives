@@ -30,4 +30,4 @@ env | grep SLURM
 
 # Launch the Matlab job
 # (iv) whole-brain randomMap:
-matlab -nodesktop -r "startup;parpool('local',12);ComputeAllCategoryNulls('mouse',20000,'randomMap','Spearman','mean'); exit"
+matlab -nodesktop -r "startup;parpool('local',12); ComputeAllCategoryNulls('mouse',[],'randomMap','Spearman','mean'); exit"

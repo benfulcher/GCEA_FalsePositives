@@ -31,4 +31,4 @@ env | grep SLURM
 # Launch the Matlab job
 
 # (iii) whole-brain spatial lag:
-matlab -nodesktop -r "startup;parpool('local',12);ComputeAllCategoryNulls('mouse',20000,'spatialLag','Spearman','mean'); exit"
+matlab -nodesktop -r "startup;parpool('local',12);ComputeAllCategoryNulls('mouse',[],'spatialLag','Spearman','mean'); exit"

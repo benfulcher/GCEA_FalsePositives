@@ -29,4 +29,4 @@ hostname
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); ComputeAllCategoryNulls('human',20000,'spatialLag','Spearman','mean'); exit"
+matlab -nodesktop -r "startup; parpool('local',12); ComputeAllCategoryNulls('human',[],'spatialLag','Spearman','mean'); exit"

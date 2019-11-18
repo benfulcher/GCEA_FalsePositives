@@ -29,5 +29,5 @@ hostname
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); SurrogateEnrichment('human',10000,'randomUniform','coordinatedSpatialShuffle');
+matlab -nodesktop -r "startup;parpool('local',12); SurrogateEnrichment('human',[],'randomUniform','coordinatedSpatialShuffle');
 exit"

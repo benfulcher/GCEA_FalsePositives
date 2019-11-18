@@ -28,5 +28,8 @@ hostname
 # Show what SLURM ennvironment variables our environment has
 env | grep SLURM
 
+# Move back into the main directory:
+cd ../
+
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); ComputeAllCategoryNulls('human',20000,'randomMap','Spearman','mean'); exit"
+matlab -nodesktop -r "startup; parpool('local',12); ComputeAllCategoryNulls('human',[],'randomMap','Spearman','mean'); exit"

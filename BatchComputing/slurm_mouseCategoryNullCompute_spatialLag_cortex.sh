@@ -30,4 +30,4 @@ env | grep SLURM
 
 # Launch the Matlab job
 # (i) cortical areas, spatial lag:
-matlab -nodesktop -r "startup;parpool('local',12);params=GiveMeDefaultParams('mouse');params.g.structFilter='cortex';ComputeAllCategoryNulls(params,20000,'spatialLag','Spearman','mean');exit"
+matlab -nodesktop -r "startup;parpool('local',12);params=GiveMeDefaultParams('mouse','cortex');ComputeAllCategoryNulls(params,[],'spatialLag','Spearman','mean');exit"

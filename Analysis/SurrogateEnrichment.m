@@ -5,8 +5,9 @@ function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate,customSurrogate)
 if nargin < 1
     whatSpecies = 'mouse';
 end
-if nargin < 2
-    numMaps = 1000; % number of null maps to test
+params = GiveMeDefaultParams(whatSpecies);
+if nargin < 2 || isempty(numMaps)
+    numMaps = params.nulls.numNullsFPSR; % number of null maps to test against
 end
 if nargin < 3
     whatSurrogate = 'spatialLag';
@@ -18,7 +19,6 @@ end
 
 %-------------------------------------------------------------------------------
 % Get real data:
-params = GiveMeDefaultParams(whatSpecies);
 [geneDataReal,geneInfoReal,structInfoReal] = LoadMeG(params.g);
 numGenes = height(geneInfoReal);
 numAreas = height(structInfoReal);
@@ -32,7 +32,7 @@ if numMaps > size(geneDataNull,2)
     error('There aren''t enough null maps to compare against...');
 end
 if size(geneDataNull,1)~=numAreas
-    error('Different parcellation???')
+    error('Size not matching---different parcellation???')
 end
 
 %-------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ for i = 1:numMaps
 
     % Store random-gene enrichment results:
     GOTable_i = SingleEnrichment(geneScores,geneInfoReal.entrez_id,params.e);
-    % Map to the generic table:
+    % Map to a generic GO table:
     [~,ia,ib] = intersect(GOTableGeneric.GOID,GOTable_i.GOID,'stable');
     if ~(ia==1:height(GOTableGeneric))
         error('Could not map to generic table');

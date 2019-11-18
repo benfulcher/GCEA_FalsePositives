@@ -30,4 +30,4 @@ env | grep SLURM
 
 # Launch the Matlab job
 # (ii) cortical areas, random map:
-matlab -nodesktop -r "startup;parpool('local',12);params=GiveMeDefaultParams('mouse');params.g.structFilter='cortex';ComputeAllCategoryNulls(params,20000,'randomMap','Spearman','mean'); exit"
+matlab -nodesktop -r "startup;parpool('local',12);params=GiveMeDefaultParams('mouse','cortex');ComputeAllCategoryNulls(params,[],'randomMap','Spearman','mean'); exit"

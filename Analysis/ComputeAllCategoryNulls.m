@@ -11,8 +11,8 @@ if ischar(params)
     params = GiveMeDefaultParams(params);
 end
 whatSpecies = params.g.humanOrMouse;
-if nargin < 2
-    numNullSamples = 1000;
+if nargin < 2 || isempty(numNullSamples)
+    numNullSamples = params.nulls.numNullsSurrogates;
 end
 if nargin < 3
     whatNullType = 'randomMap';
@@ -57,14 +57,29 @@ if ischar(whatNullType)
         case 'mouse'
             if strcmp(params.g.structFilter,'cortex')
                 fprintf(1,'Spatial maps for mouse cortex\n');
-                dataFileSurrogate = 'mouseCortexSurrogate_N20000_rho8_d040.csv';
+                switch numNullSamples
+                case 20000
+                    dataFileSurrogate = 'mouseCortexSurrogate_N20000_rho8_d040.csv';
+                case 40000
+                    dataFileSurrogate = 'mouseCortexSurrogate_N40000_rho8_d0270.csv';
+                end
             else
                 fprintf(1,'Spatial maps for mouse whole brain\n');
-                dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
+                switch numNullSamples
+                case 20000
+                    dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
+                case 40000
+                    dataFileSurrogate = 'mouseSurrogate_N40000_rho8_d078.csv';
+                end
             end
         case 'human'
             fprintf(1,'Spatial maps for human cortex\n');
-            dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
+            switch numNullSamples
+            case 20000
+                dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
+            case 40000
+                dataFileSurrogate = 'humanSurrogate_N40000_rho8_d03500.csv';
+            end
         end
         nullMaps = dlmread(dataFileSurrogate,',',1,1);
     otherwise

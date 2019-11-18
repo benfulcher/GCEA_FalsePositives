@@ -98,6 +98,12 @@ params.e.sizeFix = []; % set the number of annotations to all categories to be a
                        % (mainly useful for )
 
 %-------------------------------------------------------------------------------
+% Properties of nulls
+%-------------------------------------------------------------------------------
+params.nulls.numNullsSurrogates = 40000;
+params.nulls.numNullsFPSR = 10000;
+
+%-------------------------------------------------------------------------------
 % Computing GCC scores
 %-------------------------------------------------------------------------------
 params.gcc = struct();
