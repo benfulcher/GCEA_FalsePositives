@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name humanSpatialLag
+#SBATCH --job-name FPSR_humanSpatialLag
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
@@ -10,7 +10,7 @@
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=12000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=60:00:00
+#SBATCH --time=120:00:00
 # Email user if job fails or ends
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -29,4 +29,4 @@ hostname
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); SurrogateEnrichment('human',[],'spatialLag',''); exit"
+matlab -nodesktop -r "startup; parpool('local',12); SurrogateEnrichment('human',[],'spatialLag',''); exit"
