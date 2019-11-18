@@ -1,9 +1,11 @@
 function VisualizeSurrogateMaps(whatSpecies)
+% Visualizations of phenotype maps in space, when d0 is varying across a range
+%-------------------------------------------------------------------------------
 
 if nargin < 1
     whatSpecies = 'mouse';
 end
-
+%-------------------------------------------------------------------------------
 
 switch whatSpecies
 case 'human'
@@ -25,16 +27,18 @@ if any(isBadMap)
     maps = maps(~isBadMap,:);
     d0 = d0(~isBadMap);
     fprintf(1,'Removed %u bad map\n',sum(isBadMap));
+else
+    fprintf(1,'All good maps!\n');
 end
 
 % Compute 2-d projection of data:
 coOrdsXY = mdscale(distMat,2);
 
 % Plot each surrogate spatial map:
-numMaps = size(maps,1);
+numMaps = min(size(maps,2),10);
 for j = 1:numMaps
     subplot(2,ceil(numMaps/2),j)
-    mapNorm = zscore(maps(j,:));
+    mapNorm = zscore(maps(:,j));
     scatter(coOrdsXY(:,1),coOrdsXY(:,2),25,mapNorm,'filled')
     colormap([flipud(BF_getcmap('blues',9));1,1,1;BF_getcmap('reds',9)])
     xlabel('spatialAxis1')
