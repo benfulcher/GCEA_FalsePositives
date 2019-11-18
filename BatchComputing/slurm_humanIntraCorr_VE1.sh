@@ -22,12 +22,13 @@
 module purge
 module load matlab/r2018a
 
-# Show the host on which the job ran
+# Show the host on which the job ran and return to home repository directory
 hostname
+cd ../
 
 # Show what SLURM ennvironment variables our environment has
 env | grep SLURM
 
 # Launch the Matlab job
 # matlab -nodesktop -r "startup;parpool('local',12); IntraCorrelationByCategory('human','independentSpatialShuffle',20000,'VE1',true); exit"
-matlab -nodesktop -r "startup;parpool('local',12); IntraCorrelationByCategory('human','geneShuffle',[],'VE1',true); exit"
+matlab -nodesktop -r "startup; parpool('local',12); IntraCorrelationByCategory('human','geneShuffle',[],'VE1',true); exit"

@@ -22,12 +22,12 @@
 module purge
 module load matlab/r2018a
 
-# Show the host on which the job ran
+# Show the host on which the job ran and return to home repository directory
 hostname
+cd ../
 
 # Show what SLURM ennvironment variables our environment has
 env | grep SLURM
 
 # Launch the Matlab job
-# Whole-brain randomMap:
 matlab -nodesktop -r "startup;parpool('local',12); ComputeAllCategoryNulls('mouse',[],'randomMap','Spearman','mean'); exit"
