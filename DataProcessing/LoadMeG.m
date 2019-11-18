@@ -75,24 +75,16 @@ case {'surrogate-mouse','surrogate-human'}
         % Get the pre-computed surrogate data:
         switch gParam.humanOrMouse
         case 'mouse'
-            dataFileSurrogate = 'mouseSurrogate_N20000_rho8_d040.csv';
+            dataFileSurrogate = 'mouseSurrogate_N40000_rho8_d078.csv';
         case 'human'
-            dataFileSurrogate = 'humanSurrogate_N20000_rho8_d02000.csv';
+            dataFileSurrogate = 'humanSurrogate_N40000_rho8_d03500.csv';
         end
         % Surrogate maps pre-generated using the spatial lag model:
         fprintf(1,'Surrogate brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
         geneData = dlmread(dataFileSurrogate,',',1,1);
         % Reshape to match any filtering applied to the loaded data:
         if size(geneData,1) > size(geneDataReal,1)
-            % fprintf(1,'Filtering of structures on data quality has happened\n');
-            % fprintf(1,'Filtering our spatial maps accordingly\n');
-            % % First get unfiletered version:
-            % gParam.minGoodPropArea = 1;
-            % [~,~,structInfoFull] = LoadMeG(gParam);
-            % % Match:
-            % [~,ia,ib] = intersect(structInfo.acronym,structInfoFull.acronym,'stable');
-            % keyboard
-            warning('~~~data do not match~~~')
+            error('Data do not match :-/')
         end
 
         % Assign random gene metadata:
