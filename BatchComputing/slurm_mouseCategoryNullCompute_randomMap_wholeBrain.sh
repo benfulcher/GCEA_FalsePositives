@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name mouse20k_randomMap_wholeBrain
+#SBATCH --job-name mouseRandomMapNulls
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
@@ -10,7 +10,7 @@
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=12000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=80:00:00
+#SBATCH --time=140:00:00
 # Email user if job fails or ends
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -29,5 +29,5 @@ hostname
 env | grep SLURM
 
 # Launch the Matlab job
-# (iv) whole-brain randomMap:
+# Whole-brain randomMap:
 matlab -nodesktop -r "startup;parpool('local',12); ComputeAllCategoryNulls('mouse',[],'randomMap','Spearman','mean'); exit"
