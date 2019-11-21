@@ -44,8 +44,8 @@ end
 
 %-------------------------------------------------------------------------------
 % Now we can count number of significant categories for each random map:
-numSig = sum(pValCorr < 0.05);
-[~,ix] = sort(numSig,'descend');
+numSigFDR = sum(pValCorr < 0.05);
+[~,ix] = sort(numSigFDR,'descend');
 
 % Output some examples of the top-significance ones:
 numToOutput = 10;
@@ -67,15 +67,33 @@ for i = 1:numToOutput
     end
     fclose(fid);
 
-    % Save the GO significance summary:
-    fid = fopen(sprintf('%s%u_GOsig.csv',baseName,index),'w','n');
-    sigCategories = numSig(index);
-    isSig = find(pValCorr(:,index) < 0.05);
-    sigPValCorrs = pValCorr(isSig,index);
-    [~,ip] = sort(sigPValCorrs,'ascend');
-    isSig = isSig(ip);
-    for j = 1:sigCategories
-        fprintf(fid,'%s, %g\n',GOTableGeneric.GOName{isSig(j)},pValCorr(isSig(j),index));
+    % Save the GO significance summary (FDR = 5%):
+    fid_FDR = fopen(sprintf('%s%u_GOsig.csv',baseName,index),'w','n');
+    % Save the GO significance summary (raw p-value < 0.05):
+    fid_RAW = fopen(sprintf('%s%u_GOsigRAW.csv',baseName,index),'w','n');
+
+    isSigFDR = find(pValCorr(:,index) < 0.05);
+    isSigRAW = find(surrogatePVals(:,index) < 0.05);
+
+    sigCategoriesFDR = length(isSigFDR);
+    sigCategoriesRAW = length(isSigRAW);
+    fprintf(1,'%u FDR-significant, %u RAW-significant\n',sigCategoriesFDR,sigCategoriesRAW);
+
+    % FDR:
+    sigPValFDR = pValCorr(isSigFDR,index);
+    [~,ip] = sort(sigPValFDR,'ascend');
+    isSigFDR = isSigFDR(ip);
+    for j = 1:sigCategoriesFDR
+        fprintf(fid_FDR,'%s, %g, %s\n',GOTableGeneric.GOName{isSigFDR(j)},pValCorr(isSigFDR(j),index));
     end
-    fclose(fid);
+    fclose(fid_FDR);
+
+    % RAW:
+    sigPVal = surrogatePVals(isSigRAW,index);
+    [~,ip] = sort(sigPVal,'ascend');
+    isSigRAW = isSigRAW(ip);
+    for j = 1:sigCategoriesRAW
+        fprintf(fid_RAW,'%s, %g, %s\n',GOTableGeneric.GOName{isSigRAW(j)},surrogatePVals(isSigRAW(j),index));
+    end
+    fclose(fid_RAW);
 end

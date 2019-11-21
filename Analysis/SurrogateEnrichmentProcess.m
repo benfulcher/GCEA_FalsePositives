@@ -39,7 +39,7 @@ GOTableGeneric = sortrows(GOTableGeneric,'sumUnderSig','descend');
 
 %-------------------------------------------------------------------------------
 % Estimate a p-value? NB NB NB: THIS IS WRONG!!!:
-GOTableGeneric.pValCorrNot = 1./GOTableGeneric.sumUnderSig;
+% GOTableGeneric.pValCorrNot = 1./GOTableGeneric.sumUnderSig;
 
 %-------------------------------------------------------------------------------
 display(GOTableGeneric(1:20,:))

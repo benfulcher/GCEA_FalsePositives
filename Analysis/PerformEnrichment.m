@@ -1,7 +1,7 @@
 function GOTablePhenotype = PerformEnrichment(params,myPhenotype,whatNullModel)
 % PerformEnrichment  Compute enrichment in different GO categories according to
-%                       a given null model
-% Assumes the null samples have been precomputed using ComputeAllCategoryNulls
+%                       a given null model.
+% This code assumes that nulls have been precomputed using ComputeAllCategoryNulls.
 
 %---INPUTS:
 % whatSpecies: 'mouse' or 'human'
@@ -27,8 +27,8 @@ aggregateHow = 'mean';
 %-------------------------------------------------------------------------------
 % Load null distributions using default settings:
 %-------------------------------------------------------------------------------
-% Check for precomputed null results (ComputeAllCategoryNulls):
-numNullSamples = 20000;
+% Check for precomputed null results (from running ComputeAllCategoryNulls):
+numNullSamples = params.nulls.numNullsSurrogates;
 fileNameDesired = sprintf('RandomNull_%u_%s-%s_%s_%s_%s.mat',numNullSamples,...
                             params.humanOrMouse,params.g.structFilter,whatNullModel,whatCorr,aggregateHow);
 preComputedData = load(fileNameDesired);

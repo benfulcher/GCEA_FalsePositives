@@ -137,7 +137,7 @@ end
 GOTable.categoryScores = categoryScores;
 
 %-------------------------------------------------------------------------------
-% Save out
+% Save results to .mat file
 if saveOut
     fileNameOut = sprintf('RandomNull_%u_%s-%s_%s_%s_%s.mat',numNullSamples,whatSpecies,...
                                                 params.g.structFilter,whatNullType,whatCorr,aggregateHow);
