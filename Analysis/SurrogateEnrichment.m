@@ -44,7 +44,8 @@ numGOCategories = height(GOTableGeneric);
 %-------------------------------------------------------------------------------
 % Enrichment of genes with a given null spatial map
 numGenesReal = height(geneInfoReal);
-surrogatePVals = zeros(numGOCategories,numMaps);
+surrogatePValsPerm = zeros(numGOCategories,numMaps);
+surrogatePValsZ = zeros(numGOCategories,numMaps);
 for i = 1:numMaps
     fprintf(1,'%u/%u\n',i,numMaps);
     map_i = geneDataNull(:,i);
@@ -76,12 +77,16 @@ for i = 1:numMaps
     if ~(ia==1:height(GOTableGeneric))
         error('Could not map to generic table');
     end
-    % These stored p-values are NOT FDR-corrected:
-    surrogatePVals(:,i) = GOTable_i.pVal(ib);
+
+    % Store RAW, UNCORRECTED p-values:
+    % As a permutation test:
+    surrogatePValsPerm(:,i) = GOTable_i.pValPerm(ib);
+    % Inferred from a Gaussian approximation to the null:
+    surrogatePValsZ(:,i) = GOTable_i.pValZ(ib);
 
     % List GO categories with significant (corrected) p-values:
-    numSig = sum(GOTable_i.pValCorr < params.e.sigThresh);
-    fprintf(1,'Iteration %u/%u (%s-%s): %u GO categories have p_corr < %.2f\n',...
+    numSig = sum(GOTable_i.pValZCorr < params.e.sigThresh);
+    fprintf(1,'Iteration %u/%u (%s-%s): %u GO categories have pZ_corr < %.2f\n',...
                 i,numMaps,whatSpecies,whatSurrogate,numSig,params.e.sigThresh);
     display(GOTable_i(1:numSig,:));
 end
@@ -91,7 +96,7 @@ end
 fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,...
                                                 whatSurrogate,customSurrogate);
 fileNameOut = fullfile('DataOutputs',fileNameOut);
-save(fileNameOut,'GOTableGeneric','surrogatePVals','-v7.3');
+save(fileNameOut,'GOTableGeneric','surrogatePValsPerm','surrogatePValsZ','-v7.3');
 fprintf(1,'Results of %u iterations saved to %s\n',numMaps,fileNameOut);
 
 end
