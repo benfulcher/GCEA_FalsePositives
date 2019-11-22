@@ -84,7 +84,7 @@ for i = 1:numToOutput
     [~,ip] = sort(sigPValFDR,'ascend');
     isSigFDR = isSigFDR(ip);
     for j = 1:sigCategoriesFDR
-        fprintf(fid_FDR,'%s, %g, %s\n',GOTableGeneric.GOName{isSigFDR(j)},pValCorr(isSigFDR(j),index));
+        fprintf(fid_FDR,'%s, %g\n',GOTableGeneric.GOName{isSigFDR(j)},pValCorr(isSigFDR(j),index));
     end
     fclose(fid_FDR);
 
@@ -93,7 +93,7 @@ for i = 1:numToOutput
     [~,ip] = sort(sigPVal,'ascend');
     isSigRAW = isSigRAW(ip);
     for j = 1:sigCategoriesRAW
-        fprintf(fid_RAW,'%s, %g, %s\n',GOTableGeneric.GOName{isSigRAW(j)},surrogatePVals(isSigRAW(j),index));
+        fprintf(fid_RAW,'%s, %g\n',GOTableGeneric.GOName{isSigRAW(j)},surrogatePVals(isSigRAW(j),index));
     end
     fclose(fid_RAW);
 end
