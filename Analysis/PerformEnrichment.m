@@ -2,7 +2,8 @@ function GOTablePhenotype = PerformEnrichment(params,myPhenotype,whatNullModel)
 % PerformEnrichment  Compute enrichment in different GO categories according to
 %                       a given null model.
 % This code assumes that nulls have been precomputed using ComputeAllCategoryNulls.
-
+%-------------------------------------------------------------------------------
+% 
 %---INPUTS:
 % whatSpecies: 'mouse' or 'human'
 % myPhenotype: the phenotype to assess for enrichment

@@ -1,9 +1,11 @@
 function GOTable = ComputeAllCategoryNulls(params,numNullSamples,whatNullType,whatCorr,aggregateHow,saveOut,beVerbose)
-% Computes null distribution for all GO categories
+% ComputeAllCategoryNulls   Compute an ensemble-based null distribution for all
+%                               GO categories
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% Settings:
+% Check Inputs and Set Defaults:
+%-------------------------------------------------------------------------------
 if nargin < 1
     params = 'mouse';
 end
@@ -113,7 +115,7 @@ for i = 1:numGOCategories
                             length(matchMe),length(theGenesEntrez));
     end
 
-    % Compute the distribution of gene category scores for correlation with the null maps:
+    % Compute the distribution of gene-category scores for correlation with the null maps:
     scoresHere = nan(numGenesCategory,numNullSamples);
     for k = 1:numGenesCategory
         expressionVector = geneDataCategory(:,k);

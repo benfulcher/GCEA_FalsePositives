@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name mouseUniformRandom
+#SBATCH --job-name FPSE_mouseUniformRandom
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
