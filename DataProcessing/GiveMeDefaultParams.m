@@ -102,13 +102,9 @@ params.e.sigThresh = 0.05; % display categories with corrected p-value below thi
 % Parameters specific to ensemble enrichment:
 params.e.whatCorr = 'Spearman';
 params.e.aggregateHow = 'mean';
-params.e.whatEnsemble = 'randomMap'; % 'randomMap','customEnsemble'
-% Only used for 'customEnsemble' (point to the file containing the custom maps):
-if strcmp(params.e.whatEnsemble,'customEnsemble')
-    params.e.dataFileSurrogate = FindNullFile(params);
-else
-    params.e.dataFileSurrogate = '';
-end
+params.e.whatEnsemble = 'randomMap'; % 'randomMap', 'customEnsemble'
+% dataFileSurrogate is only used for 'customEnsemble' (point to the file containing the custom maps):
+params.e.dataFileSurrogate = FindNullFile(params);
 % Filename to save results out to:
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 

@@ -10,7 +10,7 @@ end
 % Double check the output filename is appropriate for the parameter settings used:
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
-% Get gene-expression data to feed in:
+% Feed in gene-expression data to feed in:
 [geneData,geneInfo] = LoadMeG(params.g);
 geneDataStruct = struct();
 geneDataStruct.expressionMatrix = geneData;
