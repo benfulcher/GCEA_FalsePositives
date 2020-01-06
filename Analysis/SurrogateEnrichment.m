@@ -72,6 +72,7 @@ for i = 1:numMaps
 
     % Store random-gene enrichment results:
     GOTable_i = SingleEnrichment(geneScores,geneInfoReal.entrez_id,params.e);
+
     % Map to a generic GO table:
     [~,ia,ib] = intersect(GOTableGeneric.GOID,GOTable_i.GOID,'stable');
     if ~(ia==1:height(GOTableGeneric))

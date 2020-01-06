@@ -1,5 +1,6 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,corrType)
-% Score each gene on some simple property
+function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat)
+% Score each gene on some simple property then do a conventional GSR enrichment
+% analysis on the results.
 
 % ---INPUTS:
 % enrichWhat = 'meanExpression'; % raw mean expression level
@@ -7,15 +8,11 @@ function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,corrType)
 % enrichWhat = 'cortex'; % difference in expression between cerebral cortex/others
 % enrichWhat = 'genePC'; % correlation with a PC of gene expression
 % enrichWhat = 'degree'; % correlation with structural connectivity degree across regions
-%
-% structFilter = 'cortex';
-%
-% corrType = 'Pearson';
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
-% Name an analysis, and this script loads the data and does the enrichment
+% Set defaults:
 %-------------------------------------------------------------------------------
 if nargin < 1
     params = GiveMeDefaultParams('mouse');
@@ -24,10 +21,8 @@ if nargin < 2 || isempty(enrichWhat)
     fprintf(1,'Mean expression by default\n');
     enrichWhat = 'meanExpression'; % raw mean expression level
 end
-if nargin < 3 || isempty(corrType)
-    corrType = 'Spearman';
-    fprintf(1,'Spearman correlations by default (if relevant)\n');
-end
+corrType = params.e.ensemble.whatCorr;
+fprintf(1,'Using %s correlations (if relevant)\n',corrType);
 
 doRandomize = false;
 
@@ -91,7 +86,6 @@ case 'degree'
     % Plot:
     [~,iy] = sort(gScore,'descend');
     [~,ix] = sort(k,'descend');
-    % ix = 1:numStructs;
     PlotGeneExpression(geneData(ix,iy),geneInfo(iy,:),structInfo(ix,:),true,k(ix))
 
 case {'cerebcortex','isocortex'}

@@ -1,5 +1,5 @@
 function CaseStudyResults(whatSpecies,structFilter)
-% Case study of degree enrichment in mouse brain, mouse cortex, and human cortex
+% Compute case study results: node degree enrichment
 %-------------------------------------------------------------------------------
 if nargin < 1
     whatSpecies = 'human'; % 'mouse', 'human'
@@ -7,23 +7,36 @@ end
 if nargin < 2
     structFilter = 'cortex'; % 'cortex', 'all'
 end
-corrType = 'Spearman';
 %-------------------------------------------------------------------------------
 
 % Set general parameters common to all analyses:
 params = GiveMeDefaultParams(whatSpecies,structFilter);
 
+% Get the phenotype of interest:
+doBinarize = true;
+phenotypeVector = ComputeDegree(params,doBinarize);
+
 %-------------------------------------------------------------------------------
 % Compute results:
 %-------------------------------------------------------------------------------
 resultTablesDegree = struct();
-% (i) random-gene null:
-resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree',corrType);
-% (ii) random phenotype null:
-resultTablesDegree.randomMap = PerformEnrichment(params,'degree','randomMap');
-% (iii) spatial lag null:
-resultTablesDegree.spatialLag = PerformEnrichment(params,'degree','spatialLag');
 
+% (i) Conventional null (gene-score resampling):
+resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree');
+
+% (ii) random phenotype null:
+params.e.whatEnsemble = 'randomMap';
+fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params.e.ensemble);
+resultTablesDegree.randomMap = EnsembleEnrichment(params.e.ensemble,phenotypeVector);
+% [geneData,geneInfo,structInfo] = LoadMeG(params.g);
+% ListCategories(geneInfo,GOTablePhenotype,20,'pValZ');
+
+% (iii) spatial lag null:
+params.e.whatEnsemble = 'customEnsemble';
+fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params.e.ensemble);
+resultTablesDegree.spatialLag = EnsembleEnrichment(params.e.ensemble,phenotypeVector);
+
+%-------------------------------------------------------------------------------
 % List significant categories under each null:
 whatPField = 'pValZCorr';
 countMe = @(x)sum(resultTablesDegree.(x).(whatPField) < params.e.sigThresh);
@@ -50,7 +63,7 @@ meanScoreSum = newTable.pValZCorrRandomGene + newTable.pValZCorrRandomMap;
 newTable = newTable(ix,:);
 
 %-------------------------------------------------------------------------------
-% Save out to csv for paper:
+% Save out to .csv for a Supplementary Table for the paper:
 IDLabel = newTable.GOIDlabel;
 CategoryName = newTable.GOName;
 ID = newTable.GOID;

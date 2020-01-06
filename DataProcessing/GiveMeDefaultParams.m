@@ -2,9 +2,9 @@ function params = GiveMeDefaultParams(humanOrMouse,structFilter)
 % Produces a parameter vector of default values for processing and analysis
 %
 % Gives a unified parameter structure broken into 4 components:
-% * c (connectome processing)
-% * g (gene expression processing)
-% * e (GO enrichment processing)
+% * c (connectome data processing)
+% * g (gene-expression data processing)
+% * e (GO enrichment settings)
 % * gcc (settings for computing GCC scores)
 %-------------------------------------------------------------------------------
 
@@ -92,10 +92,20 @@ end
 
 params.e.processFilter = 'biological_process';
 params.e.sizeFilter = [10,200];
-params.e.numSamples = 40000; % number of null samples when computing gene-score significance
+params.e.numNullSamples = 400; % number of null samples when computing gene-score significance
 params.e.sigThresh = 0.05; % display categories with corrected p-value below this threshold
 params.e.sizeFix = []; % set the number of annotations to all categories to be a fixed value
                        % (mainly useful for )
+
+%-------------------------------------------------------------------------------
+% Parameters specific to ensemble enrichment:
+params.e.whatCorr = 'Spearman';
+params.e.aggregateHow = 'mean';
+params.e.whatEnsemble = 'randomMap'; % 'randomMap','customEnsemble'
+% Only used for 'customEnsemble':
+params.e.dataFileSurrogate = FindNullFile(humanOrMouse,structFilter);
+% Filename to save results out to:
+params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
 %-------------------------------------------------------------------------------
 % Properties of nulls

@@ -1,5 +1,5 @@
-# MouseEdge
-MouseEdge is a repository for obtaining enrichment signatures from spatial maps in human and mouse.
+# EnrichmentNulls
+EnrichmentNulls is a repository for obtaining enrichment signatures from spatial maps in human and mouse.
 
 ## Raw data import
 
@@ -13,14 +13,14 @@ The directory `/MouseData` requires:
 
 ## Enrichment data
 
-This relies on a toolbox for matlab-based GO enrichment, which can be installed by cloning:
+This relies on a toolbox for Matlab-based GO enrichment, which can be installed by cloning:
 ```bash
 git clone git@github.com:benfulcher/GeneEnrichment.git
 ```
 It is expected to be in the home directory, or otherwise accessible in the path.
 This can be modified using `GiveMeFile('EnrichmentToolbox');`
 
-It should be run to get the following data files:
+Please follow the instructions for that repository to compute (or download) the following required data files:
 * `GOTerms_BP.mat`
 * `GOAnnotationDirect-mouse-biological_process-Prop.mat`
 * `GOAnnotationDirect-human-biological_process-Prop.mat`
@@ -34,7 +34,7 @@ Information about enrichment results reported in published studies can be import
 ImportLiteratureEnrichment;
 ```
 Results are saved as `LiteratureEnrichmentLoaded.mat`.
-All data is read in from the `/LiteratureEnrichmentData`.
+All data is read in from the `LiteratureEnrichmentData` directory.
 
 First type of annotations are manually-curated, from studies that noted enrichment results in-text with no supplementary files for full results: `TableGOBPs.csv`:
 
@@ -47,6 +47,9 @@ The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImpor
 
 ## Precomputing
 
+Note that batch job scripts for all bulk computations are in the `BatchComputing` directory.
+There is a file for all mouse-related analyses: `batchAllMouseAnalyses.sh`, and for all human analyses: `batchAllHumanAnalyses.sh`.
+
 ### Intra-category coexpression
 
 The within-category coexpression metric computation is also precomputed:
@@ -57,28 +60,35 @@ IntraCorrelationByCategory('mouse','geneShuffle',20000,'VE1',true)
 
 This saves the results as `Intra_mouse_geneShuffle_VE1_20000.mat`.
 
-### Nulls
+### Ensemble-based nulls
 
-Here is an example, computing 20,000 null samples for each GO category in mouse and human according to both randomMap and spatialLag null models:
+Null distributions for all GO categories is done using the companion Matlab package for both conventional gene-score enrichment and ensemble-based enrichment.
+
+Here is an example, computing a null distribution for each GO category in mouse and human according to both `'randomMap'` and `'spatialLag'` null models (specified using the `'customEnsemble'` setting):
 
 ```matlab
-numNullSamples = 20000;
-species = {'mouse','human'}; numSpecies = length(species);
-nullTypes = {'randomMap','spatialLag'}; numNullTypes = length(nullTypes);
+species = {'mouse','human'};
+numSpecies = length(species);
+nullTypes = {'randomMap','customEnsemble'};
+numNullTypes = length(nullTypes);
 for i = 1:numSpecies
+    % Load in all of the default parameters:
+    params = GiveMeDefaultParams(species{i});
     for j = 1:numNullTypes
-        ComputeAllCategoryNulls(species{i},numNullSamples,nullTypes{j},'Spearman','mean')
-        ComputeAllCategoryNulls(species{i},numNullSamples,nullTypes{j},'Spearman','mean')
+        params.e.whatEnsemble = nullTypes{j};
+
+        % Wrapper for running ensemble-based nulls using appropriate gene-expression data:
+        NullComputation(params);
     end
 end
 ```
 
 Null information is saved as a cell in a new column in the GO category table.
-Each table is saved to a `.mat` file with a name like (e.g., for the code above):
-* `RandomNull_20000_mouse_randomMap_Spearman_mean.mat`
-* `RandomNull_20000_mouse_spatialLag_Spearman_mean.mat`
-* `RandomNull_20000_human_randomMap_Spearman_mean.mat`
-* `RandomNull_20000_human_spatialLag_Spearman_mean.mat`
+Each null distribution is stored in a table that is saved to a `.mat` file.
+The name of this file is set in `params.e.fileNameOut`.
+
+For example, this one is 40000 null samples for mouse data using the `'randomMap'` null ensemble:
+* `PhenotypeNulls_40000_mouse_randomMap_Spearman_mean.mat`
 
 
 ## Analysis
