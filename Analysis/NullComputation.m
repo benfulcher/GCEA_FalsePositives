@@ -2,7 +2,6 @@ function NullComputation(params)
 % Wrapper for running ComputeAllCategoryNulls using appropriate gene-expression
 % data
 %-------------------------------------------------------------------------------
-
 if nargin < 1
     params = GiveMeDefaultParams();
 end
@@ -12,7 +11,7 @@ end
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
 % Get gene-expression data to feed in:
-[geneData,geneInfo,structInfo] = LoadMeG(params.g);
+[geneData,geneInfo] = LoadMeG(params.g);
 geneDataStruct = struct();
 geneDataStruct.expressionMatrix = geneData;
 geneDataStruct.entrezIDs = geneInfo.entrez_id;
