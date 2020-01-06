@@ -1,20 +1,17 @@
-function dataFileSurrogate = FindNullFile(whatSpecies,structFilter,numNullSamples)
+function dataFileSurrogate = FindNullFile(params)
+    % whatSpecies,structFilter,numNullSamples)
 % Setting for the ensemble enrichment parameters
 %-------------------------------------------------------------------------------
 
-if nargin < 1
-    whatSpecies = 'mouse';
-end
-if nargin < 2
-    structFilter = 'all';
-end
-if nargin < 3
-    numNullSamples = 20000;
-end
+% Pull out the relevant parameters:
+whatSpecies = params.humanOrMouse;
+structFilter = params.structFilter;
+numNullSamples = params.e.numNullSamples;
 
 %-------------------------------------------------------------------------------
 % In the case of some custom spatially constrained ensemble, can specify the file
 % containing the info:
+dataFileSurrogate = '';
 switch whatSpecies
 case 'mouse'
     if strcmp(structFilter,'cortex')
@@ -42,6 +39,10 @@ case 'human'
     case 40000
         dataFileSurrogate = 'humanSurrogate_N40000_rho8_d03500.csv';
     end
+end
+
+if isempty(dataFileSurrogate)
+    warning('No file found containing custom surrogate phenotypes')
 end
 
 end

@@ -21,9 +21,9 @@ if nargin < 2
     % Default structure filter:
     switch humanOrMouse
     case {'human','surrogate-human'}
-        structFilter = 'cortex'; % 'cortex', 'all'
+        params.structFilter = 'cortex'; % 'cortex', 'all'
     case {'mouse','surrogate_mouse'}
-        structFilter = 'all'; % 'cortex', 'all'
+        params.structFilter = 'all'; % 'cortex', 'all'
     end
 end
 
@@ -44,14 +44,14 @@ case 'human'
     params.c.whatHemispheres = 'left';
 end
 params.c.pThreshold = 0.05;
-params.c.structFilter = structFilter;
+params.c.structFilter = params.structFilter;
 
 %-------------------------------------------------------------------------------
 % Gene expression processing options
 %-------------------------------------------------------------------------------
 params.g = struct();
 params.g.humanOrMouse = humanOrMouse;
-params.g.structFilter = structFilter;
+params.g.structFilter = params.structFilter;
 params.g.whatSurrogate = 'spatialLag';
 params.g.minGoodPropGene = 0.5;
 params.g.minGoodPropArea = 0.5;
@@ -91,8 +91,8 @@ case 'human'
 end
 
 params.e.processFilter = 'biological_process';
-params.e.sizeFilter = [10,200];
-params.e.numNullSamples = 400; % number of null samples when computing gene-score significance
+params.e.sizeFilter = [10,12];
+params.e.numNullSamples = 10; % number of null samples when computing gene-score significance
 params.e.sigThresh = 0.05; % display categories with corrected p-value below this threshold
 params.e.sizeFix = []; % set the number of annotations to all categories to be a fixed value
                        % (mainly useful for )
@@ -102,8 +102,12 @@ params.e.sizeFix = []; % set the number of annotations to all categories to be a
 params.e.whatCorr = 'Spearman';
 params.e.aggregateHow = 'mean';
 params.e.whatEnsemble = 'randomMap'; % 'randomMap','customEnsemble'
-% Only used for 'customEnsemble':
-params.e.dataFileSurrogate = FindNullFile(humanOrMouse,structFilter);
+% Only used for 'customEnsemble' (point to the file containing the custom maps):
+if strcmp(params.e.whatEnsemble,'customEnsemble')
+    params.e.dataFileSurrogate = FindNullFile(params);
+else
+    params.e.dataFileSurrogate = '';
+end
 % Filename to save results out to:
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
