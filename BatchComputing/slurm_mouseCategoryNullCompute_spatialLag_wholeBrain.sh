@@ -30,4 +30,4 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job:
-matlab -nodesktop -r "startup; parpool('local',12); ComputeAllCategoryNulls('mouse',[],'spatialLag','Spearman','mean'); exit"
+matlab -nodesktop -r "startup; parpool('local',12); params = GiveMeDefaultParams('mouse'); params.e.whatEnsemble = 'customEnsemble'; NullComputation(params); exit"
