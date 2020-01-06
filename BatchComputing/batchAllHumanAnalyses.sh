@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# First compute null distributions under different maps (for new enrichment):
+# Compute null distributions under different phenotype ensembles:
 sbatch slurm_humanCategoryNullCompute_randomMap.sh
 sbatch slurm_humanCategoryNullCompute_spatialLag.sh
 

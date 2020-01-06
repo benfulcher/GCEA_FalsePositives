@@ -85,16 +85,16 @@ params.e.humanOrMouse = humanOrMouse;
 % 1) Specify a data source:
 switch humanOrMouse
 case 'mouse'
-    params.e.dataSource = 'mouse-direct'; % 'mouse-direct', 'mouse-GEMMA'
+    params.e.dataSource = 'mouse-direct';
 case 'human'
     params.e.dataSource = 'human-direct';
 end
 
 params.e.processFilter = 'biological_process';
-params.e.sizeFilter = [10,12];
-params.e.numNullSamples = 10; % number of null samples when computing gene-score significance
+params.e.sizeFilter = [10,200];
+params.e.numNullSamples = 40000; % number of null samples when computing gene-score significance
 params.e.sigThresh = 0.05; % display categories with corrected p-value below this threshold
-params.e.sizeFix = []; % set the number of annotations to all categories to be a fixed value
+% params.e.sizeFix = []; % set the number of annotations to all categories to be a fixed value
                        % (mainly useful for )
 
 %-------------------------------------------------------------------------------
