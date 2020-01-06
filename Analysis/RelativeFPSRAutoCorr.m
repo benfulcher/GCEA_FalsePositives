@@ -13,7 +13,7 @@ for s = 1:2
     % Compute spatial autocorrelation scores per GO category:
     params.g.normalizationGene = 'zscore';
     params.g.normalizationRegion = 'zscore';
-    params.e.numSamples = 100; % for speed since we don't actually use the p-values
+    params.e.numNullSamples = 100; % for speed since we don't actually use the p-values
     results = geneEnrichmentDistance(params);
 
     % Load FPSR (random and spatial autocorrelation)

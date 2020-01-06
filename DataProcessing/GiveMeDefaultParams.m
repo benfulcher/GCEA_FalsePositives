@@ -21,11 +21,12 @@ if nargin < 2
     % Default structure filter:
     switch humanOrMouse
     case {'human','surrogate-human'}
-        params.structFilter = 'cortex'; % 'cortex', 'all'
+        structFilter = 'cortex'; % 'cortex', 'all'
     case {'mouse','surrogate_mouse'}
-        params.structFilter = 'all'; % 'cortex', 'all'
+        structFilter = 'all'; % 'cortex', 'all'
     end
 end
+params.structFilter = structFilter;
 
 %-------------------------------------------------------------------------------
 % Connectome processing options
@@ -114,7 +115,6 @@ params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 %-------------------------------------------------------------------------------
 % Properties of nulls
 %-------------------------------------------------------------------------------
-params.nulls.numNullsSurrogates = 40000;
 params.nulls.numNullsFPSR = 10000;
 
 %-------------------------------------------------------------------------------

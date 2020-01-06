@@ -10,14 +10,14 @@ results = struct();
 %===============================================================================
 % Mouse brain:
 params = GiveMeDefaultParams('mouse');
-params.e.numSamples = 100000;
+params.e.numNullSamples = 100000;
 params.g.normalizationGene = 'zscore';
 params.g.normalizationRegion = 'zscore';
 results.mouseDistance = geneEnrichmentDistance(params);
 
 % Human cortex:
 params = GiveMeDefaultParams('human');
-params.e.numSamples = 100000;
+params.e.numNullSamples = 100000;
 params.g.normalizationGene = 'zscore';
 params.g.normalizationRegion = 'zscore';
 results.humanDistance = geneEnrichmentDistance(params);
