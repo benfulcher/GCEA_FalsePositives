@@ -1,14 +1,20 @@
-function [f_handle,Stats,c] = GiveMeFit(xData,yData,fitType,suppressFigure)
-% ------------------------------------------------------------------------------
-% Ben Fulcher, 2014-11-20
+function [f_handle,Stats,c] = GiveMeFit(xData,yData,fitType,suppressFigure,customStartPoint)
+% Does some exponential fitting
 % ------------------------------------------------------------------------------
 if nargin < 4
     suppressFigure = false;
 end
+if nargin < 5
+    customStartPoint = [];
+end
+%-------------------------------------------------------------------------------
 
 switch fitType
 case 'decayEta0'
-    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[200,1]);
+    if isempty(customStartPoint)
+        customStartPoint = [200,1];
+    end
+    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',customStartPoint);
     f = fittype('A*x.^-n','options',s);
     try
         [c, Stats] = fit(xData,yData,f);
@@ -28,38 +34,41 @@ case 'decayEta'
     f_handle = @(x) c.A.*x.^(-c.n) + c.B;
 
 case 'exp'
-    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[1,2,0]);
-    f = fittype('A*exp(-x/n) + B','options',s);
+    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[1,0.005,0]);
+    f = fittype('A*exp(-x*n) + B','options',s);
     try
         [c, Stats] = fit(xData,yData,f);
     catch
         error('Fit to exp failed')
     end
-    f_handle = @(x) c.A.*exp(-x/c.n) + c.B;
+    f_handle = @(x) c.A.*exp(-x*c.n) + c.B;
 
 case 'exp0'
-    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[1,1]);
-    f = fittype('A*exp(-x/n)','options',s);
+    if isempty(customStartPoint)
+        customStartPoint = [1,(1/(max(xData)-min(xData)))/2];
+    end
+    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',customStartPoint);
+    f = fittype('A*exp(-x*n)','options',s);
     try
         [c, Stats] = fit(xData,yData,f);
     catch
         error('Fit to exp0 failed')
     end
-    f_handle = @(x) c.A.*exp(-x/c.n);
+    f_handle = @(x) c.A.*exp(-x*c.n);
 
 case 'exp1'
     s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[1,0]);
-    f = fittype('exp(-x/n) + B','options',s);
+    f = fittype('exp(-x*n) + B','options',s);
     try
         [c, Stats] = fit(xData,yData,f);
     catch
         error('Fit to exp1 failed')
     end
-    f_handle = @(x) exp(-x/c.n) + c.B;
+    f_handle = @(x) exp(-x*c.n) + c.B;
 
 case 'exp_1_0'
     s = fitoptions('Method','NonlinearLeastSquares','StartPoint',1);
-    f = fittype('exp(-x/n)','options',s);
+    f = fittype('exp(-x*n)','options',s);
     try
         [c, Stats] = fit(xData,yData,f);
     catch

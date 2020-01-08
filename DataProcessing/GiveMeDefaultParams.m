@@ -103,7 +103,8 @@ params.e.sigThresh = 0.05; % display categories with corrected p-value below thi
 params.e.whatCorr = 'Spearman';
 params.e.aggregateHow = 'mean';
 params.e.whatEnsemble = 'randomMap'; % 'randomMap', 'customEnsemble'
-% dataFileSurrogate is only used for 'customEnsemble' (point to the file containing the custom maps):
+% dataFileSurrogate: point to the file containing the custom maps)
+% (this information is only used for 'customEnsemble')
 params.e.dataFileSurrogate = FindNullFile(params);
 % Filename to save results out to:
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);

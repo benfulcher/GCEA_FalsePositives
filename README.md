@@ -130,6 +130,17 @@ SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’independentSpatialS
 ### Enrichment signatures of spatially-correlated null maps
 
 #### Generating surrogate maps
+
+##### Matlab
+
+```matlab
+numMaps = 40000;
+GenerateSpatialEnsemble('mouse','all',true,numMaps)
+GenerateSpatialEnsemble('mouse','cortex',true,numMaps)
+GenerateSpatialEnsemble('human','cortex',true,numMaps)
+```
+
+##### Python (old)
 First generate pairwise distance matrices for the regions in human cortex and mouse brain:
 ```matlab
 SaveOutDistanceMatrices
