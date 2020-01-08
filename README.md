@@ -135,9 +135,10 @@ SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’independentSpatialS
 
 ```matlab
 numMaps = 40000;
-GenerateSpatialEnsemble('mouse','all',true,numMaps)
-GenerateSpatialEnsemble('mouse','cortex',true,numMaps)
-GenerateSpatialEnsemble('human','cortex',true,numMaps)
+plotSummary = true;
+GenerateSpatialEnsemble('mouse','all',plotSummary,numMaps)
+GenerateSpatialEnsemble('mouse','cortex',plotSummary,numMaps)
+GenerateSpatialEnsemble('human','cortex',plotSummary,numMaps)
 ```
 
 ##### Python (old)

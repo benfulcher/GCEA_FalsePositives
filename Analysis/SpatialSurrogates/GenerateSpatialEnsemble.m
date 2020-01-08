@@ -70,11 +70,7 @@ end
 
 %-------------------------------------------------------------------------------
 % Save to file
-if strcmp(mouseOrHuman,'mouse')
-    fileOut = sprintf('%s_%s_Surrogate_N%u.mat',mouseOrHuman,structFilter,numMaps);
-else
-    fileOut = sprintf('%s_Surrogate_N%u.mat',mouseOrHuman,structFilter,numMaps);
-end
+fileOut = FindNullFile(mouseOrHuman,structFilter,numMaps);
 fileOut = fullfile('SurrogateMaps',fileOut);
 save(fileOut,'nullMaps','rho','d0');
 fprintf(1,'Saved results out to %s\n',fileOut);

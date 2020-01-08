@@ -105,7 +105,8 @@ params.e.aggregateHow = 'mean';
 params.e.whatEnsemble = 'randomMap'; % 'randomMap', 'customEnsemble'
 % dataFileSurrogate: point to the file containing the custom maps)
 % (this information is only used for 'customEnsemble')
-params.e.dataFileSurrogate = FindNullFile(params);
+params.e.dataFileSurrogate = FindNullFile(params.humanOrMouse,...
+                                params.structFilter,params.e.numNullSamples);
 % Filename to save results out to:
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
