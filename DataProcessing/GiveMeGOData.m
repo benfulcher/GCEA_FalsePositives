@@ -17,7 +17,7 @@ GOTable = GetFilteredGOData(params.e.dataSource,params.e.processFilter,...
 %-------------------------------------------------------------------------------
 % Filter to a maximum number of annotations for category
 % (for investigating null scaling for a fixed category size)
-if ~isempty(params.e.sizeFix)
+if isfield(params.e,'sizeFix') && ~isempty(params.e.sizeFix)
     warning('Taking a maximum of %u annotations per GO category :-O',params.e.sizeFix)
     GOTable = FixedSizeGO(GOTable,params.e.sizeFix);
 end

@@ -78,7 +78,7 @@ case {'surrogate-mouse','surrogate-human'}
         % Surrogate maps pre-generated using the spatial lag model:
         fprintf(1,'SUBSTITUTING WITH Surrogate brain maps from the spatial lag model, from %s\n',...
                             dataFileSurrogate);
-        load(enrichmentParams.dataFileSurrogate,'nullMaps');
+        load(dataFileSurrogate,'nullMaps');
         geneData = nullMaps;
         % Reshape to match any filtering applied to the loaded data:
         if size(geneData,1) > size(geneDataReal,1)
