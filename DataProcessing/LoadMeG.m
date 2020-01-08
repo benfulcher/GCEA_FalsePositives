@@ -73,15 +73,13 @@ case {'surrogate-mouse','surrogate-human'}
     switch gParam.whatSurrogate
     case 'spatialLag'
         % Get the pre-computed surrogate data:
-        switch gParam.humanOrMouse
-        case 'mouse'
-            dataFileSurrogate = 'mouseSurrogate_N40000_rho8_d078.csv';
-        case 'human'
-            dataFileSurrogate = 'humanSurrogate_N40000_rho8_d03500.csv';
-        end
+        numMaps = 40000;
+        dataFileSurrogate = FindNullFile(gParam.humanOrMouse,gParam.structFilter,numMaps);
         % Surrogate maps pre-generated using the spatial lag model:
-        fprintf(1,'Surrogate brain maps from the spatial lag model, from %s\n',dataFileSurrogate);
-        geneData = dlmread(dataFileSurrogate,',',1,1);
+        fprintf(1,'SUBSTITUTING WITH Surrogate brain maps from the spatial lag model, from %s\n',...
+                            dataFileSurrogate);
+        load(enrichmentParams.dataFileSurrogate,'nullMaps');
+        geneData = nullMaps;
         % Reshape to match any filtering applied to the loaded data:
         if size(geneData,1) > size(geneDataReal,1)
             error('Data do not match :-/')
