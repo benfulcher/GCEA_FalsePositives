@@ -1,4 +1,4 @@
-function GOTable = geneEnrichmentDistance(params)
+function GOTable = geneEnrichmentDistance(params,doPlot,doSave)
 % Quantify for each gene the correlation between its correlated expression
 % pattern and the pairwise distance between regions
 % (then can try to work up a correction?)
@@ -9,11 +9,16 @@ function GOTable = geneEnrichmentDistance(params)
 if nargin < 1
     params = GiveMeDefaultParams('mouse');
 end
+if nargin < 2
+    doPlot = true;
+end
+if nargin < 3
+    doSave = true;
+end
+%-------------------------------------------------------------------------------
 
 % Text summary of the relevant analysis settings:
-textLabel = sprintf('dScores_%s_%s-%s_%s_abs-%s_conn%u',params.gcc.whatCorr,params.g.normalizationGene,...
-                        params.g.normalizationRegion,params.gcc.pValOrStat,params.gcc.absType,...
-                        params.gcc.onlyConnections);
+textLabel = GiveMeDistanceScoreFileName(params);
 
 %-------------------------------------------------------------------------------
 % Load and process data
@@ -60,13 +65,15 @@ dData(tril(true(size(dData)),-1)) = 0;
 
 %-------------------------------------------------------------------------------
 % Visualize bulk distance trend for cge computed across all genes:
-cge = corr(geneData','type','Pearson','rows','pairwise');
-isUpperDiag = triu(true(size(dData)),+1);
-f = figure('color','w');
-plot(dData(isUpperDiag),cge(isUpperDiag),'.k');
-xlabel('Distance')
-ylabel('CGE (Pearson)')
-title(sprintf('Bulk spatial trend: %u genes',numGenes));
+if doPlot
+    cge = corr(geneData','type','Pearson','rows','pairwise');
+    isUpperDiag = triu(true(size(dData)),+1);
+    f = figure('color','w');
+    plot(dData(isUpperDiag),cge(isUpperDiag),'.k');
+    xlabel('Distance')
+    ylabel('CGE (Pearson)')
+    title(sprintf('Bulk spatial trend: %u genes',numGenes));
+end
 
 %-------------------------------------------------------------------------------
 % Score genes:
@@ -87,13 +94,15 @@ GOTable = SingleEnrichment(geneScores,geneEntrezIDs,params.e);
 
 %-------------------------------------------------------------------------------
 % Look at the distribution of scores across genes and within categories
-f = figure('color','w');
-hold('on')
-h1 = histogram(geneScores);
-h2 = histogram(GOTable.meanScore);
-xlabel(sprintf('%s correlation between CGE and separation distance',params.gcc.whatCorr))
-legend([h1,h2],{sprintf('%u gene scores',length(geneScores)),sprintf('%u category scores',height(GOTable))})
-title(textLabel,'interpreter','none')
+if doPlot
+    f = figure('color','w');
+    hold('on')
+    h1 = histogram(geneScores);
+    h2 = histogram(GOTable.meanScore);
+    xlabel(sprintf('%s correlation between CGE and separation distance',params.gcc.whatCorr))
+    legend([h1,h2],{sprintf('%u gene scores',length(geneScores)),sprintf('%u category scores',height(GOTable))})
+    title(textLabel,'interpreter','none')
+end
 
 %-------------------------------------------------------------------------------
 % List GO categories with significant p-values:
@@ -104,10 +113,10 @@ display(GOTable(1:numSig,:));
 %-------------------------------------------------------------------------------
 % Save result to .mat file
 %-------------------------------------------------------------------------------
-% geneEntrez = geneEntrezIDs;
-% geneDistanceScores = geneScores;
-% fileNameMat = [textLabel,'.mat'];
-% save(fileNameMat,'geneEntrez','geneDistanceScores');
-% fprintf(1,'Saved info to %s\n',fileNameMat);
+geneEntrez = geneEntrezIDs;
+geneDistanceScores = geneScores;
+fileNameMat = fullfile('DataOutputs',textLabel);
+save(fileNameMat,'GOTable','params'); % ,'geneEntrez','geneDistanceScores'
+fprintf(1,'Saved distance enrichment scores to %s\n',fileNameMat);
 
 end

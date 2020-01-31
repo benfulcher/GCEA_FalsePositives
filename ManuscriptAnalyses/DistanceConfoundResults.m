@@ -1,37 +1,25 @@
-%-------------------------------------------------------------------------------
-% DistanceConfoundResults
+function DistanceConfoundResults()
 %-------------------------------------------------------------------------------
 % Investigate the enrichment signatures of distance-related confounds
 %-------------------------------------------------------------------------------
 
+% ^*^*^*^ Make sure results are computed first using ComputeSpatialEmbeddingScores
+
 % Store results tables in this struct:
 results = struct();
 
+%-------------------------------------------------------------------------------
 % NB: To make self-correlation make sense, expression needs to be normalized
-
 %-------------------------------------------------------------------------------
 % Mouse brain
-params = GiveMeDefaultParams('mouse','all');
-params.g.normalizationGene = 'zscore'; % 'none', 'mixedSigmoid'
-params.g.normalizationRegion = 'zscore'; % 'none', 'zscore'
-results.mouseBrain = geneEnrichmentDistance(params);
-
+load(GiveMeDistanceScoreFileName(GiveMeDefaultParams('mouse','all')),'GOTable');
+results.mouseBrain = GOTable;
 % Mouse cortex:
-params = GiveMeDefaultParams('mouse','cortex');
-params.g.normalizationGene = 'zscore';
-params.g.normalizationRegion = 'zscore';
-results.mouseCtx = geneEnrichmentDistance(params);
-
+load(GiveMeDistanceScoreFileName(GiveMeDefaultParams('mouse','cortex')),'GOTable');
+results.mouseCtx = GOTable;
 % Human
-params = GiveMeDefaultParams('human','cortex');
-params.g.normalizationGene = 'zscore';
-params.g.normalizationRegion = 'zscore';
-results.human = geneEnrichmentDistance(params);
-
-% Mouse non-cortex:
-% params.c.structFilter = 'notCortex';
-% results.mouse_notCtx = geneEnrichmentDistance(params);
-
+load(GiveMeDistanceScoreFileName(GiveMeDefaultParams('human','cortex')),'GOTable');
+results.human = GOTable;
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
@@ -83,6 +71,7 @@ thresholdSig = [0.05,2,2];
 PlotEnrichmentTables(results,thresholdSig);
 
 %-------------------------------------------------------------------------------
-% Investigate specific categories through specific visualizations:
+% Visualize specific categories:
+params = GiveMeDefaultParams('mouse');
 whatCategoryIndex = 1; % (NB: index not ID)
 VisualizeDistanceEnrichment(results.mouseBrain,whatCategoryIndex,params);

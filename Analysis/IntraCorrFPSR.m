@@ -1,10 +1,16 @@
 function IntraCorrFPSR()
+% Investigate whether FPSR relates to intra-category coexpression
+%-------------------------------------------------------------------------------
 
 whatSpecies = {'mouse','human'};
-whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
+
+% Properties of the intracorrelation statistic:
 whatIntraStat = 'raw';
+% (these bits about the nulls aren't actually used):
+whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 numNullSamples_intraCorr = 20000; % (Intra_*_*_20000.mat)
-numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
+
+params = GiveMeDefaultParams('mouse');
 
 %===============================================================================
 % Import (or compute) intra-category correlation data and surrogate random data
@@ -15,7 +21,7 @@ for s = 1:2
     resultsIntra = load(fileNameIn);
     fprintf(1,'Importing intra-category coexpression data from %s\n',fileNameIn);
     results.(whatSpecies{s}).intra = resultsIntra.resultsTable;
-    results.(whatSpecies{s}).randomReal = SurrogateEnrichmentProcess(whatSpecies{s},numNullSamples_surrogate,'randomUniform','');
+    results.(whatSpecies{s}).randomReal = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsFPSR,'randomUniform','');
 end
 
 %-------------------------------------------------------------------------------
@@ -29,7 +35,7 @@ theColors = GiveMeColors('mouseHuman');
 for s = 1:2
     [~,ia,ib] = intersect(results.(whatSpecies{s}).intra.GOID,results.(whatSpecies{s}).randomReal.GOID);
     GOTableCombined = results.(whatSpecies{s}).intra(ia,:);
-    GOTableCombined.FPSR_random = 100*results.(whatSpecies{s}).randomReal.sumUnderSig(ib)/numNullSamples_surrogate;
+    GOTableCombined.FPSR_random = 100*results.(whatSpecies{s}).randomReal.sumUnderSig(ib)/params.nulls.numNullsFPSR;
 
     BF_PlotQuantiles(GOTableCombined.(theXfield),GOTableCombined.(theYfield),...
             numQuantileBins,false,false,theColors(s,:),false);

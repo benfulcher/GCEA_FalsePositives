@@ -1,4 +1,4 @@
-function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate,customSurrogate)
+function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate,customSurrogate,doDisplay)
 % Process precomputed FPSR results for analysis
 %-------------------------------------------------------------------------------
 % Check inputs:
@@ -12,11 +12,12 @@ if nargin < 2 || isempty(numMaps)
 end
 if nargin < 3 || isempty(whatSurrogate)
     whatSurrogate = 'spatialLag';
-    % whatSurrogate = 'independentSpatialShuffle';
-    % whatSurrogate = 'geneShuffle';
 end
 if nargin < 4
     customSurrogate = '';
+end
+if nargin < 5
+    doDisplay = true;
 end
 
 %-------------------------------------------------------------------------------
@@ -50,11 +51,9 @@ GOTableGeneric.sumUnderSig = sumSig;
 GOTableGeneric = sortrows(GOTableGeneric,'sumUnderSig','descend');
 
 %-------------------------------------------------------------------------------
-% Estimate a p-value? NB NB NB: THIS IS WRONG!!!:
-% GOTableGeneric.pValCorrNot = 1./GOTableGeneric.sumUnderSig;
-
-%-------------------------------------------------------------------------------
-display(GOTableGeneric(1:20,:))
-
+% Show the top XXX cateogries:
+if doDisplay
+    display(GOTableGeneric(1:20,:))
+end
 
 end

@@ -1,13 +1,12 @@
-% IntraCorrTable
+function IntraCorrTable()
 
 whatSpecies = {'mouse','human'};
 whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
 whatIntraStat = 'raw';
 numNullSamples_intraCorr = 20000; % (Intra_*_*_20000.mat)
-numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
 
 %===============================================================================
-% Import (or compute) intra-category correlation data and surrogate random data
+% Import intra-category correlation data and surrogate random data
 %===============================================================================
 results = struct();
 for s = 1:2
@@ -43,3 +42,5 @@ T = table(CategoryName,IDLabel,ID,WithinCategoryCoexpMouse,WithinCategoryCoexpHu
 fileOut = fullfile('SupplementaryTables','WithinCategoryCoexp.csv');
 writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
 fprintf(1,'Saved within-category coexpression results to %s\n',fileOut);
+
+end

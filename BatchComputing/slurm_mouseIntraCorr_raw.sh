@@ -30,4 +30,4 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); IntraCorrelationByCategory('mouse','geneShuffle',20000,'raw',true); exit"
+matlab -nodesktop -r "startup; parpool('local',12); IntraCorrelationByCategory('mouse','geneShuffle',20000,'raw',true); exit"

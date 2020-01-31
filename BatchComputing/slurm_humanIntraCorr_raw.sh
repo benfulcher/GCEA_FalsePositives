@@ -31,4 +31,4 @@ env | grep SLURM
 
 # Launch the Matlab job
 # matlab -nodesktop -r "startup;parpool('local',12); IntraCorrelationByCategory('human','independentSpatialShuffle',20000,'VE1',true); exit"
-matlab -nodesktop -r "startup;parpool('local',12); IntraCorrelationByCategory('human','geneShuffle',[],'raw',true); exit"
+matlab -nodesktop -r "startup; parpool('local',12); IntraCorrelationByCategory('human','geneShuffle',[],'raw',true); exit"

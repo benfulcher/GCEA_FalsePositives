@@ -22,7 +22,7 @@ if nargin < 3
 end
 
 %-------------------------------------------------------------------------------
-[rowVectorResults,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,'pValCorr');
+[rowVectorResults,allGOIDs,allTableNames] = CombineTables(resultsTables,whatSpecies,'pValZCorr');
 numTables = length(allTableNames);
 
 % Retrieve full GO information:

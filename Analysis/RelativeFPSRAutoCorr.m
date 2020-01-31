@@ -1,8 +1,8 @@
 function RelativeFPSRAutoCorr()
 % Does adding spatial autocorrelation to phenotypes boost the correlations to
 % GO categories containing genes with high spatial autocorrelation?
+%-------------------------------------------------------------------------------
 
-numNullSamples_surrogate = 10000;
 whatSpecies = {'mouse','human'};
 
 GOTable_FPSR = struct();
@@ -10,15 +10,15 @@ GOTableCombined = struct();
 
 for s = 1:2
     params = GiveMeDefaultParams(whatSpecies{s});
+
     % Compute spatial autocorrelation scores per GO category:
-    params.g.normalizationGene = 'zscore';
-    params.g.normalizationRegion = 'zscore';
-    params.e.numNullSamples = 100; % for speed since we don't actually use the p-values
-    results = geneEnrichmentDistance(params);
+    load(GiveMeDistanceScoreFileName(params),'GOTable');
+    GOTable_ACScores = GOTable;
+    clear('GOTable')
 
     % Load FPSR (random and spatial autocorrelation)
-    GOTable_FPSR.(whatSpecies{s}).random = SurrogateEnrichmentProcess(whatSpecies{s},numNullSamples_surrogate,'randomUniform','');
-    GOTable_FPSR.(whatSpecies{s}).spatialAC = SurrogateEnrichmentProcess(whatSpecies{s},numNullSamples_surrogate,'spatialLag','');
+    GOTable_FPSR.(whatSpecies{s}).random = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsFPSR,'randomUniform','',false);
+    GOTable_FPSR.(whatSpecies{s}).spatialAC = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsFPSR,'spatialLag','',false);
 
     % Combine/annotate:
     [~,ia,ib] = intersect(GOTable_FPSR.(whatSpecies{s}).random.GOID,GOTable_FPSR.(whatSpecies{s}).spatialAC.GOID);
@@ -30,9 +30,9 @@ for s = 1:2
 
     % Does the level of spatial autocorrelation of genes in a category capture the change?:
     % annotate the meanScore
-    [~,ia,ib] = intersect(GOTableCombined.(whatSpecies{s}).GOID,results.GOID);
+    [~,ia,ib] = intersect(GOTableCombined.(whatSpecies{s}).GOID,GOTable_ACScores.GOID);
     GOTableCombined.(whatSpecies{s}) = GOTableCombined.(whatSpecies{s})(ia,:);
-    GOTableCombined.(whatSpecies{s}).meanACscore = results.meanScore(ib);
+    GOTableCombined.(whatSpecies{s}).meanACscore = GOTable_ACScores.meanScore(ib);
 end
 
 %-------------------------------------------------------------------------------

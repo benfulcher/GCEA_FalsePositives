@@ -19,5 +19,5 @@ sbatch slurm_mouseUniformRandomShuffleUniformRandom.sh
 sbatch slurm_mouseUniformRandom.sh
 sbatch slurm_mouseSpatialLag.sh
 
-# Intra-category correlation nulls (not really used anymore):
-# sbatch slurm_mouseIntraCorr_raw.sh
+# Intra-category correlation nulls (randomized versions are no longer used):
+sbatch slurm_mouseIntraCorr_raw.sh

@@ -141,10 +141,46 @@ OverlapLitFPSR('human')
 
 ### Specific GO categories
 
-You can zoom into specific GO categories using:
+You can zoom into the null score distributions of two specific GO categories using:
 
 ```
-PlotCategoryNullCompare
+PlotCategoryNullCompare('mouse')
+```
+
+### The role of intra-category coexpression
+
+The computation runs through:
+```
+IntraCorrelationByCategory('mouse','geneShuffle',20000,'raw',true);
+IntraCorrelationByCategory('human','geneShuffle',20000,'raw',true);
+```
+(although the shuffled versions aren't in any analyses, so the computation on shuffled data is needless).
+
+Generate a table of intra-category coexpression (`WithinCategoryCoexp.csv`):
+```matlab
+IntraCorrTable()
+```
+
+Does intra-category coexpression relate to FPSR?:
+```matlab
+IntraCorrFPSR()
+```
+
+Do categories with spatially autocorrelated genes exhibit an increase in FPSR against spatially autocorrelated ensembles?
+
+First compute scores for each category and each species (ready for analysis):
+```matlab
+ComputeSpatialEmbeddingScores();
+```
+
+Investigate how FPSR is correlated to gene spatial autocorrelation (by category)
+```matlab
+RelativeFPSRAutoCorr()
+```
+
+Save scores to table and get some additional visualizations:
+```matlab
+DistanceConfoundResults()
 ```
 
 #### Generating surrogate maps
