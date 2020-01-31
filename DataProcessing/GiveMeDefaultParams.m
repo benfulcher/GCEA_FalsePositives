@@ -114,6 +114,7 @@ params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 % Properties of nulls
 %-------------------------------------------------------------------------------
 params.nulls.numNullsFPSR = 10000;
+params.nulls.permTestP = false; % permutation test or gaussian-approximation
 
 %-------------------------------------------------------------------------------
 % Computing GCC scores

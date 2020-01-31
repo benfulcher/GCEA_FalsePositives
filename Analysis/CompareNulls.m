@@ -1,4 +1,4 @@
-function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,whatSurrogate,numNullSamples,doRecompute)
+function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,whatSurrogate,doRecompute)
 % Compares the coexpression of genes in a given GO category from different null spatial maps
 %-------------------------------------------------------------------------------
 
@@ -14,17 +14,14 @@ if nargin < 3
     whatSurrogate = 'randomMap'; % 'spatialLag'
 end
 if nargin < 4
-    numNullSamples = 2000;
-end
-if nargin < 5
     doRecompute = true;
 end
-whatCorr = 'Spearman';
 doPlot = false;
 
 %-------------------------------------------------------------------------------
 numGOIDs = length(whatGOIDs);
 params = GiveMeDefaultParams(whatSpecies);
+params.e.whatEnsemble = whatSurrogate;
 params.g.whatSurrogate = whatSurrogate;
 
 %-------------------------------------------------------------------------------
@@ -34,14 +31,17 @@ categoryLabels = cell(numGOIDs,1);
 if doRecompute
     for i = 1:numGOIDs
         [categoryScores{i},categoryInfo] = GiveMeCategoryNullDist(whatGOIDs(i),...
-                                                    params,numNullSamples,whatCorr);
+                                                    params,params.e.numNullSamples,params.e.whatCorr);
         categoryLabels{i} = categoryInfo.GOName{1};
     end
 else
     % Load in precomputed data (cf. ComputeAllCategoryNulls):
-    theDataFile = sprintf('RandomNull_%u_%s-%s_%s_%s_mean.mat',numNullSamples,whatSpecies,...
-                                params.g.structFilter,whatSurrogate,whatCorr);
+    theDataFile = GiveMeEnsembleEnrichmentOutputFileName(params);
     fprintf(1,'Loading in precomputed null data from ''%s''\n',theDataFile);
+    if ~exist(theDataFile)
+        warning('The latest computation has not been computed :-/ Using an old version');
+        theDataFile = GiveMeEnsembleEnrichmentOutputFileName(params,true);
+    end
     load(theDataFile,'GOTable');
     for i = 1:numGOIDs
         whatCategory = find(GOTable.GOID==whatGOIDs(i));
@@ -63,7 +63,7 @@ if doPlot
     ax.XTickLabel = categoryLabels;
     ylabel('Mean category score')
     xlabel('GO category')
-    title(sprintf('%u nulls of %s',numNullSamples,whatSurrogate))
+    title(sprintf('%u nulls of %s',params.e.numNullSamples,params.e.whatEnsemble))
 
     %-------------------------------------------------------------------------------
     % Plot null distributions as histograms:
@@ -77,8 +77,8 @@ if doPlot
         h{i}.FaceColor = myColors(i,:);
     end
     legend([h{:}],categoryLabels)
-    xlabel(sprintf('%s correlation',whatCorr))
-    title(sprintf('%u nulls of %s',numNullSamples,whatSurrogate))
+    xlabel(sprintf('%s correlation',params.e.whatCorr))
+    title(sprintf('%u nulls of %s',params.e.numNullSamples,params.e.whatEnsemble))
 end
 
 end

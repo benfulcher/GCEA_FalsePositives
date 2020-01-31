@@ -1,26 +1,29 @@
-function NullEnrichmentTogether(whatSpecies,doLog)
-
+function NullEnrichmentTogether(whatSpecies,numNullSamplesSurrogate,doLog)
+% Investigate the distribution of false-positive (corrected) enrichment across
+% different null phenotype ensembles.
+%-------------------------------------------------------------------------------
 if nargin < 1
     whatSpecies = 'human';
 end
-if nargin < 2
+params = GiveMeDefaultParams(whatSpecies);
+if nargin < 2 || isempty(numNullSamplesSurrogate)
+    numNullSamplesSurrogate = params.nulls.numNullsFPSR; % number of null maps to test against
+end
+% (SurrogateGOTables_10000_*.mat)
+if nargin < 3
     doLog = true;
 end
-
-%-------------------------------------------------------------------------------
-numNullSamples_surrogate = 10000; % (SurrogateGOTables_10000_*.mat)
-
 %-------------------------------------------------------------------------------
 
 nullGOTables = struct();
-nullGOTables.SBPrandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
-% nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','coordinatedSpatialShuffle');
-nullGOTables.reference = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','independentSpatialShuffle');
-nullGOTables.SBPspatial = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'spatialLag','');
+nullGOTables.SBPrandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamplesSurrogate,'randomUniform','');
+% nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,numNullSamplesSurrogate,'randomUniform','coordinatedSpatialShuffle');
+nullGOTables.reference = SurrogateEnrichmentProcess(whatSpecies,numNullSamplesSurrogate,'randomUniform','independentSpatialShuffle');
+nullGOTables.SBPspatial = SurrogateEnrichmentProcess(whatSpecies,numNullSamplesSurrogate,'spatialLag','');
 
 %-------------------------------------------------------------------------------
 % Extract sum under significant values:
-sumUnderSigValues = structfun(@(x)x.sumUnderSig/numNullSamples_surrogate,nullGOTables,'UniformOutput',false);
+sumUnderSigValues = structfun(@(x)x.sumUnderSig/numNullSamplesSurrogate,nullGOTables,'UniformOutput',false);
 
 %-------------------------------------------------------------------------------
 % Distribution of sumUnderSig:

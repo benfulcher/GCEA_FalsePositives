@@ -2,7 +2,9 @@
 %-------------------------------------------------------------------------------
 % DATA LOADING (DO ONCE)
 %-------------------------------------------------------------------------------
-numNullSamples = 10000;
+params = GiveMeDefaultParams('mouse');
+numNullSamples = params.nulls.numNullsFPSR; % number of null maps to test against
+
 % Load in the null data:
 GOTableNullMouseRandom = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','');
 GOTableNullMouseAC = SurrogateEnrichmentProcess('mouse',numNullSamples,'spatialLag','');
@@ -14,8 +16,12 @@ GOTableNullHumanRef = SurrogateEnrichmentProcess('human',numNullSamples,'randomU
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 % Some simple stats:
+% Proportion of the reference (proper null) data that have no false significance.
 propMouseRef0 = mean(GOTableNullMouseRef.sumUnderSig==0);
 propHumanRef0 = mean(GOTableNullHumanRef.sumUnderSig==0);
+maxRefMouse = max(GOTableNullMouseRef.sumUnderSig);
+maxRefHuman = max(GOTableNullHumanRef.sumUnderSig);
+
 
 %-------------------------------------------------------------------------------
 % COMBINE:
@@ -76,9 +82,15 @@ fprintf(1,'Saved all FPSR results to %s\n',fileOut);
 %===============================================================================
 % Some basic statistics on how FPSR estimates change across the scenarios
 %-------------------------------------------------------------------------------
+% Max:
+maxMouseRand = max(GOTableCombined.sumUnderSigMouse);
+maxHumanRand = max(GOTableCombined.sumUnderSigHuman);
+maxMouseSpat = max(GOTableCombined.sumUnderSigMouseAC);
+maxHumanSpat = max(GOTableCombined.sumUnderSigHumanAC);
+
 % Exhibited an increase:
-didIncreaseMouseSBPrand = mean(GOTableCombined.sumUnderSigMouse>GOTableCombined.refMouse);
-didIncreaseHumanSBPrand = mean(GOTableCombined.sumUnderSigHuman>GOTableCombined.refHuman);
+didIncreaseMouseSBPrand = mean(GOTableCombined.sumUnderSigMouse > GOTableCombined.refMouse);
+didIncreaseHumanSBPrand = mean(GOTableCombined.sumUnderSigHuman > GOTableCombined.refHuman);
 % foldChangeMouse = GOTableCombined.sumUnderSigMouseAC./GOTableCombined.refMouse;
 
 meanIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC-GOTableCombined.sumUnderSigMouse)/numNullSamples;

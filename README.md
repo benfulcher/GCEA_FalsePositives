@@ -95,39 +95,57 @@ For example, this one is 40000 null samples for mouse data using the `'randomMap
 
 ### Enrichment signatures of random spatial maps
 
+#### Precomputing
 This code computes the enrichment across 1000 actual independent random number samples:
 ```matlab
 SurrogateEnrichment('mouse',1000,'randomUniform');
 ```
 
-#### Analyzing enrichment signatures of null maps
+This pre-computation is required for the analyses presented here (cf. in `batchAllHumanAnalyses` and `batchAllMouseAnalyses`).
+The empty second input uses the default number of maps.
 
-The results computed above can be read in and processed as a GO Table for:
-
-* Spatial lag model:
 ```matlab
-GOTableNull = SurrogateEnrichmentProcess('mouse',1000,'spatialLag');
+% Spatially random model (plus independent shuffling of space, separately per gene) [should be no signal---a real null of correlated noise with noise]:
+SurrogateEnrichment('mouse',[],'randomUniform','independentSpatialShuffle');
+% Spatially random model:
+SurrogateEnrichment('mouse',[],'randomUniform','');
+% Spatial lag model:
+SurrogateEnrichment('mouse',[],'spatialLag','');
+% (and similarly for 'human')
 ```
 
-* Spatially random model:
+There is also the (irrelevant) spatially random model (plus coordinated shuffling of genes through space) [equivalent to not doing a coordinatedSpatialShuffle]:
 ```matlab
-SurrogateEnrichment('mouse',5000,'randomUniform','');
+SurrogateEnrichment('mouse',[],'randomUniform','coordinatedSpatialShuffle');
 ```
 
-* Spatially random model (plus coordinated shuffling of genes through space) [should be equivalent to previous]:
+The computed results are saved a `.mat` files and can be read in and processed as a GO Table using `SurrogateEnrichmentProcess`.
+
+#### Analysis
+Plotting distributions of FPSE across GO categories for the three null cases:
 ```matlab
-SurrogateEnrichment('mouse',10000,'randomUniform','coordinatedSpatialShuffle');
+NullEnrichmentTogether('mouse',[],true)
+NullEnrichmentTogether('human',[],true)
 ```
 
-* Spatially random model (plus independent shuffling of space, separately per gene) [should be no signal---a real null of correlated noise with noise]:
+Outputting a table, and understanding some statistics of FPSE in mouse and human:
 ```matlab
-SurrogateEnrichment(‘mouse’,10000,’randomUniform’,’independentSpatialShuffle’);
+FPSRTable();
 ```
 
+Investigating the overlap between literature annotations and FPSE as histograms:
+```matlab
+OverlapLitFPSR('mouse')
+OverlapLitFPSR('human')
+```
 
+### Specific GO categories
 
+You can zoom into specific GO categories using:
 
-### Enrichment signatures of spatially-correlated null maps
+```
+PlotCategoryNullCompare
+```
 
 #### Generating surrogate maps
 

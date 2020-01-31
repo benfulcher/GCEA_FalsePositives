@@ -1,15 +1,19 @@
-% Set parameters:
-whatSpecies = 'human';
-pValCorrThreshold = 0.05;
+function OverlapLitFPSR(whatSpecies)
+% Understand the overlap between high FPSR categories and those reported in the
+% literature
+%-------------------------------------------------------------------------------
+if nargin < 1
+    whatSpecies = 'human';
+end
+params = GiveMeDefaultParams(whatSpecies);
 
 %-------------------------------------------------------------------------------
 % Retrieve information about how literature results are distributed across categories:
-LitTable = MakeLiteratureTable(whatSpecies,pValCorrThreshold);
+LitTable = MakeLiteratureTable(whatSpecies,params.e.sigThresh);
 
 %-------------------------------------------------------------------------------
 % Now we'll get the FPSR data:
-numNullSamples_surrogate = 10000;
-GOTable_FPSR = SurrogateEnrichmentProcess(whatSpecies,numNullSamples_surrogate,'randomUniform','');
+GOTable_FPSR = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'randomUniform','');
 
 % If at least X studies have quoted it at pCorr < 0.05, then we label it as a "reported category":
 GOID_reported_1 = LitTable.GOID(LitTable.numStudies==1);
@@ -60,14 +64,15 @@ xlabel('FPSR (%)')
 ylabel('GO categories reported as significant (%)')
 legend(legendEntries,'Location','northwest')
 title(whatSpecies)
-colors = BF_getcmap('browngreen',3,1);
-bh(1).FaceColor = colors{1};
-bh(2).FaceColor = colors{3};
+colors = [97,184,255; 255,163,0]/255;
+bh(1).FaceColor = colors(1,:);
+bh(2).FaceColor = colors(2,:);
 ax = gca;
 ax.XLim = [0,30];
 f.Position = [1058         972         460         219];
 
 % bar(binMeans/10000,FPSR_repOrNot,'stacked')
 
-
 %-------------------------------------------------------------------------------
+
+end

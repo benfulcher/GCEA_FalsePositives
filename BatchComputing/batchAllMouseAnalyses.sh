@@ -16,8 +16,8 @@ sbatch slurm_mouseCategoryNullCompute_randomMap_cortex.sh
 # Compute false-positive significance rates (under conventional GO enrichment):
 # ------------------------------------------------------
 sbatch slurm_mouseUniformRandomShuffleUniformRandom.sh
-sbatch slurm_mouseSpatialLag.sh
 sbatch slurm_mouseUniformRandom.sh
+sbatch slurm_mouseSpatialLag.sh
 
 # Intra-category correlation nulls (not really used anymore):
 # sbatch slurm_mouseIntraCorr_raw.sh
