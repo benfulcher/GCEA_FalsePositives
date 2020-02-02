@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ------------------------------------------------------
-# First compute null distributions under null maps:
+# First compute null distributions under (null) phenotype ensembles:
 # ------------------------------------------------------
 
 # Spatially autocorrelated:

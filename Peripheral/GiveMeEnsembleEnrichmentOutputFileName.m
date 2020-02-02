@@ -20,4 +20,7 @@ else
                 params.e.whatCorr,params.e.aggregateHow);
 end
 
+% Put it in a separate directory of ensemble-based nulls:
+fileNullEnsembleResults = fullfile('EnsembleBasedNulls',fileNullEnsembleResults);
+
 end
