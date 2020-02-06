@@ -47,8 +47,9 @@ if doPlot
     plot(xRange,f_handle(xRange),'b','LineWidth',3)
 end
 
-fprintf(1,'Mouse-brain gene expression has strength, rho = %g \n',rho);
-fprintf(1,'Mouse-brain gene expression has spatial scale, d0 = %g \n',d0);
+fprintf(1,'%s-brain gene expression has strength, rho = %g \n',mouseOrHuman,rho);
+fprintf(1,'%s-brain gene expression has spatial scale, d0 = %g \n',mouseOrHuman,d0);
+return
 
 % Generate null maps with these parameters:
 nullMaps = GenerateSpatialLagMap(distMat,d0,rho,numMaps);

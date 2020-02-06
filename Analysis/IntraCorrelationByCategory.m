@@ -121,7 +121,8 @@ end
 % Update the GO table:
 resultsTable.pVal = pVal;
 resultsTable.pValZ = pValZ;
-% FDR-corrected values:
+
+% FDR-correct:
 resultsTable.pValCorr = mafdr(pVal,'BHFDR','true');
 resultsTable.pValZCorr = mafdr(pValZ,'BHFDR','true');
 

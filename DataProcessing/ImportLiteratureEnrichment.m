@@ -2,7 +2,6 @@ function [resultsTables,mouseOrHuman] = ImportLiteratureEnrichment(filterOnOurGe
 % Loads in a table of enrichment results for all prior studies using GO
 % enrichment
 %-------------------------------------------------------------------------------
-
 % Whether to only look at categories with annotations for genes in our set:
 if nargin < 1
     filterOnOurGenes = false;

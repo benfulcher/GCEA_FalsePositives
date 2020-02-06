@@ -97,29 +97,29 @@ meanIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC-GOTableC
 meanIncreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC-GOTableCombined.sumUnderSigHuman)/numNullSamples;
 
 %===============================================================================
-% Look up a specific category:
-
-%-------------------------------------------------------------------------------
-% ~~~~Do this once~~~~:
-% Get generic mouse-annotation GO category sizes:
-params = GiveMeDefaultParams();
-params.e.sizeFilter = [0,1e6];
-GOTerms = GiveMeGOData(params);
-
-%-------------------------------------------------------------------------------
-theCategoryName = 'long-term synaptic potentiation';
-
-weAreHere = strcmp(GOTerms.GOName,theCategoryName);
-display(GOTerms(weAreHere,:));
-theCategoryID = GOTerms.GOID(weAreHere);
-
-theCategoryID = 31638;
-rowID = GOTableCombined.GOID==theCategoryID;
-
-display(GOTableCombined(rowID,:));
-% GOTableNullMouseRandom(,:)
-% GOTableNullMouseAC(GOTableNullMouseAC.GOID==theCategoryID,:)
-% GOTableNullHuman(GOTableNullHuman.GOID==theCategoryID,:)
-% GOTableNullHumanAC(GOTableNullHumanAC.GOID==theCategoryID,:)
-
-TellMeLiteratureStory(theCategoryID)
+% % Look up a specific category:
+%
+% %-------------------------------------------------------------------------------
+% % ~~~~Do this once~~~~:
+% % Get generic mouse-annotation GO category sizes:
+% params = GiveMeDefaultParams();
+% params.e.sizeFilter = [0,1e6];
+% GOTerms = GiveMeGOData(params);
+%
+% %-------------------------------------------------------------------------------
+% theCategoryName = 'long-term synaptic potentiation';
+%
+% weAreHere = strcmp(GOTerms.GOName,theCategoryName);
+% display(GOTerms(weAreHere,:));
+% theCategoryID = GOTerms.GOID(weAreHere);
+%
+% theCategoryID = 31638;
+% rowID = GOTableCombined.GOID==theCategoryID;
+%
+% display(GOTableCombined(rowID,:));
+% % GOTableNullMouseRandom(,:)
+% % GOTableNullMouseAC(GOTableNullMouseAC.GOID==theCategoryID,:)
+% % GOTableNullHuman(GOTableNullHuman.GOID==theCategoryID,:)
+% % GOTableNullHumanAC(GOTableNullHumanAC.GOID==theCategoryID,:)
+%
+% TellMeLiteratureStory(theCategoryID)

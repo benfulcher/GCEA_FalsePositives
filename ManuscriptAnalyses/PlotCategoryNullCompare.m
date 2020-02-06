@@ -54,7 +54,7 @@ categoryScores = struct();
 categoryLabels = struct();
 fprintf(1,'Computing distribution of null spatial-lag category scores for %u GO categories\n',...
                                                 length(whatGOIDs));
-[categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,whatSpecies,'spatialLag',false);
+[categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,whatSpecies,'customEnsemble',false);
 fprintf(1,'Computing distribution of null random-map category scores for %u GO categories\n',...
                                                 length(whatGOIDs));
 [categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'randomMap',false);

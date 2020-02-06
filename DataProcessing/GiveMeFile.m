@@ -1,5 +1,6 @@
 function dataFile = GiveMeFile(fileLabel)
 % Returns a specific filename or path to external dependencies that vary across systems
+%-------------------------------------------------------------------------------
 
 switch fileLabel
 case 'AllenMouseGene'

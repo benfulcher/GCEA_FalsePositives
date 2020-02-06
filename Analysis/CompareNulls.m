@@ -11,7 +11,7 @@ if nargin < 2
     whatSpecies = 'mouse';
 end
 if nargin < 3
-    whatSurrogate = 'randomMap'; % 'spatialLag'
+    whatSurrogate = 'randomMap'; % 'customEnsemble' (spatial lag)
 end
 if nargin < 4
     doRecompute = true;
@@ -38,10 +38,6 @@ else
     % Load in precomputed data (cf. ComputeAllCategoryNulls):
     theDataFile = GiveMeEnsembleEnrichmentOutputFileName(params);
     fprintf(1,'Loading in precomputed null data from ''%s''\n',theDataFile);
-    if ~exist(theDataFile)
-        warning('The latest computation has not been computed :-/ Using an old version');
-        theDataFile = GiveMeEnsembleEnrichmentOutputFileName(params,true);
-    end
     load(theDataFile,'GOTable');
     for i = 1:numGOIDs
         whatCategory = find(GOTable.GOID==whatGOIDs(i));

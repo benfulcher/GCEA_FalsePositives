@@ -13,28 +13,38 @@ end
 params = GiveMeDefaultParams(whatSpecies,structFilter);
 
 % Get the phenotype of interest:
+enrichWhat = 'degree';
 doBinarize = true;
 phenotypeVector = ComputeDegree(params,doBinarize);
+
+% Set up the gene-expression data of interest:
+[geneData,geneInfo] = LoadMeG(params.g);
+geneDataStruct = struct();
+geneDataStruct.expressionMatrix = geneData;
+geneDataStruct.entrezIDs = geneInfo.entrez_id;
 
 %-------------------------------------------------------------------------------
 % Compute results:
 %-------------------------------------------------------------------------------
 resultTablesDegree = struct();
 
-% (i) Conventional null (gene-score resampling):
-resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree');
+% (i) Load results of conventional null (precomputed using gene-score resampling):
+% resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree',true);
+load(GiveMeSimpleEnrichmentOutputFile(params,enrichWhat),'GOTable');
+resultTablesDegree.randomGeneNull = GOTable;
+clear('GOTable')
 
-% (ii) random phenotype null:
+% (ii) Random phenotype null:
 params.e.whatEnsemble = 'randomMap';
-fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params.e.ensemble);
-resultTablesDegree.randomMap = EnsembleEnrichment(params.e.ensemble,phenotypeVector);
+fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params);
+resultTablesDegree.randomMap = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
 % [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 % ListCategories(geneInfo,GOTablePhenotype,20,'pValZ');
 
-% (iii) spatial lag null:
+% (iii) Spatial-lag null:
 params.e.whatEnsemble = 'customEnsemble';
-fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params.e.ensemble);
-resultTablesDegree.spatialLag = EnsembleEnrichment(params.e.ensemble,phenotypeVector);
+fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params);
+resultTablesDegree.spatialLag = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
 
 %-------------------------------------------------------------------------------
 % List significant categories under each null:
@@ -140,3 +150,4 @@ end
 % pVals = resultTablesDegree.mouse_all_spatialNull_twoIsocortex.pValZCorr;
 % fprintf(1,'p-vals for two-part isocortex constrained null are all > %.3f [%u-nulls]\n',...
 %                 min(pVals),numNulls);
+end

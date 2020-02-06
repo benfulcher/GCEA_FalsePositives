@@ -1,4 +1,4 @@
-function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat)
+function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,doSaveMat)
 % Score each gene on some simple property then do a conventional GSR enrichment
 % analysis on the results.
 
@@ -21,7 +21,10 @@ if nargin < 2 || isempty(enrichWhat)
     fprintf(1,'Mean expression by default\n');
     enrichWhat = 'meanExpression'; % raw mean expression level
 end
-corrType = params.e.ensemble.whatCorr;
+if nargin < 3
+    doSaveMat = false;
+end
+corrType = params.e.whatCorr;
 fprintf(1,'Using %s correlations (if relevant)\n',corrType);
 
 doRandomize = false;
@@ -174,6 +177,14 @@ GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,params.e);
 numSig = sum(GOTable.pValPermCorr < params.e.sigThresh);
 fprintf(1,'%u significant categories at pPerm_corr < %.2f\n',numSig,params.e.sigThresh);
 display(GOTable(1:numSig,:));
+
+%-------------------------------------------------------------------------------
+% Save .mat file for later
+if doSaveMat
+    fileSaveTo = GiveMeSimpleEnrichmentOutputFile(params,enrichWhat);
+    save(fileSaveTo,'params','GOTable','gScore');
+    fprintf(1,'Saved results to %s\n',fileSaveTo);
+end
 
 %-------------------------------------------------------------------------------
 % Output csv for the isocortex results:
