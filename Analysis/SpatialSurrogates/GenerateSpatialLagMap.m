@@ -29,7 +29,7 @@ for i = 1:numMaps
     u = randn(numPoints,1);
     % x = (identity - rho * W)\u;
     % x = inv(identity - rho * W)*u;
-    X(:,i) = rho * W * u;
+    X(:,i) = (identity + rho * W) * u;
 end
 
 end

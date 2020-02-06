@@ -1,13 +1,18 @@
-function dataFileSurrogate = FindNullFile(whatSpecies,structFilter,numMaps)
+function dataFileSurrogate = FindNullFile(params)
 % Setting for the ensemble enrichment parameters
 %-------------------------------------------------------------------------------
 
-% I no longer put the d0, rho in the filename (but it's in the .mat file for reference):
-if strcmp(whatSpecies,'mouse')
-    dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u.mat',whatSpecies,structFilter,numMaps);
+if params.e.useAutoSpatial
+    dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u.mat',params.humanOrMouse,...
+                            params.structFilter,params.e.numNullSamples);
 else
-    dataFileSurrogate = sprintf('%s_Surrogate_N%u.mat',whatSpecies,numMaps);
+    dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u_manual.mat',params.humanOrMouse,...
+                            params.structFilter,params.e.numNullSamples);
 end
+
+dataFileSurrogate = fullfile('SurrogateMaps',dataFileSurrogate);
+
+
 
 %===============================================================================
 % OLD PYTHON VERSION:

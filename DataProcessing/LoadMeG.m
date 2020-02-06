@@ -73,8 +73,8 @@ case {'surrogate-mouse','surrogate-human'}
     switch gParam.whatSurrogate
     case 'spatialLag'
         % Get the pre-computed surrogate data:
-        numMaps = 40000;
-        dataFileSurrogate = FindNullFile(gParam.humanOrMouse,gParam.structFilter,numMaps);
+        paramsFull = GiveMeDefaultParams(gParam.humanOrMouse,gParam.structFilter);
+        dataFileSurrogate = FindNullFile(paramsFull);
         % Surrogate maps pre-generated using the spatial lag model:
         fprintf(1,'SUBSTITUTING WITH Surrogate brain maps from the spatial lag model, from %s\n',...
                             dataFileSurrogate);

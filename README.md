@@ -115,9 +115,9 @@ ComputeSpatialEmbeddingScores();
 params = GiveMeDefaultParams();
 numMaps = params.e.numNullSamples;
 plotSummary = true;
-GenerateSpatialEnsemble('mouse','all',plotSummary,numMaps)
-GenerateSpatialEnsemble('mouse','cortex',plotSummary,numMaps)
-GenerateSpatialEnsemble('human','cortex',plotSummary,numMaps)
+GenerateSpatialEnsemble('mouse','all',plotSummary)
+GenerateSpatialEnsemble('mouse','cortex',plotSummary)
+GenerateSpatialEnsemble('human','cortex',plotSummary)
 ```
 
 #### Python (old)
