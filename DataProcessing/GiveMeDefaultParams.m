@@ -104,7 +104,7 @@ params.e.whatCorr = 'Spearman';
 params.e.aggregateHow = 'mean';
 params.e.whatEnsemble = 'randomMap'; % 'randomMap', 'customEnsemble'
 % *For custom ensemble:
-params.e.useAutoSpatial = false;
+params.e.useAutoSpatial = true;
 % dataFileSurrogate: point to the file containing the custom maps)
 % (this information is only used for 'customEnsemble')
 params.e.dataFileSurrogate = FindNullFile(params);

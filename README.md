@@ -112,15 +112,13 @@ ComputeSpatialEmbeddingScores();
 #### Matlab
 
 ```matlab
-params = GiveMeDefaultParams();
-numMaps = params.e.numNullSamples;
 plotSummary = true;
 GenerateSpatialEnsemble('mouse','all',plotSummary)
 GenerateSpatialEnsemble('mouse','cortex',plotSummary)
 GenerateSpatialEnsemble('human','cortex',plotSummary)
 ```
 
-#### Python (old)
+<!-- #### Python (old)
 First generate pairwise distance matrices for the regions in human cortex and mouse brain:
 ```matlab
 SaveOutDistanceMatrices
@@ -135,7 +133,7 @@ python3 GenerateMapsFixed.py
 The outputs, `mouseSurrogate_N10000_rho8_d040.csv` and `mouseSurrogate_rho10.csv`, are spatially correlated null maps that can be visualized in Matlab. For example:
 ```matlab
 VisualizeSurrogateMaps('mouse');
-```
+``` -->
 
 ## Analysis
 
