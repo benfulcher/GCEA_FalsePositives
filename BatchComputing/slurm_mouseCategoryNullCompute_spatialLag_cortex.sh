@@ -10,7 +10,7 @@
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=16000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=140:00:00
+#SBATCH --time=112:00:00
 # Email user if job fails or ends
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
