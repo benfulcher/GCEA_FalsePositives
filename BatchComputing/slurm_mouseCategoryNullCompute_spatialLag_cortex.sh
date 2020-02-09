@@ -6,9 +6,9 @@
 # Request CPU resources
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=20
 # Memory usage (MB)
-#SBATCH --mem-per-cpu=16000
+#SBATCH --mem-per-cpu=18000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
 #SBATCH --time=112:00:00
 # Email user if job fails or ends
