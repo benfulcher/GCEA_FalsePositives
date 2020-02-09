@@ -6,7 +6,7 @@
 # Request CPU resources
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=16
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=18000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
@@ -30,4 +30,4 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',16); params = GiveMeDefaultParams('mouse','cortex'); params.e.whatEnsemble = 'customEnsemble'; NullComputation(params); exit"
+matlab -nodesktop -r "startup; parpool('local',12); params = GiveMeDefaultParams('mouse','cortex'); params.e.whatEnsemble = 'customEnsemble'; NullComputation(params); exit"
