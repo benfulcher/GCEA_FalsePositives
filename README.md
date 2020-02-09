@@ -137,6 +137,13 @@ VisualizeSurrogateMaps('mouse');
 
 ## Analysis
 
+### Characterizing Results in the Published Literature
+
+Construct a table of the most commonly reported GO categories:
+```matlab
+TopLiteratureCats();
+```
+
 ### Enrichment signatures of ensembles of random spatial phenotypes (and/or including spatial autocorrelation)
 
 #### Plot distributions of FPSE across GO categories for the three null cases

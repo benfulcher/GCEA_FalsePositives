@@ -63,7 +63,7 @@ for i = 1:numMaps
 
     geneScores = zeros(numGenesReal,1);
     for j = 1:numGenesReal
-        geneScores(j) = corr(map_i,geneDataReal(:,j),'type','Spearman','rows','pairwise');
+        geneScores(j) = corr(map_i,geneDataReal(:,j),'type',params.e.whatCorr,'rows','pairwise');
         if isnan(geneScores(j))
             error('Error computing gene score for map %u and gene %u',i,j);
         end

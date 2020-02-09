@@ -14,14 +14,38 @@ GOTableNullHumanAC = SurrogateEnrichmentProcess('human',numNullSamples,'spatialL
 GOTableNullMouseRef = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','independentSpatialShuffle');
 GOTableNullHumanRef = SurrogateEnrichmentProcess('human',numNullSamples,'randomUniform','independentSpatialShuffle');
 %-------------------------------------------------------------------------------
+
 %-------------------------------------------------------------------------------
 % Some simple stats:
+%-------------------------------------------------------------------------------
 % Proportion of the reference (proper null) data that have no false significance.
 propMouseRef0 = mean(GOTableNullMouseRef.sumUnderSig==0);
 propHumanRef0 = mean(GOTableNullHumanRef.sumUnderSig==0);
+fprintf(1,'%u/%u (%g) mouse GO categories were never significant in the reference case\n',...
+            sum(GOTableNullMouseRef.sumUnderSig==0),height(GOTableNullMouseRef),propMouseRef0);
+fprintf(1,'%u/%u (%g) human GO categories were never significant in the reference case\n',...
+            sum(GOTableNullHumanRef.sumUnderSig==0),height(GOTableNullHumanRef),propHumanRef0);
+
+% Max FPSR:
 maxRefMouse = max(GOTableNullMouseRef.sumUnderSig);
 maxRefHuman = max(GOTableNullHumanRef.sumUnderSig);
+fprintf(1,'Max FPSR (reference) of any mouse GO category was %g%%\n',...
+                    maxRefMouse/numNullSamples*100);
+fprintf(1,'Max FPSR (reference) of any human GO category was %g%%\n',...
+                    maxRefHuman/numNullSamples*100);
 
+% Mean FPSR:
+meanRefMouse = mean(GOTableNullMouseRef.sumUnderSig);
+meanRandMouse = mean(GOTableNullMouseRandom.sumUnderSig);
+meanRefHuman = mean(GOTableNullHumanRef.sumUnderSig);
+fprintf(1,'Mean FPSR (reference) of mouse GO categories was %g%%\n',...
+                    meanRefMouse/numNullSamples*100);
+fprintf(1,'Mean FPSR (SBP-random) of mouse GO categories was %g%%\n',...
+                    meanRandMouse/numNullSamples*100);
+fprintf(1,'Increase in mean FPSR (SBP-random) of mouse GO categories was %u-fold\n',...
+                    round(meanRandMouse/meanRefMouse));
+fprintf(1,'Mean FPSR (reference) of human GO categories was %g%%\n',...
+                    meanRefHuman/numNullSamples*100);
 
 %-------------------------------------------------------------------------------
 % COMBINE:

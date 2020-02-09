@@ -2,6 +2,7 @@ function PlotCategoryNullCompare(whatSpecies)
 if nargin < 1
     whatSpecies = 'mouse';
 end
+%-------------------------------------------------------------------------------
 
 % Set the GOIDs of the categories you want to look into:
 % whatGOIDs = [7215,32612];
@@ -38,31 +39,56 @@ if plotInfoAboutSpecific
     categoryWhat = 2;
     PlotCategoryIntraCorr(whatGOIDs(categoryWhat),params,params.e.whatCorr);
     PlotCategoryExpression(whatGOIDs(categoryWhat),params);
+end
 
-    % -------------------------------------------------------------------------------
-    % FPSR for this category?
-    FPSR_random = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'randomUniform','');
-    FPSR_thisCategory = FPSR_random.sumUnderSig(FPSR_random.GOID==whatGOIDs(categoryWhat));
-    FPSR_random(4285,:)
+% -------------------------------------------------------------------------------
+% FPSR of these categories?
+FPSR_random = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'randomUniform','');
+FPSR_spatial = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'spatialLag','');
+itsMeRand = find(ismember(FPSR_random.GOID,whatGOIDs));
+itsMeSpat = find(ismember(FPSR_spatial.GOID,whatGOIDs));
+for i = 1:length(itsMeRand)
+    fprintf(1,'Category ''%s'' has SBP-random FPSR of %.2f%%\n',...
+                            FPSR_random.GOName{itsMeRand(i)},...
+                            FPSR_random.sumUnderSig(itsMeRand(i))/1e4*100);
+    fprintf(1,'Category ''%s'' has SBP-spatial FPSR of %.2f%%\n',...
+                            FPSR_spatial.GOName{itsMeSpat(i)},...
+                            FPSR_spatial.sumUnderSig(itsMeSpat(i))/1e4*100);
 end
 %===============================================================================
+
+%-------------------------------------------------------------------------------
+% Now let's get going with a joint null samples for this category size:
+%-------------------------------------------------------------------------------
+numNullSamplesJoint = params.e.numNullSamples;
+params.e.whatEnsemble = 'randomMap';
+nullDistributionRandomMap = ComputeJointNull(params,40,numNullSamplesJoint);
+params.e.whatEnsemble = 'customEnsemble';
+nullDistributionSpatialLag = ComputeJointNull(params,40,numNullSamplesJoint);
+% f = figure('color','w');
+% hold('on')
+% histogram(nullDistributionRandomMap)
+% histogram(nullDistributionSpatialLag)
 
 %===============================================================================
 % Plot FPSR distributions
 %-------------------------------------------------------------------------------
 categoryScores = struct();
 categoryLabels = struct();
-fprintf(1,'Computing distribution of null spatial-lag category scores for %u GO categories\n',...
-                                                length(whatGOIDs));
 [categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,whatSpecies,'customEnsemble',false);
-fprintf(1,'Computing distribution of null random-map category scores for %u GO categories\n',...
-                                                length(whatGOIDs));
 [categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'randomMap',false);
 
 %-------------------------------------------------------------------------------
-% Tests of variance:
+% Tests of variance just for fun:
 [h,p] = vartest2(categoryScores.spatialLag{1},categoryScores.spatialLag{2});
 [h,p] = vartest2(categoryScores.randomMap{1},categoryScores.randomMap{2});
+
+%-------------------------------------------------------------------------------
+% Add random-gene joint nulls?:
+categoryScores.spatialLag{3} = nullDistributionSpatialLag;
+categoryScores.randomMap{3} = nullDistributionRandomMap;
+categoryLabels.spatialLag{3} = 'Random Gene';
+categoryLabels.randomMap{3} = 'Random Gene';
 
 %-------------------------------------------------------------------------------
 categoryScoresTogether = [categoryScores.randomMap; categoryScores.spatialLag];
@@ -73,12 +99,13 @@ categoryLabelsTogether = [categoryLabels.randomMap; categoryLabels.spatialLag];
 theColors = GiveMeColors('twoGOCategories'); % (assign colors)
 f = figure('color','w');
 extraParams = struct();
-extraParams.theColors = {theColors(1,:),theColors(2,:),theColors(1,:),theColors(2,:)};
+extraParams.theColors = {theColors(1,:),theColors(2,:),theColors(3,:),...
+                            theColors(1,:),theColors(2,:),theColors(3,:)};
 extraParams.customSpot = '';
 extraParams.offsetRange = 0.7;
 BF_JitteredParallelScatter(categoryScoresTogether,true,true,false,extraParams);
 ax = gca();
-ax.XTick = 1:4;
+ax.XTick = 1:6;
 ax.XTickLabel = categoryLabelsTogether;
 ylabel('Mean category score')
 xlabel('GO category')
@@ -86,3 +113,8 @@ title(sprintf('%u nulls',params.e.numNullSamples))
 f.Position = [1000        1078         341         260];
 maxDev = max([abs(min([categoryScoresTogether{:}])),max([categoryScoresTogether{:}])]);
 ax.YLim = [-maxDev,maxDev];
+
+% Save out as svg file:
+fileName = fullfile('OutputPlots','NullCompareDistributions.svg');
+saveas(f,fileName,'svg')
+fprintf(1,'Saved to %s\n',fileName);

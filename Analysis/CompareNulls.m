@@ -4,6 +4,7 @@ function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,wh
 
 %-------------------------------------------------------------------------------
 % Inputs:
+%-------------------------------------------------------------------------------
 if nargin < 1
     whatGOIDs = [7215,32612]; % 6099, 2374,2693,
 end
