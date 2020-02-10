@@ -1,4 +1,4 @@
-function PlotCategoryIntraCorr(whatGOID,params,whatCorr)
+function PlotCategoryIntraCorr(whatGOID,params,whatCorr,newFigure,doLabeling)
 % Plots the intra-category correlations between genes
 %-------------------------------------------------------------------------------
 
@@ -12,6 +12,12 @@ end
 if nargin < 3
     whatCorr = 'Spearman';
 end
+if nargin < 4
+    newFigure = true;
+end
+if nargin < 5
+    doLabeling = true;
+end
 
 %-------------------------------------------------------------------------------
 % Load in gene expression data for this category
@@ -19,18 +25,29 @@ end
 numGenes = height(geneInfo);
 
 %-------------------------------------------------------------------------------
-f = figure('color','w');
+if newFigure
+    f = figure('color','w');
+end
 ax = gca;
 corrMat = corr(geneData,'type',whatCorr,'rows','pairwise');
 ord = BF_ClusterReorder(corrMat,'euclidean','average');
 imagesc(corrMat(ord,ord));
-ax.YTick = 1:numGenes;
-ax.YTickLabel = geneInfo.acronym(ord);
+
+if doLabeling
+    ax.YTick = 1:numGenes;
+    ax.YTickLabel = geneInfo.acronym(ord);
+    try
+        title(sprintf('%s %s (%u genes)[%s]',categoryInfo.GOIDlabel{1},categoryInfo.GOName{1},....
+                                    categoryInfo.size,whatCorr))
+    end
+    cB = colorbar;
+else
+    ax.YTickLabel = '';
+    ax.XTickLabel = '';
+end
+
 caxis([-1,1])
 colormap([flipud(BF_getcmap('blues',9)); 1,1,1; BF_getcmap('reds',9)])
-title(sprintf('%s %s (%u genes)[%s]',categoryInfo.GOIDlabel{1},categoryInfo.GOName{1},....
-                                categoryInfo.size,whatCorr))
 axis('square')
-cB = colorbar;
 
 end

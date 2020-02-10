@@ -171,7 +171,7 @@ OverlapLitFPSR('human')
 You can zoom into the null score distributions of two specific GO categories using:
 
 ```
-PlotCategoryNullCompare('human')
+PlotCategoryNullCompare('mouse')
 ```
 ![](figs/PlotCategoryNullCompare.png)
 

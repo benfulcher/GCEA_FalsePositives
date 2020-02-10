@@ -1,7 +1,6 @@
 function [geneDataSub,geneInfoSub,structInfo,categoryInfo] = GiveMeGOCategory(whatGOID,params)
 % Retrieve gene expression data for a given GO category
 %-------------------------------------------------------------------------------
-
 if nargin < 1
     whatGOID = 7215;
 end
@@ -12,6 +11,17 @@ end
 %-------------------------------------------------------------------------------
 % Load gene-expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
+
+if isempty(whatGOID)
+    warning('Returning a random set of 40 genes! That''s all!')
+    numGenes = height(geneInfo);
+    rp = randperm(numGenes);
+    rpFilt = rp(1:40);
+    geneDataSub = geneData(:,rpFilt);
+    geneInfoSub = geneInfo(rpFilt,:);
+    categoryInfo = table();
+    return
+end
 
 % Load GO annotations to retrieve the category of interest:
 GOTable = GiveMeGOData(params,geneInfo.entrez_id);

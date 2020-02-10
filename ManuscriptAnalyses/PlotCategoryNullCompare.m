@@ -1,7 +1,7 @@
-function PlotCategoryNullCompare(whatSpecies)
-if nargin < 1
-    whatSpecies = 'mouse';
-end
+% function PlotCategoryNullCompare(whatSpecies)
+% if nargin < 1
+whatSpecies = 'mouse';
+% end
 %-------------------------------------------------------------------------------
 
 % Set the GOIDs of the categories you want to look into:
@@ -34,12 +34,38 @@ plotInfoAboutSpecific = false;
 
 
 %===============================================================================
-% ---Plot information about a specific category---
-if plotInfoAboutSpecific
-    categoryWhat = 2;
-    PlotCategoryIntraCorr(whatGOIDs(categoryWhat),params,params.e.whatCorr);
-    PlotCategoryExpression(whatGOIDs(categoryWhat),params);
-end
+% ---Plot information about the specific categories (and a ranodm one)---
+doReorder = false;
+newFigure = false;
+doLabels = false;
+categoryWhat = 1;
+f = figure('color','w');
+%-------------------------------------------------------------------------------
+% CATEGORY 1:
+subplot(5,3,[1,4,7])
+PlotCategoryExpression(whatGOIDs(1),params,doReorder,newFigure,doLabels);
+subplot(5,3,[10,13])
+PlotCategoryIntraCorr(whatGOIDs(1),params,params.e.whatCorr,newFigure,doLabels);
+%-------------------------------------------------------------------------------
+% CATEGORY 2:
+subplot(5,3,[2,5,8])
+PlotCategoryExpression(whatGOIDs(2),params,doReorder,newFigure,doLabels);
+subplot(5,3,[11,14])
+PlotCategoryIntraCorr(whatGOIDs(2),params,params.e.whatCorr,newFigure,doLabels);
+%-------------------------------------------------------------------------------
+% CATEGORY 3:
+subplot(5,3,[3,6,9])
+PlotCategoryExpression([],params,doReorder,newFigure,doLabels);
+subplot(5,3,[12,15])
+PlotCategoryIntraCorr([],params,params.e.whatCorr,newFigure,doLabels);
+f.Position = [1111         542         560         413];
+%-------------------------------------------------------------------------------
+% Save:
+fileName = fullfile('OutputPlots','ExpressionCoexpression.svg');
+saveas(f,fileName,'svg')
+fprintf(1,'Saved to %s\n',fileName);
+
+%===============================================================================
 
 % -------------------------------------------------------------------------------
 % FPSR of these categories?
@@ -48,10 +74,10 @@ FPSR_spatial = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,
 itsMeRand = find(ismember(FPSR_random.GOID,whatGOIDs));
 itsMeSpat = find(ismember(FPSR_spatial.GOID,whatGOIDs));
 for i = 1:length(itsMeRand)
-    fprintf(1,'Category ''%s'' has SBP-random FPSR of %.2f%%\n',...
+    fprintf(1,'Category ''%s'' has SBP-random FPSR of %.3f%%\n',...
                             FPSR_random.GOName{itsMeRand(i)},...
                             FPSR_random.sumUnderSig(itsMeRand(i))/1e4*100);
-    fprintf(1,'Category ''%s'' has SBP-spatial FPSR of %.2f%%\n',...
+    fprintf(1,'Category ''%s'' has SBP-spatial FPSR of %.3f%%\n',...
                             FPSR_spatial.GOName{itsMeSpat(i)},...
                             FPSR_spatial.sumUnderSig(itsMeSpat(i))/1e4*100);
 end

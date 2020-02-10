@@ -27,7 +27,7 @@ end
 nullDistribution = zeros(1,numSamples);
 fprintf(1,'Computing a joint null of ensemble--categories containing %u random genes\n',...
                     categorySize);
-for j = 1:numSamples
+parfor j = 1:numSamples
     % Take a random phenotype:
     myPhenotype = nullMaps(:,j);
     % Take a random selection of genes:
