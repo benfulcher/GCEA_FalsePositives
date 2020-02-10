@@ -7,22 +7,22 @@ whatSpecies = {'mouse','mouse','human'};
 whatStructFilt = {'all','cortex','cortex'};
 doSave = true;
 
+% Compute spatial autocorrelation scores per GO category:
 for s = 1:3
     params = GiveMeDefaultParams(whatSpecies{s},whatStructFilt{s});
-    % Compute spatial autocorrelation scores per GO category:
+
+    % Get gene-expression data:
     params.g.normalizationGene = 'zscore';
     params.g.normalizationRegion = 'zscore';
-    params.e.numNullSamples = 10; % for speed since we don't actually use the p-values
-    % results = geneEnrichmentDistance(params,false,doSave);
+    [geneData,geneInfo,structInfo] = LoadMeG(params.g);
+    numGenes = height(geneInfo);
 
     % Get pairwise distances:
     distMat = GiveMeDistanceMatrix(params.humanOrMouse,params.c.structFilter);
     getUpperDiag = @(x) x(triu(true(size(x)),+1));
     distUpper = getUpperDiag(distMat);
 
-    % Get gene-expression data:
-    [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-    numGenes = height(geneInfo);
+    % Compute spatial embedding scores gene-by-gene
     geneScores = zeros(numGenes,1);
     parfor i = 1:numGenes
         g = geneData(:,i);

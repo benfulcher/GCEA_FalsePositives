@@ -34,7 +34,7 @@ case 'decayEta'
     f_handle = @(x) c.A.*x.^(-c.n) + c.B;
 
 case 'exp'
-    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[1,0.005,0]);
+    s = fitoptions('Method','NonlinearLeastSquares','StartPoint',[1,0,0.005]);
     f = fittype('A*exp(-x*n) + B','options',s);
     try
         [c, Stats] = fit(xData,yData,f);
