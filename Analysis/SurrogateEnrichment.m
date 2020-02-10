@@ -17,7 +17,6 @@ numAreas = height(structInfoReal);
 %-------------------------------------------------------------------------------
 % Get surrogate data, geneDataNull (each column is a null spatial map)
 params.g.humanOrMouse = sprintf('surrogate-%s',params.humanOrMouse);
-params.g.whatSurrogate = whatSurrogate;
 geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
     error('There aren''t enough null maps to compare against...');

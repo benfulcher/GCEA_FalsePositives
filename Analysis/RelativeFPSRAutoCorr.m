@@ -4,17 +4,24 @@ function RelativeFPSRAutoCorr()
 %-------------------------------------------------------------------------------
 
 whatSpecies = {'mouse','human'};
+whatStructFilt = {'all','cortex'};
 
 GOTable_FPSR = struct();
 GOTableCombined = struct();
 
 for s = 1:2
-    params = GiveMeDefaultParams(whatSpecies{s});
+    params = GiveMeDefaultParams(whatSpecies{s},whatStructFilt{s});
 
-    % Compute spatial autocorrelation scores per GO category:
+    % Get spatial autocorrelation scores as means of individual genes per GO category:
     % (from ComputeSpatialEmbeddingScores)
     load(GiveMeDistanceScoreFileName(params),'GOTable');
     GOTable_ACScores = GOTable;
+    clear('GOTable')
+
+    % Get category-level CGE exponential decay parameters
+    categoryFileName = sprintf('CategorySpatialScoring_%s-%s.mat',whatSpecies{s},whatStructFilt{s});
+    load(categoryFileName,'GOTable')
+    GOTable_CategoryLevelScores = GOTable;
     clear('GOTable')
 
     % Load FPSR (random and spatial autocorrelation)
@@ -36,10 +43,17 @@ for s = 1:2
                                                         GOTableCombined.(whatSpecies{s}).sumUnderSig;
 
     % Does the level of spatial autocorrelation of genes in a category capture the change?:
-    % (annotate the meanScore)
+    % (annotate the meanScore from GOTable_ACScores)
     [~,ia,ib] = intersect(GOTableCombined.(whatSpecies{s}).GOID,GOTable_ACScores.GOID);
     GOTableCombined.(whatSpecies{s}) = GOTableCombined.(whatSpecies{s})(ia,:);
     GOTableCombined.(whatSpecies{s}).meanACscore = GOTable_ACScores.meanScore(ib);
+
+    % Now let's try to add the category-level scores, GOTable_CategoryLevelScores:
+    [~,ia,ib] = intersect(GOTableCombined.(whatSpecies{s}).GOID,GOTable_CategoryLevelScores.GOID);
+    GOTableCombined.(whatSpecies{s}) = GOTableCombined.(whatSpecies{s})(ia,:);
+    GOTableCombined.(whatSpecies{s}).A_fitted = GOTable_CategoryLevelScores.A_fitted(ib);
+    GOTableCombined.(whatSpecies{s}).B_fitted = GOTable_CategoryLevelScores.B_fitted(ib);
+    GOTableCombined.(whatSpecies{s}).d0_fitted = GOTable_CategoryLevelScores.d0_fitted(ib);
 end
 
 %-------------------------------------------------------------------------------
@@ -54,5 +68,24 @@ for s = 1:2
     ylabel('Relative FPSR(AC) - FPSR(random) (%)')
 end
 f.Position = [1000        1159         239         179];
+
+%-------------------------------------------------------------------------------
+BF_PlotQuantiles(GOTableCombined.mouse.d0_fitted,...
+                    GOTableCombined.mouse.relDiffFPSR,...
+                    numBins,false,false,theColors(1,:),false);
+
+
+scatter(GOTableCombined.mouse.d0_fitted,GOTableCombined.mouse.relDiffFPSR,20,...
+                GOTableCombined.mouse.meanACscore,'filled')
+
+numBins = 10;
+isInRightDRange = (GOTableCombined.mouse.d0_fitted<3);
+BF_PlotQuantiles(GOTableCombined.mouse.meanACscore(isInRightDRange),...
+                    GOTableCombined.mouse.relDiffFPSR(isInRightDRange),...
+                    numBins,false,false,theColors(1,:),false);
+
+BF_PlotQuantiles(GOTableCombined.mouse.meanACscore(~isInRightDRange),...
+                    GOTableCombined.mouse.relDiffFPSR(~isInRightDRange),...
+                    numBins,false,false,theColors(2,:),false);
 
 end
