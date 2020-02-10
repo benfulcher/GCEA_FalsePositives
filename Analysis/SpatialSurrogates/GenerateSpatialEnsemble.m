@@ -37,19 +37,19 @@ if params.e.useAutoSpatial
     yData = G(upperMask);
 
     % Fit:
-    [f_handle,Stats,c] = GiveMeFit(xData,yData,'exp0',false);
-    rho = c.A; % strength of relationship
+    [f_handle,Stats,c] = GiveMeFit(xData,yData,'exp1',false);
     d0 = 1/c.n; % spatial scale of transcriptional autocorrelation
+    fprintf(1,'%s-brain gene expression has spatial scale, d0 = %g \n',mouseOrHuman,d0);
     if doPlot
         % Plot the data and fit:
-        f = figure('color','w'); hold('on');
+        f = figure('color','w');
+        hold('on');
         plot(distMat(upperMask),G(upperMask),'.k')
         xRange = linspace(min(distMat(:)),max(distMat(:)),50);
         plot(xRange,f_handle(xRange),'b','LineWidth',3)
     end
-
-    fprintf(1,'%s-brain gene expression has strength, rho = %g \n',mouseOrHuman,rho);
-    fprintf(1,'%s-brain gene expression has spatial scale, d0 = %g \n',mouseOrHuman,d0);
+    % Specify the strength of the spatial autocorrelation as a parameter:
+    rho = 0.8;
 else % manual
     switch mouseOrHuman
     case 'mouse'

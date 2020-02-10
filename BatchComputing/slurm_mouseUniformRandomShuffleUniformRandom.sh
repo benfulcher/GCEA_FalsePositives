@@ -30,5 +30,5 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); SurrogateEnrichment('mouse',[],'randomUniform','independentSpatialShuffle');
+matlab -nodesktop -r "startup; parpool('local',12); SurrogateEnrichment('mouse',[],'randomUniform','independentSpatialShuffle');
 exit"

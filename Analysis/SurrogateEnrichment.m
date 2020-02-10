@@ -1,20 +1,12 @@
-function SurrogateEnrichment(whatSpecies,numMaps,whatSurrogate,customSurrogate)
+function SurrogateEnrichment(params)
 % Compute conventional enrichment results across surrogate spatial maps
+% (for FPSR results)
 %-------------------------------------------------------------------------------
 if nargin < 1
-    whatSpecies = 'mouse';
+    params = GiveMeDefaultParams('mouse');
 end
-params = GiveMeDefaultParams(whatSpecies);
-if nargin < 2 || isempty(numMaps)
-    numMaps = params.nulls.numNullsFPSR; % number of null maps to test against
-end
-if nargin < 3
-    whatSurrogate = 'spatialLag';
-end
-if nargin < 4
-    % Ability to set a custom surrogate for the real data (to get null samples):
-    customSurrogate = '';
-end
+% params.g.whatSurrogate; % the ensemble of maps to use
+numMaps = params.nulls.numNullsFPSR; % number of null maps to test against
 
 %-------------------------------------------------------------------------------
 % Get real data:
@@ -24,7 +16,7 @@ numAreas = height(structInfoReal);
 
 %-------------------------------------------------------------------------------
 % Get surrogate data, geneDataNull (each column is a null spatial map)
-params.g.humanOrMouse = sprintf('surrogate-%s',whatSpecies);
+params.g.humanOrMouse = sprintf('surrogate-%s',params.humanOrMouse);
 params.g.whatSurrogate = whatSurrogate;
 geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
@@ -50,17 +42,22 @@ for i = 1:numMaps
     map_i = geneDataNull(:,i);
 
     % Get randomized 'real' data for null distribution:
-    if ~isempty(customSurrogate)
-        switch customSurrogate
+    if ~isempty(params.nulls.customShuffle)
+        switch params.nulls.customShuffle
         case 'coordinatedSpatialShuffle'
             fprintf(1,'Coordinated spatial shuffle of gene-expression data at %u/%u\n',i,numMaps);
             geneDataReal = ShuffleMyMatrix(geneDataReal,'coordinatedRowShuffle');
         case 'independentSpatialShuffle'
             fprintf(1,'Independent spatial shuffle of gene-expression data at %u/%u\n',i,numMaps);
             geneDataReal = ShuffleMyMatrix(geneDataReal,'randomUniform');
+        case 'none'
+            % Do nothing
+        otherwise
+            error('Unknown custom shuffling option ''%s''',params.nulls.customShuffle);
         end
     end
 
+    % Compute gene scores as (spatial) correlations:
     geneScores = zeros(numGenesReal,1);
     for j = 1:numGenesReal
         geneScores(j) = corr(map_i,geneDataReal(:,j),'type',params.e.whatCorr,'rows','pairwise');
@@ -69,10 +66,10 @@ for i = 1:numMaps
         end
     end
 
-    % Store random-gene enrichment results:
+    % Store GSEA results (from conventional random-gene nulls):
     GOTable_i = SingleEnrichment(geneScores,geneInfoReal.entrez_id,params.e);
 
-    % Map to a generic GO table:
+    % Map results onto a generic GO table:
     [~,ia,ib] = intersect(GOTableGeneric.GOID,GOTable_i.GOID,'stable');
     if ~(ia==1:height(GOTableGeneric))
         error('Could not map to generic table');
@@ -92,10 +89,8 @@ for i = 1:numMaps
 end
 
 %-------------------------------------------------------------------------------
-% Save out
-fileNameOut = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,...
-                                                whatSurrogate,customSurrogate);
-fileNameOut = fullfile('DataOutputs',fileNameOut);
+% Save out to a .mat file
+fileNameOut = GiveMeFPSRFileName(params)
 save(fileNameOut,'GOTableGeneric','surrogatePValsPerm','surrogatePValsZ','-v7.3');
 fprintf(1,'Results of %u iterations saved to %s\n',numMaps,fileNameOut);
 

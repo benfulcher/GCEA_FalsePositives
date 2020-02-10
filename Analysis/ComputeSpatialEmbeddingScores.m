@@ -13,7 +13,36 @@ for s = 1:3
     params.g.normalizationGene = 'zscore';
     params.g.normalizationRegion = 'zscore';
     params.e.numNullSamples = 10; % for speed since we don't actually use the p-values
-    results = geneEnrichmentDistance(params,false,doSave);
+    % results = geneEnrichmentDistance(params,false,doSave);
+
+    % Get pairwise distances:
+    distMat = GiveMeDistanceMatrix(params.humanOrMouse,params.c.structFilter);
+    getUpperDiag = @(x) x(triu(true(size(x)),+1));
+    distUpper = getUpperDiag(distMat);
+
+    % Get gene-expression data:
+    [geneData,geneInfo,structInfo] = LoadMeG(params.g);
+    numGenes = height(geneInfo);
+    geneScores = zeros(numGenes,1);
+    parfor i = 1:numGenes
+        g = geneData(:,i);
+        GCC = g*g'; % self product at each edge
+        % Does the self-correlation of expression depend on distance?:
+        geneScores(i) = -corr(distUpper,getUpperDiag(GCC),...
+                                    'type',params.gcc.whatCorr,...
+                                    'rows','pairwise');
+    end
+
+    % Compute the mean score in each GO category:
+    fprintf(1,'Mean the score in each GO category!\n');
+    params.e.numNullSamples = 0;
+    GOTable = SingleEnrichment(geneScores,geneInfo.entrez_id,params.e);
+
+    % -----------------------
+    % Save out to .mat file:
+    fileNameMat = fullfile('DataOutputs',GiveMeDistanceScoreFileName(params));
+    save(fileNameMat,'GOTable','params'); % ,'geneEntrez','geneDistanceScores'
+    fprintf(1,'Saved distance enrichment scores to %s\n',fileNameMat);
 end
 
 end

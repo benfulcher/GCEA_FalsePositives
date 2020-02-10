@@ -1,41 +1,31 @@
-function GOTableGeneric = SurrogateEnrichmentProcess(whatSpecies,numMaps,whatSurrogate,customSurrogate,doDisplay)
+function GOTableGeneric = SurrogateEnrichmentProcess(params,doDisplay)
 % Process precomputed FPSR results for analysis
 %-------------------------------------------------------------------------------
 % Check inputs:
-if nargin < 1 || isempty(whatSpecies)
-    whatSpecies = 'mouse';
-    % whatSpecies = 'human';
+if nargin < 1
+    params = GiveMeDefaultParams('mouse');
 end
-params = GiveMeDefaultParams(whatSpecies);
-if nargin < 2 || isempty(numMaps)
-    numMaps = params.nulls.numNullsFPSR; % number of null maps to test against
-end
-if nargin < 3 || isempty(whatSurrogate)
-    whatSurrogate = 'spatialLag';
-end
-if nargin < 4
-    customSurrogate = '';
-end
-if nargin < 5
+if nargin < 2
     doDisplay = true;
 end
 
 %-------------------------------------------------------------------------------
-fileNameIn = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',numMaps,whatSpecies,whatSurrogate,customSurrogate);
-load(fileNameIn,'GOTableGeneric')
-fprintf(1,'(Data loaded from %s)\n',fileNameIn);
+fileNameFPSR = GiveMeFPSRFileName(params);
+load(fileNameFPSR,'GOTableGeneric')
+fprintf(1,'(Data loaded from %s)\n',fileNameFPSR);
 if params.nulls.permTestP
-    load(fileNameIn,'surrogatePValsPerm');
+    load(fileNameFPSR,'surrogatePValsPerm');
     surrogatePVals = surrogatePValsPerm;
     clear('surrogatePValsPerm');
     fprintf(1,'Using permutation test p-values\n');
 else
-    load(fileNameIn,'surrogatePValsZ');
+    load(fileNameFPSR,'surrogatePValsZ');
     surrogatePVals = surrogatePValsZ;
     clear('surrogatePValsZ');
     fprintf(1,'Using Gaussian-approx permutation test p-values\n');
 end
-fprintf(1,'Enrichment of %s nulls under a %s model\n',whatSpecies,whatSurrogate);
+fprintf(1,'Enrichment of %s nulls under a %s model\n',...
+                        params.humanOrMouse,params.g.whatSurrogate);
 
 %-------------------------------------------------------------------------------
 % Compute corrected p-vals:
@@ -46,7 +36,7 @@ end
 
 %-------------------------------------------------------------------------------
 % Get some statistics:
-sumSig = sum(pValCorr < 0.05,2);
+sumSig = sum(pValCorr < params.e.sigThresh,2);
 GOTableGeneric.sumUnderSig = sumSig;
 GOTableGeneric = sortrows(GOTableGeneric,'sumUnderSig','descend');
 

@@ -95,7 +95,7 @@ case {'surrogate-mouse','surrogate-human'}
             geneInfo = geneInfo(rp,:);
         end
 
-    case 'randomUniform'
+    case 'randomMap'
         geneData = ShuffleMyMatrix(geneDataReal,'randomUniform');
 
     case 'independentSpatialShuffle'

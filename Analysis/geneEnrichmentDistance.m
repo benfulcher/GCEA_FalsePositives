@@ -64,7 +64,7 @@ end
 dData(tril(true(size(dData)),-1)) = 0;
 
 %-------------------------------------------------------------------------------
-% Visualize bulk distance trend for cge computed across all genes:
+% Visualize bulk distance trend for CGE computed across all genes:
 if doPlot
     cge = corr(geneData','type','Pearson','rows','pairwise');
     isUpperDiag = triu(true(size(dData)),+1);
@@ -113,8 +113,6 @@ display(GOTable(1:numSig,:));
 %-------------------------------------------------------------------------------
 % Save result to .mat file
 %-------------------------------------------------------------------------------
-geneEntrez = geneEntrezIDs;
-geneDistanceScores = geneScores;
 fileNameMat = fullfile('DataOutputs',textLabel);
 save(fileNameMat,'GOTable','params'); % ,'geneEntrez','geneDistanceScores'
 fprintf(1,'Saved distance enrichment scores to %s\n',fileNameMat);

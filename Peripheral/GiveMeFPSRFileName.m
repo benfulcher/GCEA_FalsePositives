@@ -1,0 +1,13 @@
+function fileNameFPSR = GiveMeFPSRFileName(params)
+% Get filename for a given FPSR analysis
+%-------------------------------------------------------------------------------
+
+fileNameFPSR = sprintf('SurrogateGOTables_%u_%s_%s_%s.mat',...
+                params.nulls.numNullsFPSR,...
+                params.humanOrMouse,...
+                params.g.whatSurrogate,...
+                params.nulls.customSurrogate);
+
+fileNameFPSR = fullfile('SurrogateEnrichment',fileNameFPSR);
+
+end

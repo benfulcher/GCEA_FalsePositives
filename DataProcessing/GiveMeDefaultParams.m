@@ -112,9 +112,11 @@ params.e.dataFileSurrogate = FindNullFile(params);
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
 %-------------------------------------------------------------------------------
-% Properties of nulls
+% Properties of nulls (FPSR)
 %-------------------------------------------------------------------------------
 params.nulls.numNullsFPSR = 10000;
+params.g.whatSurrogate = 'spatialLag'; % 'randomMap', 'spatialLag'
+params.nulls.customShuffle = 'none'; % 'none', 'independentSpatialShuffle'
 params.nulls.permTestP = false; % permutation test or gaussian-approximation
 
 %-------------------------------------------------------------------------------

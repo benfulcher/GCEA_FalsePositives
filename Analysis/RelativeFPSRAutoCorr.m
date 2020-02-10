@@ -12,13 +12,20 @@ for s = 1:2
     params = GiveMeDefaultParams(whatSpecies{s});
 
     % Compute spatial autocorrelation scores per GO category:
+    % (from ComputeSpatialEmbeddingScores)
     load(GiveMeDistanceScoreFileName(params),'GOTable');
     GOTable_ACScores = GOTable;
     clear('GOTable')
 
     % Load FPSR (random and spatial autocorrelation)
-    GOTable_FPSR.(whatSpecies{s}).random = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsFPSR,'randomUniform','',false);
-    GOTable_FPSR.(whatSpecies{s}).spatialAC = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsFPSR,'spatialLag','',false);
+    % (Ensure that we're not dealing with the reference case):
+    params.nulls.customSurrogate = 'none';
+    % Load SBP-random FPSR results:
+    params.g.whatSurrogate = 'randomMap';
+    GOTable_FPSR.(whatSpecies{s}).random = SurrogateEnrichmentProcess(params,false);
+    % Load SBP-spatial FPSR results:
+    params.g.whatSurrogate = 'spatialLag';
+    GOTable_FPSR.(whatSpecies{s}).spatialAC = SurrogateEnrichmentProcess(params,false);
 
     % Combine/annotate:
     [~,ia,ib] = intersect(GOTable_FPSR.(whatSpecies{s}).random.GOID,GOTable_FPSR.(whatSpecies{s}).spatialAC.GOID);
@@ -29,7 +36,7 @@ for s = 1:2
                                                         GOTableCombined.(whatSpecies{s}).sumUnderSig;
 
     % Does the level of spatial autocorrelation of genes in a category capture the change?:
-    % annotate the meanScore
+    % (annotate the meanScore)
     [~,ia,ib] = intersect(GOTableCombined.(whatSpecies{s}).GOID,GOTable_ACScores.GOID);
     GOTableCombined.(whatSpecies{s}) = GOTableCombined.(whatSpecies{s})(ia,:);
     GOTableCombined.(whatSpecies{s}).meanACscore = GOTable_ACScores.meanScore(ib);
@@ -40,7 +47,8 @@ f = figure('color','w'); hold('on')
 numBins = 10;
 theColors = GiveMeColors('mouseHuman');
 for s = 1:2
-    BF_PlotQuantiles(GOTableCombined.(whatSpecies{s}).meanACscore,GOTableCombined.(whatSpecies{s}).relDiffFPSR,...
+    BF_PlotQuantiles(GOTableCombined.(whatSpecies{s}).meanACscore,...
+                        GOTableCombined.(whatSpecies{s}).relDiffFPSR,...
                         numBins,false,false,theColors(s,:),false);
     xlabel('Spatial autocorrelation score')
     ylabel('Relative FPSR(AC) - FPSR(random) (%)')

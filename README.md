@@ -168,12 +168,13 @@ OverlapLitFPSR('human')
 
 ### Specific GO categories
 
-You can zoom into the null score distributions of two specific GO categories using:
+You can zoom into the null score distributions of two specific GO categories (including a random set of 40 genes) using:
 
 ```
 PlotCategoryNullCompare('mouse')
 ```
-![](figs/PlotCategoryNullCompare.png)
+![](figs/PlotCategoryNullCompare_1.png)
+![](figs/PlotCategoryNullCompare_2.png)
 
 ### The role of intra-category coexpression
 
