@@ -13,7 +13,7 @@ sbatch slurm_mouseCategoryNullCompute_randomMap_wholeBrain.sh
 sbatch slurm_mouseCategoryNullCompute_randomMap_cortex.sh
 
 # ------------------------------------------------------
-# Compute false-positive significance rates (under conventional GO enrichment):
+# Compute FPSR (under conventional GSEA):
 # ------------------------------------------------------
 sbatch slurm_mouseUniformRandomShuffleUniformRandom.sh
 sbatch slurm_mouseUniformRandom.sh

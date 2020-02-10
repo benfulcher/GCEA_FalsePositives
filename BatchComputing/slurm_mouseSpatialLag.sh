@@ -1,16 +1,16 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name FPSE_mouseSpatialLag
+#SBATCH --job-name FPSR_mouseSpatialLag
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=16
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=12000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=140:00:00
+#SBATCH --time=96:00:00
 # Email user if job fails or ends
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -30,4 +30,4 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12); SurrogateEnrichment('mouse',[],'spatialLag',''); exit"
+matlab -nodesktop -r "startup; parpool('local',16); params = GiveMeDefaultParams('mouse'); params.g.whatSurrogate = 'spatialLag'; SurrogateEnrichment(params); exit"
