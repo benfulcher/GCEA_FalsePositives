@@ -54,6 +54,8 @@ for s = 1:2
     GOTableCombined.(whatSpecies{s}).A_fitted = GOTable_CategoryLevelScores.A_fitted(ib);
     GOTableCombined.(whatSpecies{s}).B_fitted = GOTable_CategoryLevelScores.B_fitted(ib);
     GOTableCombined.(whatSpecies{s}).d0_fitted = GOTable_CategoryLevelScores.d0_fitted(ib);
+    GOTableCombined.(whatSpecies{s}).R2fit = GOTable_CategoryLevelScores.R2fit(ib);
+    GOTableCombined.(whatSpecies{s}).negRho = GOTable_CategoryLevelScores.negRho(ib);
 end
 
 %-------------------------------------------------------------------------------
@@ -61,7 +63,10 @@ f = figure('color','w'); hold('on')
 numBins = 10;
 theColors = GiveMeColors('mouseHuman');
 for s = 1:2
-    BF_PlotQuantiles(GOTableCombined.(whatSpecies{s}).meanACscore,...
+    % isValid = (GOTableCombined.(whatSpecies{s}).R2fit > 0.2);
+    % xData = GOTableCombined.(whatSpecies{s}).A_fitted-GOTableCombined.(whatSpecies{s}).B_fitted;
+    xData = GOTableCombined.(whatSpecies{s}).meanACscore;
+    BF_PlotQuantiles(xData,...
                         GOTableCombined.(whatSpecies{s}).relDiffFPSR,...
                         numBins,false,false,theColors(s,:),false);
     xlabel('Spatial autocorrelation score')
@@ -70,22 +75,27 @@ end
 f.Position = [1000        1159         239         179];
 
 %-------------------------------------------------------------------------------
-BF_PlotQuantiles(GOTableCombined.mouse.d0_fitted,...
-                    GOTableCombined.mouse.relDiffFPSR,...
-                    numBins,false,false,theColors(1,:),false);
-
-
-scatter(GOTableCombined.mouse.d0_fitted,GOTableCombined.mouse.relDiffFPSR,20,...
-                GOTableCombined.mouse.meanACscore,'filled')
-
-numBins = 10;
-isInRightDRange = (GOTableCombined.mouse.d0_fitted<3);
-BF_PlotQuantiles(GOTableCombined.mouse.meanACscore(isInRightDRange),...
-                    GOTableCombined.mouse.relDiffFPSR(isInRightDRange),...
-                    numBins,false,false,theColors(1,:),false);
-
-BF_PlotQuantiles(GOTableCombined.mouse.meanACscore(~isInRightDRange),...
-                    GOTableCombined.mouse.relDiffFPSR(~isInRightDRange),...
-                    numBins,false,false,theColors(2,:),false);
+% PLAYGROUND:
+%-------------------------------------------------------------------------------
+% BF_PlotQuantiles(GOTableCombined.mouse.d0_fitted,...
+%                     GOTableCombined.mouse.relDiffFPSR,...
+%                     numBins,false,false,theColors(1,:),false);
+%
+% plot(GOTableCombined.(whatSpecies{s}).R2fit,GOTableCombined.(whatSpecies{s}).A_fitted)
+%
+% histogram(GOTableCombined.(whatSpecies{s}).B_fitted)
+%
+% scatter(GOTableCombined.mouse.d0_fitted,GOTableCombined.mouse.relDiffFPSR,20,...
+%                 GOTableCombined.mouse.meanACscore,'filled')
+%
+% numBins = 10;
+% isInRightDRange = (GOTableCombined.mouse.d0_fitted<3);
+% BF_PlotQuantiles(GOTableCombined.mouse.meanACscore(isInRightDRange),...
+%                     GOTableCombined.mouse.relDiffFPSR(isInRightDRange),...
+%                     numBins,false,false,theColors(1,:),false);
+%
+% BF_PlotQuantiles(GOTableCombined.mouse.meanACscore(~isInRightDRange),...
+%                     GOTableCombined.mouse.relDiffFPSR(~isInRightDRange),...
+%                     numBins,false,false,theColors(2,:),false);
 
 end
