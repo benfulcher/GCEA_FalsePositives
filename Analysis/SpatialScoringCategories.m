@@ -36,9 +36,8 @@ negRho = nan(numGOCategories,1);
 
 parfor j = 1:numGOCategories
     hereIam = ismember(geneInfo.entrez_id,GOTable.annotations{j});
-    geneDataZ = BF_NormalizeMatrix(geneData(:,hereIam),'zscore');
-    geneDataZZ = BF_NormalizeMatrix(geneDataZ','zscore')';
-    G = corr(geneDataZZ','rows','pairwise');
+    geneData_j = geneData(:,hereIam);
+    G = corr(geneData_j','rows','pairwise');
     gData = getUpperDiag(G);
 
     negRho(j) = -corr(distUpper,gData,...
@@ -48,10 +47,10 @@ parfor j = 1:numGOCategories
     % Fit exponential to CGE:
     if strcmp(whatSpecies,'mouse')
         s = fitoptions('Method','NonlinearLeastSquares',...
-                    'StartPoint',[1,0,0.7],'Lower',[0,-0.5,0],'Upper',[1,1,100]);
+                    'StartPoint',[1,0,0.7],'Lower',[0,-0.5,0],'Upper',[2,1,10]);
     else
         s = fitoptions('Method','NonlinearLeastSquares',...
-                    'StartPoint',[1,0,0.01],'Lower',[0,-0.5,0],'Upper',[1,1,10]);
+                    'StartPoint',[1,0,0.01],'Lower',[0,-0.5,0],'Upper',[2,1,10]);
     end
     f = fittype('A*exp(-x*n) + B','options',s);
     try

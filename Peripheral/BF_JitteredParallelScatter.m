@@ -40,16 +40,13 @@ if nargin < 2
     addMeans = true;
     % Add strip for mean of each group by default
 end
-
 if nargin < 3
-    doveTail = 1;
+    doveTail = true;
     % Add kernel distribution
 end
-
 if nargin < 4
-    makeFigure = 1;
+    makeFigure = true;
 end
-
 if nargin < 5
     extraParams = struct;
 end

@@ -64,7 +64,11 @@ numBins = 10;
 theColors = GiveMeColors('mouseHuman');
 for s = 1:2
     % isValid = (GOTableCombined.(whatSpecies{s}).R2fit > 0.2);
+    % xData = GOTableCombined.(whatSpecies{s}).negRho;
+    % xData = GOTableCombined.(whatSpecies{s}).R2fit;
+    % xData = GOTableCombined.(whatSpecies{s}).A_fitted;
     % xData = GOTableCombined.(whatSpecies{s}).A_fitted-GOTableCombined.(whatSpecies{s}).B_fitted;
+    % xData = GOTableCombined.(whatSpecies{s}).d0_fitted;
     xData = GOTableCombined.(whatSpecies{s}).meanACscore;
     BF_PlotQuantiles(xData,...
                         GOTableCombined.(whatSpecies{s}).relDiffFPSR,...
