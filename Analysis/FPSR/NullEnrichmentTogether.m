@@ -27,11 +27,11 @@ nullGOTables.SBPrandom = SurrogateEnrichmentProcess(params,doDisplay);
 params.g.whatSurrogate = 'spatialLag';
 nullGOTables.SBPspatial = SurrogateEnrichmentProcess(params,doDisplay);
 
-% nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'randomUniform','coordinatedSpatialShuffle');
+% nullGOTables.coordSpatialRandom = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsCFPR,'randomUniform','coordinatedSpatialShuffle');
 
 %-------------------------------------------------------------------------------
 % Extract sum under significant values:
-sumUnderSigValues = structfun(@(x)x.sumUnderSig/params.nulls.numNullsFPSR,...
+sumUnderSigValues = structfun(@(x)x.sumUnderSig/params.nulls.numNullsCFPR,...
                                             nullGOTables,'UniformOutput',false);
 
 %-------------------------------------------------------------------------------

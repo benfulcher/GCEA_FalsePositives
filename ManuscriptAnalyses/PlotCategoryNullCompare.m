@@ -69,8 +69,8 @@ fprintf(1,'Saved to %s\n',fileName);
 
 % -------------------------------------------------------------------------------
 % FPSR of these categories?
-FPSR_random = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'randomUniform','');
-FPSR_spatial = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsFPSR,'spatialLag','');
+FPSR_random = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsCFPR,'randomUniform','');
+FPSR_spatial = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsCFPR,'spatialLag','');
 itsMeRand = find(ismember(FPSR_random.GOID,whatGOIDs));
 itsMeSpat = find(ismember(FPSR_spatial.GOID,whatGOIDs));
 for i = 1:length(itsMeRand)

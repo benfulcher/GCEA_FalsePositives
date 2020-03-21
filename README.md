@@ -143,14 +143,23 @@ Construct a table of the most commonly reported GO categories:
 ```matlab
 TopLiteratureCats();
 ```
+Outputs to `SupplementaryTables/LiteratureAnnotations_p005.csv`.
+
+For a given GO category of interest, you can find matches to literature using:
+```matlab
+LiteratureMatches(whatGOID)
+```
+For example, to get information about literature p-values for 'chemical synaptic transmission' (GO:000726), use `LiteratureMatches(7268)`.
 
 ### Enrichment signatures of ensembles of random spatial phenotypes (and/or including spatial autocorrelation)
 
 #### Plot distributions of FPSE across GO categories for the three null cases
 ```matlab
-NullEnrichmentTogether('mouse',[],true)
-NullEnrichmentTogether('human',[],true)
+NullEnrichmentTogether('mouse',true)
+NullEnrichmentTogether('human',true)
 ```
+
+Saves plots to `OutputPlots/CFPR_distributions_mouse.svg` and `OutputPlots/CFPR_distributions_human.svg`.
 
 ![](figs/NullEnrichmentTogether.png)
 
@@ -158,11 +167,14 @@ NullEnrichmentTogether('human',[],true)
 ```matlab
 FPSRTable();
 ```
+Statistics displayed and outputs to `SupplementaryTables/CFPR_Table.csv`.
 
 #### Investigate the overlap between literature annotations and FPSE as histograms:
+As always, the null phenotype ensemble is defined in the `GiveMeDefaultParams` file.
+
 ```matlab
-OverlapLitFPSR('mouse')
-OverlapLitFPSR('human')
+OverlapLitFPSR('mouse',true)
+OverlapLitFPSR('human',true)
 ```
 ![](figs/OverlapLitFPSR.png)
 

@@ -53,7 +53,6 @@ params.c.structFilter = params.structFilter;
 params.g = struct();
 params.g.humanOrMouse = humanOrMouse;
 params.g.structFilter = params.structFilter;
-params.g.whatSurrogate = 'spatialLag';
 params.g.minGoodPropGene = 0.5;
 params.g.minGoodPropArea = 0.5;
 switch humanOrMouse
@@ -112,10 +111,10 @@ params.e.dataFileSurrogate = FindNullFile(params);
 params.e.fileNameOut = GiveMeEnsembleEnrichmentOutputFileName(params);
 
 %-------------------------------------------------------------------------------
-% Properties of nulls (FPSR)
+% Properties of nulls (CFPR)
 %-------------------------------------------------------------------------------
-params.nulls.numNullsFPSR = 10000;
-params.g.whatSurrogate = 'spatialLag'; % 'randomMap', 'spatialLag'
+params.nulls.numNullsCFPR = 10000;
+params.g.whatSurrogate = 'randomMap'; % 'randomMap', 'spatialLag'
 params.nulls.customShuffle = 'none'; % 'none', 'independentSpatialShuffle'
 params.nulls.permTestP = false; % permutation test or gaussian-approximation
 

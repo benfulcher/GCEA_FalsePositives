@@ -21,7 +21,7 @@ for s = 1:2
     resultsIntra = load(fileNameIn);
     fprintf(1,'Importing intra-category coexpression data from %s\n',fileNameIn);
     results.(whatSpecies{s}).intra = resultsIntra.resultsTable;
-    results.(whatSpecies{s}).randomReal = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsFPSR,'randomUniform','');
+    results.(whatSpecies{s}).randomReal = SurrogateEnrichmentProcess(whatSpecies{s},params.nulls.numNullsCFPR,'randomUniform','');
 end
 
 %-------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ theColors = GiveMeColors('mouseHuman');
 for s = 1:2
     [~,ia,ib] = intersect(results.(whatSpecies{s}).intra.GOID,results.(whatSpecies{s}).randomReal.GOID);
     GOTableCombined = results.(whatSpecies{s}).intra(ia,:);
-    GOTableCombined.FPSR_random = 100*results.(whatSpecies{s}).randomReal.sumUnderSig(ib)/params.nulls.numNullsFPSR;
+    GOTableCombined.FPSR_random = 100*results.(whatSpecies{s}).randomReal.sumUnderSig(ib)/params.nulls.numNullsCFPR;
 
     BF_PlotQuantiles(GOTableCombined.(theXfield),GOTableCombined.(theYfield),...
             numQuantileBins,false,false,theColors(s,:),false);

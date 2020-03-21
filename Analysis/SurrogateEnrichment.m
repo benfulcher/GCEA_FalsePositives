@@ -6,7 +6,7 @@ if nargin < 1
     params = GiveMeDefaultParams('mouse');
 end
 % params.g.whatSurrogate; % the ensemble of maps to use
-numMaps = params.nulls.numNullsFPSR; % number of null maps to test against
+numMaps = params.nulls.numNullsCFPR; % number of null maps to test against
 
 %-------------------------------------------------------------------------------
 % Get real data:

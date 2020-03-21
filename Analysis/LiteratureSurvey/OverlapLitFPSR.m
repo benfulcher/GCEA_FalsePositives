@@ -1,4 +1,4 @@
-function OverlapLitFPSR(whatSpecies,whatStruct,makeFigure)
+function OverlapLitFPSR(whatSpecies,makeFigure)
 % Understand the overlap between high FPSR categories and those reported in the
 % literature
 %-------------------------------------------------------------------------------
@@ -6,9 +6,6 @@ if nargin < 1
     whatSpecies = 'human';
 end
 if nargin < 2
-    whatStruct = 'cortex';
-end
-if nargin < 3
     makeFigure = false;
 end
 params = GiveMeDefaultParams(whatSpecies);
@@ -84,7 +81,15 @@ bh(1).FaceColor = colors(1,:);
 bh(2).FaceColor = colors(2,:);
 ax = gca;
 ax.XLim = [0,30];
-f.Position = [1058         972         460         219];
+% f.Position = [1058         972         460         219];
+f.Position = [1000        1121         273         217];
 % bar(binMeans/10000,FPSR_repOrNot,'stacked')
+
+% Save:
+if makeFigure
+    fileName = fullfile('OutputPlots',sprintf('CFPR_literature_histogram_%s.svg',whatSpecies));
+    saveas(f,fileName,'svg')
+    fprintf(1,'Saved to %s\n',fileName);
+end
 
 end

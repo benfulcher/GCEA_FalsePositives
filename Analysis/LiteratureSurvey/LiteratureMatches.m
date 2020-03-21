@@ -7,6 +7,7 @@ end
 %-------------------------------------------------------------------------------
 % Tell them what it is:
 params = GiveMeDefaultParams('mouse');
+params.e.sizeFilter = [1,1e6];
 GOTable = GiveMeGOData(params);
 % Get the category of interest:
 whatCategory = find(GOTable.GOID==whatGOID);

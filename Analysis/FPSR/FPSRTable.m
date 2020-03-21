@@ -3,7 +3,7 @@
 % DATA LOADING (DO ONCE)
 %-------------------------------------------------------------------------------
 params = GiveMeDefaultParams('mouse');
-numNullSamples = params.nulls.numNullsFPSR; % number of null maps to test against
+numNullSamples = params.nulls.numNullsCFPR; % number of null maps to test against
 
 % Load in the null data:
 GOTableNullMouseRandom = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','');
@@ -99,7 +99,7 @@ FPSR_Human_SBPspatial = GOTableCombined.sumUnderSigHumanAC/numNullSamples;
 T = table(CategoryName,IDLabel,ID,FPSR_Mouse_Reference,FPSR_Mouse_SBPrandom,...
                     FPSR_Mouse_SBPspatial,FPSR_Human_Reference,FPSR_Human_SBPrandom,...
                     FPSR_Human_SBPspatial);
-fileOut = fullfile('SupplementaryTables','FPSRTable.csv');
+fileOut = fullfile('SupplementaryTables','CFPR_Table.csv');
 writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
 fprintf(1,'Saved all FPSR results to %s\n',fileOut);
 

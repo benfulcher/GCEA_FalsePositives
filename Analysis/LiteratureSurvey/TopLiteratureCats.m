@@ -55,7 +55,7 @@ end
 
 numMouseStudies = numMouseHumanStudies(:,1);
 numHumanStudies = numMouseHumanStudies(:,2);
-TogetherTable = table(categoryNames,numMouseStudies,numHumanStudies);
+TogetherTable = table(categoryNames,IDLabels,numMouseStudies,numHumanStudies);
 
 display(TogetherTable(1:50,:))
 
