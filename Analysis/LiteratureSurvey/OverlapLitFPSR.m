@@ -72,7 +72,7 @@ if makeFigure
     f = figure('color','w');
 end
 bh = bar(100*binMeans/10000,100*propReportedNorm(:,theFields),'stacked','BarWidth',0.95);
-xlabel('FPSR (%)')
+xlabel('CFPR (%)')
 ylabel('GO categories reported as significant (%)')
 legend(legendEntries,'Location','northwest')
 title(whatSpecies)
@@ -82,7 +82,7 @@ bh(2).FaceColor = colors(2,:);
 ax = gca;
 ax.XLim = [0,30];
 % f.Position = [1058         972         460         219];
-f.Position = [1000        1121         273         217];
+f.Position = [1000        1121         273         136];
 % bar(binMeans/10000,FPSR_repOrNot,'stacked')
 
 % Save:

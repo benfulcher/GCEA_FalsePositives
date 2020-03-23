@@ -2,17 +2,40 @@
 %-------------------------------------------------------------------------------
 % DATA LOADING (DO ONCE)
 %-------------------------------------------------------------------------------
-params = GiveMeDefaultParams('mouse');
-numNullSamples = params.nulls.numNullsCFPR; % number of null maps to test against
 
-% Load in the null data:
-GOTableNullMouseRandom = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','');
-GOTableNullMouseAC = SurrogateEnrichmentProcess('mouse',numNullSamples,'spatialLag','');
-GOTableNullHuman = SurrogateEnrichmentProcess('human',numNullSamples,'randomUniform','');
-GOTableNullHumanAC = SurrogateEnrichmentProcess('human',numNullSamples,'spatialLag','');
-% Now the reference data:
-GOTableNullMouseRef = SurrogateEnrichmentProcess('mouse',numNullSamples,'randomUniform','independentSpatialShuffle');
-GOTableNullHumanRef = SurrogateEnrichmentProcess('human',numNullSamples,'randomUniform','independentSpatialShuffle');
+% ############
+% MOUSE:
+% ############
+params = GiveMeDefaultParams('mouse');
+% Reference:
+params.g.whatSurrogate = 'randomMap';
+params.nulls.customShuffle = 'independentSpatialShuffle';
+GOTableNullMouseRef = SurrogateEnrichmentProcess(params);
+% SBP-random:
+params.g.whatSurrogate = 'randomMap';
+params.nulls.customShuffle = 'none';
+GOTableNullMouseRandom = SurrogateEnrichmentProcess(params);
+% SBP-spatial:
+params.g.whatSurrogate = 'spatialLag';
+params.nulls.customShuffle = 'none';
+GOTableNullMouseAC = SurrogateEnrichmentProcess(params);
+
+% ############
+% HUMAN:
+% ############
+params = GiveMeDefaultParams('human');
+% Reference:
+params.g.whatSurrogate = 'randomMap';
+params.nulls.customShuffle = 'independentSpatialShuffle';
+GOTableNullHumanRef = SurrogateEnrichmentProcess(params);
+% SBP-random:
+params.g.whatSurrogate = 'randomMap';
+params.nulls.customShuffle = 'none';
+GOTableNullHumanRandom = SurrogateEnrichmentProcess(params);
+% SBP-spatial:
+params.g.whatSurrogate = 'spatialLag';
+params.nulls.customShuffle = 'none';
+GOTableNullHumanAC = SurrogateEnrichmentProcess(params);
 %-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
@@ -26,26 +49,38 @@ fprintf(1,'%u/%u (%g) mouse GO categories were never significant in the referenc
 fprintf(1,'%u/%u (%g) human GO categories were never significant in the reference case\n',...
             sum(GOTableNullHumanRef.sumUnderSig==0),height(GOTableNullHumanRef),propHumanRef0);
 
-% Max FPSR:
+% Max CFPR across categories:
 maxRefMouse = max(GOTableNullMouseRef.sumUnderSig);
 maxRefHuman = max(GOTableNullHumanRef.sumUnderSig);
-fprintf(1,'Max FPSR (reference) of any mouse GO category was %g%%\n',...
+fprintf(1,'Max CFPR (reference) of any mouse GO category is %g%%\n',...
                     maxRefMouse/numNullSamples*100);
-fprintf(1,'Max FPSR (reference) of any human GO category was %g%%\n',...
+fprintf(1,'Max CFPR (reference) of any human GO category is %g%%\n',...
                     maxRefHuman/numNullSamples*100);
 
-% Mean FPSR:
+% Changes in mean CFPR across all categories:
 meanRefMouse = mean(GOTableNullMouseRef.sumUnderSig);
 meanRandMouse = mean(GOTableNullMouseRandom.sumUnderSig);
+meanACMouse = mean(GOTableNullMouseAC.sumUnderSig);
 meanRefHuman = mean(GOTableNullHumanRef.sumUnderSig);
-fprintf(1,'Mean FPSR (reference) of mouse GO categories was %g%%\n',...
+meanRandHuman = mean(GOTableNullHumanRandom.sumUnderSig);
+meanACHuman = mean(GOTableNullHumanAC.sumUnderSig);
+fprintf(1,'Mean CFPR (reference) of MOUSE GO categories is %g%%\n',...
                     meanRefMouse/numNullSamples*100);
-fprintf(1,'Mean FPSR (SBP-random) of mouse GO categories was %g%%\n',...
+fprintf(1,'Mean CFPR (SBP-random) of MOUSE GO categories is %g%%\n',...
                     meanRandMouse/numNullSamples*100);
-fprintf(1,'Increase in mean FPSR (SBP-random) of mouse GO categories was %u-fold\n',...
+fprintf(1,'Mean CFPR (SBP-spatial) of MOUSE GO categories is %g%%\n',...
+                    meanACMouse/numNullSamples*100);
+fprintf(1,'Increase in mean CFPR (SBP-random) of MOUSE GO categories is %u-fold\n',...
                     round(meanRandMouse/meanRefMouse));
-fprintf(1,'Mean FPSR (reference) of human GO categories was %g%%\n',...
+fprintf(1,'Mean CFPR (reference) of HUMAN GO categories is %g%%\n',...
                     meanRefHuman/numNullSamples*100);
+fprintf(1,'Mean CFPR (SBP-random) of HUMAN GO categories is %g%%\n',...
+                    meanRandHuman/numNullSamples*100);
+fprintf(1,'Mean CFPR (SBP-spatial) of HUMAN GO categories is %g%%\n',...
+                    meanACHuman/numNullSamples*100);
+fprintf(1,'Increase in mean CFPR (SBP-random) of HUMAN GO categories is %u-fold\n',...
+                    round(meanRandHuman/meanRefHuman));
+
 
 %-------------------------------------------------------------------------------
 % COMBINE:
@@ -59,9 +94,9 @@ deleteCol = strcmp(GOTableCombined.Properties.VariableNames,'pValCorr');
 GOTableCombined(:,deleteCol) = [];
 
 % Add human
-[~,ia,ib] = intersect(GOTableCombined.GOID,GOTableNullHuman.GOID);
+[~,ia,ib] = intersect(GOTableCombined.GOID,GOTableNullHumanRandom.GOID);
 GOTableCombined = GOTableCombined(ia,:);
-GOTableCombined.sumUnderSigHuman = GOTableNullHuman.sumUnderSig(ib);
+GOTableCombined.sumUnderSigHuman = GOTableNullHumanRandom.sumUnderSig(ib);
 % Add human AC:
 [~,ia,ib] = intersect(GOTableCombined.GOID,GOTableNullHumanAC.GOID);
 GOTableCombined = GOTableCombined(ia,:);
@@ -85,26 +120,39 @@ GOTableCombined = GOTableCombined(ix,:);
 display(GOTableCombined(1:100,:))
 
 %-------------------------------------------------------------------------------
+% Estimate literature significance
+%-------------------------------------------------------------------------------
+% (inefficient: thousands of duplicate loading, but we can beef through)
+numRows = height(GOTableCombined);
+mouseLiterature = zeros(numRows,1);
+humanLiterature = zeros(numRows,1);
+for i = 1:numRows
+    [mouseLiterature(i),humanLiterature(i)] = LiteratureMatches(GOTableCombined.GOID(i),false);
+    fprintf(1,'%u/%u\n',i,numRows);
+end
+
+%-------------------------------------------------------------------------------
 % Save out to csv for paper:
 IDLabel = GOTableCombined.GOIDlabel;
 CategoryName = GOTableCombined.GOName;
 ID = GOTableCombined.GOID;
-FPSR_Mouse_Reference = GOTableCombined.refMouse/numNullSamples;
-FPSR_Mouse_SBPrandom = GOTableCombined.sumUnderSigMouse/numNullSamples;
-FPSR_Mouse_SBPspatial = GOTableCombined.sumUnderSigMouseAC/numNullSamples;
-FPSR_Human_Reference = GOTableCombined.refHuman/numNullSamples;
-FPSR_Human_SBPrandom = GOTableCombined.sumUnderSigHuman/numNullSamples;
-FPSR_Human_SBPspatial = GOTableCombined.sumUnderSigHumanAC/numNullSamples;
+CFPR_Mouse_Reference = GOTableCombined.refMouse/numNullSamples;
+CFPR_Mouse_SBPrandom = GOTableCombined.sumUnderSigMouse/numNullSamples;
+CFPR_Mouse_SBPspatial = GOTableCombined.sumUnderSigMouseAC/numNullSamples;
+CFPR_Human_Reference = GOTableCombined.refHuman/numNullSamples;
+CFPR_Human_SBPrandom = GOTableCombined.sumUnderSigHuman/numNullSamples;
+CFPR_Human_SBPspatial = GOTableCombined.sumUnderSigHumanAC/numNullSamples;
 
-T = table(CategoryName,IDLabel,ID,FPSR_Mouse_Reference,FPSR_Mouse_SBPrandom,...
-                    FPSR_Mouse_SBPspatial,FPSR_Human_Reference,FPSR_Human_SBPrandom,...
-                    FPSR_Human_SBPspatial);
+T = table(CategoryName,IDLabel,ID,CFPR_Mouse_Reference,CFPR_Mouse_SBPrandom,...
+                    CFPR_Mouse_SBPspatial,mouseLiterature,...
+                    CFPR_Human_Reference,CFPR_Human_SBPrandom,...
+                    CFPR_Human_SBPspatial,humanLiterature);
 fileOut = fullfile('SupplementaryTables','CFPR_Table.csv');
 writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
-fprintf(1,'Saved all FPSR results to %s\n',fileOut);
+fprintf(1,'Saved all CFPR results to %s\n',fileOut);
 
 %===============================================================================
-% Some basic statistics on how FPSR estimates change across the scenarios
+% Some basic statistics on how CFPR estimates change across the scenarios
 %-------------------------------------------------------------------------------
 % Max:
 maxMouseRand = max(GOTableCombined.sumUnderSigMouse);
@@ -115,10 +163,14 @@ maxHumanSpat = max(GOTableCombined.sumUnderSigHumanAC);
 % Exhibited an increase:
 didIncreaseMouseSBPrand = mean(GOTableCombined.sumUnderSigMouse > GOTableCombined.refMouse);
 didIncreaseHumanSBPrand = mean(GOTableCombined.sumUnderSigHuman > GOTableCombined.refHuman);
+fprintf(1,'MOUSE: Ref -> SBP-rand, %.2f%% categories increased CFPR\n',didIncreaseMouseSBPrand*100);
+fprintf(1,'HUMAN: Ref -> SBP-rand, %.2f%% categories increased CFPR\n',didIncreaseHumanSBPrand*100);
 % foldChangeMouse = GOTableCombined.sumUnderSigMouseAC./GOTableCombined.refMouse;
 
 meanIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC-GOTableCombined.sumUnderSigMouse)/numNullSamples;
 meanIncreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC-GOTableCombined.sumUnderSigHuman)/numNullSamples;
+fprintf(1,'MOUSE: Mean increase SBP-rand -> SBP-spatial = %.2f%%\n',meanIncreaseMouseSBPrandSBPAC*100);
+fprintf(1,'HUMAN: Mean increase SBP-rand -> SBP-spatial = %.2f%%\n',meanIncreaseHumanSBPrandSBPAC*100);
 
 %===============================================================================
 % % Look up a specific category:

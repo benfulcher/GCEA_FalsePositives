@@ -1,3 +1,4 @@
+% propLitCFPR
 
 % Parameters:
 equiprobableBins = true;

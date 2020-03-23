@@ -15,6 +15,9 @@ end
 if nargin < 4
     makeNewFigure = true;
 end
+% Flag to treat categories flagged by more studies proportionally
+% (but still ignoring their relative p-values)
+doWeight = false;
 %-------------------------------------------------------------------------------
 
 whatSurrogate = {'randomMap','spatialLag'};
@@ -30,9 +33,19 @@ for s = 1:2
     LitTable{s} = MakeLiteratureTable(whatSpecies,params{s}.e.sigThresh);
 
     %-------------------------------------------------------------------------------
-    % Now we'll get the FPSR data:
+    % Now we'll get the CFPR data:
     GOTable_FPSR{s} = SurrogateEnrichmentProcess(params{s},false);
+
+    %-------------------------------------------------------------------------------
+    % TRIM the literature results to only include GO categories that we have
+    % CFPR data for:
+    hasData = ismember(LitTable{s}.GOID,GOTable_FPSR{s}.GOID);
+    LitTable{s} = LitTable{s}(hasData,:);
+    fprintf(1,'Trimmed literature results to %u/%u that have CFPR data\n',...
+                        sum(hasData),length(hasData));
 end
+%-------------------------------------------------------------------------------
+
 
 %-------------------------------------------------------------------------------
 % PLOT:
@@ -62,7 +75,12 @@ for s = 1:2
     TableInBin = @(x,Gtable) Gtable(log10(Gtable.sumUnderSig) >= binEdges(x) & log10(Gtable.sumUnderSig) < binEdges(x+1),:);
     for i = 1:numBins
         tableInBini = TableInBin(i,GOTable_FPSR{s});
-        hasBeenReportedInBin(i) = mean(ismember(LitTable{s}.GOID,tableInBini.GOID));
+        theseLitCategoriesReported = ismember(LitTable{s}.GOID,tableInBini.GOID);
+        if doWeight
+            hasBeenReportedInBin(i) = mean(LitTable{s}.numStudies(theseLitCategoriesReported));
+        else
+            hasBeenReportedInBin(i) = mean(theseLitCategoriesReported);
+        end
     end
     switch whatSurrogate{s}
     case 'randomMap'
@@ -78,7 +96,7 @@ for s = 1:2
     hold('on')
 end
 xlabel('Category FPR')
-ylabel({'Proportion of all literature-';'reported categories in bin'})
+ylabel({'Proportion of literature-';'reported categories in bin'})
 legend(whatSurrogate,'Location','NorthWest')
 title(whatSpecies)
 

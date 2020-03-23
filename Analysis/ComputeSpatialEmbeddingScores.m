@@ -26,7 +26,7 @@ for s = 1:3
     geneScores = zeros(numGenes,1);
     parfor i = 1:numGenes
         g = geneData(:,i);
-        GCC = g*g'; % self product at each edge
+        GCC = g*g'; % self product for each pair of regions
         % Does the self-correlation of expression depend on distance?:
         geneScores(i) = -corr(distUpper,getUpperDiag(GCC),...
                                     'type',params.gcc.whatCorr,...

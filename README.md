@@ -50,7 +50,7 @@ The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImpor
 * `Tan2013-table-s6-david-200pos-transport.csv`: Tan, P. P. C., French, L. & Pavlidis, P. Neuron-Enriched Gene Expression Patterns are Regionally Anti-Correlated with Oligodendrocyte-Enriched Patterns in the Adult Mouse and Human Brain. Front. Psychiat. 7, (2013).
 * `Parkes2017_PC1.txt`, `Parkes2017_PC2.txt`, `Parkes2017_PC5.txt`, `Parkes2017_PC9.txt`: 1.	Parkes, L., Fulcher, B. D., Yücel, M. & Fornito, A. Transcriptional signatures of connectomic subregions of the human striatum. _Genes, Brain and Behavior_ **25**, 1176–663 (2017). -->
 
-### False-Positive Significance Rates (FPSR)
+### Category False-Positive Rates (CFPRs)
 
 False-positive significance rates can be computed using `SurrogateEnrichment` (cf. in `batchAllHumanAnalyses` and `batchAllMouseAnalyses`).
 
@@ -106,6 +106,10 @@ Computes spatial autocorrelation scores for each GO category and each species (r
 ```matlab
 ComputeSpatialEmbeddingScores();
 ```
+And for categories as a whole:
+```matlab
+SpatialScoringCategories();
+```
 
 ### Generate ensembles of spatially autocorrelated brain maps
 
@@ -149,11 +153,12 @@ For a given GO category of interest, you can find matches to literature using:
 ```matlab
 LiteratureMatches(whatGOID)
 ```
-For example, to get information about literature p-values for 'chemical synaptic transmission' (GO:000726), use `LiteratureMatches(7268)`.
+For example, to get information about literature _p_-values for 'chemical synaptic transmission' (GO:0007268), use `LiteratureMatches(7268)`.
+Note that for studies that just labeled significant GO categories (and did not provide estimated _p_-values), these are denoted with a _p_-value of 0.
 
 ### Enrichment signatures of ensembles of random spatial phenotypes (and/or including spatial autocorrelation)
 
-#### Plot distributions of FPSE across GO categories for the three null cases
+#### Plot distributions of CFPR across GO categories for the three null cases
 ```matlab
 NullEnrichmentTogether('mouse',true)
 NullEnrichmentTogether('human',true)
@@ -163,11 +168,11 @@ Saves plots to `OutputPlots/CFPR_distributions_mouse.svg` and `OutputPlots/CFPR_
 
 ![](figs/NullEnrichmentTogether.png)
 
-#### Generate a table with key statistics of FPSE in mouse and human
+#### Generate a table with key statistics of CFPRs in mouse and human
 ```matlab
 FPSRTable();
 ```
-Statistics displayed and outputs to `SupplementaryTables/CFPR_Table.csv`.
+Some key statistics are displayed to the command-line, and outputs full annotated table to `SupplementaryTables/CFPR_Table.csv`.
 
 #### Investigate the overlap between literature annotations and FPSE as histograms:
 As always, the null phenotype ensemble is defined in the `GiveMeDefaultParams` file.
@@ -178,38 +183,48 @@ OverlapLitFPSR('human',true)
 ```
 ![](figs/OverlapLitFPSR.png)
 
+There is also `propLitCFPR`, which looks at how literature-reported categories are distributed across computed levels of CFPR.
+Outputs figure to `OutputPlots/CFPR_Lit_Together.svg`.
+![](figs/propLitCFPR.png)
+
+
 ### Specific GO categories
 
 You can zoom into the null score distributions of two specific GO categories (including a random set of 40 genes) using:
 
-```
+```matlab
 PlotCategoryNullCompare('mouse')
 ```
 ![](figs/PlotCategoryNullCompare_1.png)
 ![](figs/PlotCategoryNullCompare_2.png)
 
-### The role of intra-category coexpression
+### The role of within-category coexpression
 
-Generate a table of intra-category coexpression (`WithinCategoryCoexp.csv`):
+Generate a table characterizing how within-category coexpression varies across GO categories:
 ```matlab
 IntraCorrTable();
 ```
+Outputs to `SupplementaryTables/WithinCategoryCoexp.csv`.
 
-Does intra-category coexpression relate to FPSR?:
+Does intra-category coexpression relate to CFPR?:
 ```matlab
 IntraCorrFPSR();
 ```
 ![](figs/IntraCorrFPSR.png)
 
-Do categories with spatially autocorrelated genes exhibit an increase in FPSR against spatially autocorrelated ensembles?
+Saves out to `OutputPlots/IntraCorr_CFPR.svg`.
 
-Investigate how FPSR is correlated to gene spatial autocorrelation (by category)
+Do categories with spatially autocorrelated genes exhibit an increase in CFPR against spatially autocorrelated ensembles?
+
+Investigate how CFPR is correlated to gene spatial autocorrelation (by category)
 ```matlab
 RelativeFPSRAutoCorr()
 ```
 ![](figs/RelativeFPSRAutoCorr.png)
 
-Save scores to table and get some additional visualizations:
+Saves plot to `OutputPlots/Rel_CFPR_SpatialAC.svg`.
+
+Save spatial correlation scores to table and get some additional visualizations:
 ```matlab
 DistanceConfoundResults()
 ```
