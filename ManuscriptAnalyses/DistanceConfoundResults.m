@@ -44,6 +44,13 @@ meanScoreSum = newTable.meanScoreMouseBrain + newTable.meanScoreMouseCtx + newTa
 newTable = newTable(ix,:);
 
 %-------------------------------------------------------------------------------
+% Some basic stats:
+fprintf(1,'%.2f%% have a positive autocorrelation score (mouse brain)\n',...
+                    mean(meanScoreMouseBrain > 0)*100);
+fprintf(1,'%.2f%% have a positive autocorrelation score (human cortex)\n',...
+                    mean(meanScoreHuman > 0)*100);
+
+%-------------------------------------------------------------------------------
 % Save it to csv file:
 IDLabel = newTable.GOIDlabel;
 CategoryName = newTable.GOName;
@@ -51,19 +58,15 @@ ID = newTable.GOID;
 MeanSpatialAutocorrelationScore_MouseBrain = newTable.meanScoreMouseBrain;
 MeanSpatialAutocorrelationScore_MouseCortex = newTable.meanScoreMouseCtx;
 MeanSpatialAutocorrelationScore_Human = newTable.meanScoreHuman;
-FDRpVal_MouseBrain = newTable.pValZCorrMouseBrain;
-FDRpVal_MouseCortex = newTable.pValZCorrMouseCtx;
-FDRpVal_Human = newTable.pValZCorrHuman;
+% FDRpVal_MouseBrain = newTable.pValZCorrMouseBrain;
+% FDRpVal_MouseCortex = newTable.pValZCorrMouseCtx;
+% FDRpVal_Human = newTable.pValZCorrHuman;
 T = table(CategoryName,IDLabel,ID,MeanSpatialAutocorrelationScore_MouseBrain,...
                         MeanSpatialAutocorrelationScore_MouseCortex,...
-                        MeanSpatialAutocorrelationScore_Human,...
-                        FDRpVal_MouseBrain,...
-                        FDRpVal_MouseCortex,...
-                        FDRpVal_Human);
+                        MeanSpatialAutocorrelationScore_Human);
 fileOut = fullfile('SupplementaryTables','SpatialAutocorrelationScores.csv');
 writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
 fprintf(1,'Saved spatial autocorrelation scores to %s\n',fileOut);
-
 
 %-------------------------------------------------------------------------------
 % Visualize any overlapping spatial signatures:

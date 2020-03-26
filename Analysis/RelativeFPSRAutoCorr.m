@@ -86,6 +86,7 @@ f = figure('color','w'); hold('on');
 ax = gca();
 numBins = 10;
 theColors = GiveMeColors('mouseHuman');
+keyboard
 for s = 1:2
     % isValid = (GOTableCombined.(whatSpecies{s}).R2fit > 0.25);
     % xData = GOTableCombined.(whatSpecies{s}).negRho;

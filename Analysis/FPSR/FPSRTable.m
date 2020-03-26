@@ -37,6 +37,7 @@ params.g.whatSurrogate = 'spatialLag';
 params.nulls.customShuffle = 'none';
 GOTableNullHumanAC = SurrogateEnrichmentProcess(params);
 %-------------------------------------------------------------------------------
+numNullSamples = params.nulls.numNullsCFPR;
 
 %-------------------------------------------------------------------------------
 % Some simple stats:
@@ -81,7 +82,6 @@ fprintf(1,'Mean CFPR (SBP-spatial) of HUMAN GO categories is %g%%\n',...
 fprintf(1,'Increase in mean CFPR (SBP-random) of HUMAN GO categories is %u-fold\n',...
                     round(meanRandHuman/meanRefHuman));
 
-
 %-------------------------------------------------------------------------------
 % COMBINE:
 %-------------------------------------------------------------------------------
@@ -123,12 +123,15 @@ display(GOTableCombined(1:100,:))
 % Estimate literature significance
 %-------------------------------------------------------------------------------
 % (inefficient: thousands of duplicate loading, but we can beef through)
-numRows = height(GOTableCombined);
-mouseLiterature = zeros(numRows,1);
-humanLiterature = zeros(numRows,1);
-for i = 1:numRows
-    [mouseLiterature(i),humanLiterature(i)] = LiteratureMatches(GOTableCombined.GOID(i),false);
-    fprintf(1,'%u/%u\n',i,numRows);
+doAnnotateLiterature = false;
+if doAnnotateLiterature
+    numRows = height(GOTableCombined);
+    mouseLiterature = zeros(numRows,1);
+    humanLiterature = zeros(numRows,1);
+    for i = 1:numRows
+        [mouseLiterature(i),humanLiterature(i)] = LiteratureMatches(GOTableCombined.GOID(i),false);
+        fprintf(1,'%u/%u\n',i,numRows);
+    end
 end
 
 %-------------------------------------------------------------------------------
@@ -167,8 +170,19 @@ fprintf(1,'MOUSE: Ref -> SBP-rand, %.2f%% categories increased CFPR\n',didIncrea
 fprintf(1,'HUMAN: Ref -> SBP-rand, %.2f%% categories increased CFPR\n',didIncreaseHumanSBPrand*100);
 % foldChangeMouse = GOTableCombined.sumUnderSigMouseAC./GOTableCombined.refMouse;
 
-meanIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC-GOTableCombined.sumUnderSigMouse)/numNullSamples;
-meanIncreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC-GOTableCombined.sumUnderSigHuman)/numNullSamples;
+didIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC > GOTableCombined.sumUnderSigMouse);
+didIncreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC > GOTableCombined.sumUnderSigHuman);
+fprintf(1,'MOUSE: SBP-rand -> SBP-spatial, %.2f%% categories increased CFPR\n',didIncreaseMouseSBPrandSBPAC*100);
+fprintf(1,'HUMAN: SBP-rand -> SBP-spatial, %.2f%% categories increased CFPR\n',didIncreaseHumanSBPrandSBPAC*100);
+
+didDecreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC < GOTableCombined.sumUnderSigMouse);
+didDecreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC < GOTableCombined.sumUnderSigHuman);
+fprintf(1,'MOUSE: SBP-rand -> SBP-spatial, %.2f%% categories *decreased* CFPR\n',didDecreaseMouseSBPrandSBPAC*100);
+fprintf(1,'HUMAN: SBP-rand -> SBP-spatial, %.2f%% categories *decreased* CFPR\n',didDecreaseHumanSBPrandSBPAC*100);
+
+% Mean size of increase:
+meanIncreaseMouseSBPrandSBPAC = mean(GOTableCombined.sumUnderSigMouseAC - GOTableCombined.sumUnderSigMouse)/numNullSamples;
+meanIncreaseHumanSBPrandSBPAC = mean(GOTableCombined.sumUnderSigHumanAC - GOTableCombined.sumUnderSigHuman)/numNullSamples;
 fprintf(1,'MOUSE: Mean increase SBP-rand -> SBP-spatial = %.2f%%\n',meanIncreaseMouseSBPrandSBPAC*100);
 fprintf(1,'HUMAN: Mean increase SBP-rand -> SBP-spatial = %.2f%%\n',meanIncreaseHumanSBPrandSBPAC*100);
 

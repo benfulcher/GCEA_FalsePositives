@@ -228,41 +228,28 @@ Save spatial correlation scores to table and get some additional visualizations:
 ```matlab
 DistanceConfoundResults()
 ```
+This produces `SupplementaryTables/SpatialAutocorrelationScores.csv`.
 
 ### Case Study: Degree
 
-***First compute all conventional enrichment results***, will loop through human, mouse-all, and mouse-cortex:
+First compute and save all results of conventional GSEA.
+This will loop through human, mouse-all, and mouse-cortex:
 ```matlab
 RunConventionalEnrichment();
 ```
+This saves results files to:
+* `DataOutputs/CaseStudyDegree_human_cortex.mat`
+* `DataOutputs/CaseStudyDegree_mouse_all.mat`
+* `DataOutputs/CaseStudyDegree_mouse_cortex.mat`.
 
-Then you can get all of the results (for each of three analyses) as:
+You can then compare the results of all three null models for each setting as:
 ```matlab
 CaseStudyResults('human','cortex');
 CaseStudyResults('mouse','all');
 CaseStudyResults('mouse','cortex');
 ```
 
-This also generates output files `EnrichmentThreeWays*.csv`.
-
-## Peripheral
-
-### Visualizing transcriptional data
-
-Clustered row x gene expression matrices can be plotted for mouse:
-```matlab
-PlotExpressionMatrix('mouse')
-```
-
-And human:
-```matlab
-PlotExpressionMatrix('human')
-```
-
-
-### Non-specific spatial effects
-These analyses look at quantifying nonspecific spatial patterning of gene-expression maps.
-
-```matlab
-DistanceConfoundResults()
-```
+This generates output tables comparing the three types of nulls:
+* `SupplementaryTables/EnrichmentThreeWays_human_cortex.csv`
+* `SupplementaryTables/EnrichmentThreeWays_mouse_all.csv`
+* `SupplementaryTables/EnrichmentThreeWays_mouse_cortex.csv`

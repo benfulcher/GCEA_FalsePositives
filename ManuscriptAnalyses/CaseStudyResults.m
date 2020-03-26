@@ -50,9 +50,14 @@ resultTablesDegree.spatialLag = EnsembleEnrichment(geneDataStruct,fileNullEnsemb
 % List significant categories under each null:
 whatPField = 'pValZCorr';
 countMe = @(x)sum(resultTablesDegree.(x).(whatPField) < params.e.sigThresh);
+% Can get lost in all the outputs, so make it clear:
+fprintf(1,'\n-----------------------------\n');
+fprintf(1,'-----------------------------\n');
 fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('randomGeneNull'),whatPField);
 fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('randomMap'),whatPField);
 fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('spatialLag'),whatPField);
+fprintf(1,'-----------------------------\n');
+fprintf(1,'-----------------------------\n\n');
 
 %-------------------------------------------------------------------------------
 % Assemble a joint table:
@@ -96,13 +101,13 @@ case 'all'
     % Do scores correlate with intracategory coexpression?
     %-------------------------------------------------------------------------------
     % Obtain the GOTable for ranksum expression differences in isocortex:
-    GOTable_isocortex = NodeSimpleEnrichment(params,'isocortex','all');
+    GOTable_isocortex = NodeSimpleEnrichment(params,'isocortex',true);
     PlotGOScoreScatter(resultTablesDegree.randomGeneNull,GOTable_isocortex,{'meanScore','meanScore'});
     xlabel('GO category score (mean Spearman correlation with degree)')
     ylabel('GO category score (-log10 p-value ranksum test isocortex)')
 
     % Does degree differ cortical/non-cortical?
-    [k,structInfo] = ComputeDegree(params.humanOrMouse,true);
+    [k,structInfo] = ComputeDegree(params,true);
     kCortex = k(strcmp(structInfo.divisionLabel,'Isocortex'));
     kNotCotex = k(~strcmp(structInfo.divisionLabel,'Isocortex'));
     fprintf(1,'Cortex: <k> = %.2f, s_k = %.2f\n',mean(kCortex),std(kCortex));
