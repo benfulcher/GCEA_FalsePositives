@@ -1,17 +1,11 @@
-# Enrichment Nulls
-EnrichmentNulls is a repository for reproducing enrichment analyses for spatial maps in human and mouse.
+# Appropriate statistical inference for gene-set enrichment analyses (GSEA) of brain-wide transcriptomic data
+This is a repository to accompany the manuscript 'Appropriate statistical inference for gene-set enrichment analyses of brain-wide transcriptomic data'.
+The code below reproduces all statistical tests on GSEA in human and mouse.
+
+All data is available for download from an associated figshare repository.
+Downloadable files are labeled as :link:.
 
 ## Setting up
-
-### Raw gene-expression data
-
-The directory `/HumanData` requires three data files:
-* `100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortex_ROI_NOdistCorrSurfaceANDEuclidean.mat`
-* `100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat`
-* `100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat`
-
-The directory `/MouseData` requires:
-* `AllenGeneDataset_19419.mat`
 
 ### Data and code for running gene set enrichment analysis (GSEA)
 
@@ -21,24 +15,38 @@ git clone git@github.com:benfulcher/GeneSetEnrichmentAnalysis.git
 ```
 Analyses here require it to be accessible in the path, which can be set by modifying `GiveMeFile` (`'EnrichmentToolbox'`).
 
-Please follow the instructions from that repository to recompute (or download) the following required data files:
-* Direct biological process annotations: `GOTerms_BP.mat`
-* Hierarchically propagated annotations (mouse): `GOAnnotationDirect-mouse-biological_process-Prop.mat`
-* Hierarchically propagated annotations (human): `GOAnnotationDirect-human-biological_process-Prop.mat`
+Please follow the instructions from that repository to recompute (or download from the figshare repository for this Matlab-GSEA toolbox) the following required data files:
+* Direct biological process annotations: `GOTerms_BP.mat`.
+* Hierarchically propagated annotations (mouse): `GOAnnotationDirect-mouse-biological_process-Prop.mat`.
+* Hierarchically propagated annotations (human): `GOAnnotationDirect-human-biological_process-Prop.mat`.
+
+## Data
+
+### :bust_in_silhouette: ___Human___ :bust_in_silhouette:
+These files should be placed in the `HumanData` directory:
+* Gene-expression data: `100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat` (:link:).
+* Structural connectivity data (for case study): `HCP_200_15.mat` (:link:) should be placed in the `/HumanData` directory.
+
+For details on gene expression data, see [this repository](https://github.com/BMHLab/AHBAprocessing).
+
+### :mouse: ___Mouse___ :mouse:
+These files should be placed in the `MouseData` directory.
+* Gene-expression data: `AllenGeneDataset_19419.mat` (:link:).
+* Structural connectivity data (for case study): `Mouse_Connectivity_Data.mat` (:link:).
 
 ## Data processing and precomputing
 
 Note that batch job scripts for major bulk computations are in the `BatchComputing` directory.
 There are files for mouse-related analyses: `batchAllMouseAnalyses.sh`, and human-related analyses: `batchAllHumanAnalyses.sh`.
 
-### Literature enrichment signatures
+### Assembling literature-published enrichment results
 
 Information about enrichment results reported in published studies can be imported and processed by running
 ```matlab
 ImportLiteratureEnrichment(false,true);
 ```
-Results are saved as `LiteratureEnrichmentLoaded.mat`.
-All data is read in from the `LiteratureEnrichmentData` directory.
+Results are saved as `LiteratureEnrichmentLoaded.mat` (:link:).
+Raw data to run this is in the `LiteratureEnrichmentData` directory (:link:: `LiteratureEnrichment.zip`).
 
 <!--
 First type of annotations are manually-curated, from studies that noted enrichment results in-text with no supplementary files for full results: `TableGOBPs.csv`:
@@ -49,6 +57,24 @@ The second type are using scripts (in `/DataProcessing/IndividualEnrichmentImpor
 * `Fulcher2016_connectedUnconnected_BP_TableS1.csv`, `Fulcher2016_richFeederPeripheral_BP_TableS5.csv`: Fulcher, B. D. & Fornito, A. A transcriptional signature of hub connectivity in the mouse connectome. _Proc. Natl. Acad. Sci. USA_ **113**, 1435–1440 (2016).
 * `Tan2013-table-s6-david-200pos-transport.csv`: Tan, P. P. C., French, L. & Pavlidis, P. Neuron-Enriched Gene Expression Patterns are Regionally Anti-Correlated with Oligodendrocyte-Enriched Patterns in the Adult Mouse and Human Brain. Front. Psychiat. 7, (2013).
 * `Parkes2017_PC1.txt`, `Parkes2017_PC2.txt`, `Parkes2017_PC5.txt`, `Parkes2017_PC9.txt`: 1.	Parkes, L., Fulcher, B. D., Yücel, M. & Fornito, A. Transcriptional signatures of connectomic subregions of the human striatum. _Genes, Brain and Behavior_ **25**, 1176–663 (2017). -->
+
+### Generate ensembles of spatially autocorrelated brain maps
+
+Generate random maps that include spatial autocorrelation structure (based on the spatial autocorrelation scale of gene expression as a whole).
+
+```matlab
+plotSummary = true;
+GenerateSpatialEnsemble('mouse','all',plotSummary)
+GenerateSpatialEnsemble('mouse','cortex',plotSummary)
+GenerateSpatialEnsemble('human','cortex',plotSummary)
+```
+
+Saves into the `SurrogateMaps/` directory:
+* `human_Surrogate_N40000.mat` (:link:)
+* `mouse_all_Surrogate_N40000.mat` (:link:)
+* `mouse_cortex_Surrogate_N40000.mat` (:link:) (for case study)
+
+See also a more comprehensive method for generating spatially autocorrelated brain maps: [brainSMASH](https://github.com/murraylab/brainsmash).
 
 ### Category False-Positive Rates (CFPRs)
 
@@ -64,10 +90,19 @@ SurrogateEnrichment('mouse',[],'spatialLag','');
 % (and similarly for 'human')
 ```
 
-There is also the (irrelevant) spatially random model (plus coordinated shuffling of genes through space) [equivalent to not doing a coordinatedSpatialShuffle]:
+This saves the following files (to the `SurrogateEnrichment` directory):
+* `SurrogateGOTables_10000_mouse_randomMap_independentSpatialShuffle.mat` :link: ('reference').
+* `SurrogateGOTables_10000_mouse_randomMap_none.mat` :link: ('SBP-random').
+* `SurrogateGOTables_10000_mouse_spatialLag_none.mat` :link: ('SBP-spatial').
+
+* `SurrogateGOTables_10000_human_randomMap_independentSpatialShuffle.mat` :link: ('reference').
+* `SurrogateGOTables_10000_human_randomMap_none.mat` :link: ('SBP-random').
+* `SurrogateGOTables_10000_human_spatialLag_none.mat` :link: ('SBP-spatial').
+
+<!-- There is also the (irrelevant) spatially random model (plus coordinated shuffling of genes through space) [equivalent to not doing a coordinatedSpatialShuffle]:
 ```matlab
 SurrogateEnrichment('mouse',[],'randomUniform','coordinatedSpatialShuffle');
-```
+``` -->
 
 The computed results are saved a `.mat` files and can be read in and processed as a GO Table using `SurrogateEnrichmentProcess`.
 
@@ -88,6 +123,20 @@ NullComputation(params);
 The null distribution for all GO categories is stored in a table that is saved to a `.mat` file, in this case: `PhenotypeNulls_40000_mouse_randomMap_Spearman_mean.mat`.
 These stored null distributions can then be used for ensemble-based GSEA.
 
+For the analyses presented in the manuscript, these are stored in the `EnsembleBasedNulls/` directory:
+
+___Human Cortex___:
+* `PhenotypeNulls_40000_human-cortex_randomMap_Spearman_mean.mat` (:link:)
+* `PhenotypeNulls_40000_human-cortex_customEnsemble_Spearman_mean.mat` (:link:)
+
+___Mouse Brain___:
+* `PhenotypeNulls_40000_mouse-all_randomMap_Spearman_mean.mat` (:link:)
+* `PhenotypeNulls_40000_mouse-all_customEnsemble_Spearman_mean.mat` (:link:)
+
+___Mouse Cortex___ _(for case study)_:
+* `PhenotypeNulls_40000_mouse-cortex_randomMap_Spearman_mean.mat` (:link:)
+* `PhenotypeNulls_40000_mouse-cortex_customEnsemble_Spearman_mean.mat` (:link:)
+
 ### Intra-category coexpression
 
 The within-category coexpression metric is precomputed as:
@@ -98,7 +147,9 @@ IntraCorrelationByCategory('human','geneShuffle',[],'raw',true);
 ```
 (although the shuffled versions aren't in any analyses, so the computation on shuffled data is needless).
 
-This saves the results in the `DataOutputs` directory.
+This saves the results in the `DataOutputs/` directory:
+* `Intra_human_geneShuffle_raw_20000.mat` (:link:).
+* `Intra_mouse_geneShuffle_raw_20000.mat` (:link:).
 
 ### Compute spatial autocorrelation scores
 
@@ -109,17 +160,6 @@ ComputeSpatialEmbeddingScores();
 And for categories as a whole:
 ```matlab
 SpatialScoringCategories();
-```
-
-### Generate ensembles of spatially autocorrelated brain maps
-
-#### Matlab
-
-```matlab
-plotSummary = true;
-GenerateSpatialEnsemble('mouse','all',plotSummary)
-GenerateSpatialEnsemble('mouse','cortex',plotSummary)
-GenerateSpatialEnsemble('human','cortex',plotSummary)
 ```
 
 <!-- #### Python (old)
