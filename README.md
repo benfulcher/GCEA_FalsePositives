@@ -293,3 +293,5 @@ This generates output tables comparing the three types of nulls:
 * `SupplementaryTables/EnrichmentThreeWays_human_cortex.csv`
 * `SupplementaryTables/EnrichmentThreeWays_mouse_all.csv`
 * `SupplementaryTables/EnrichmentThreeWays_mouse_cortex.csv`
+
+There is also `CorrelationDegreeCortex` to see how genes that differentiate cortical expression are also more likely to be correlated to connectivity degree.
