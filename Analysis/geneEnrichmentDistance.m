@@ -24,9 +24,9 @@ textLabel = GiveMeDistanceScoreFileName(params);
 % Load and process data
 %-------------------------------------------------------------------------------
 % Pairwise distance data:
-distMat = GiveMeDistanceMatrix(params.humanOrMouse,params.c.structFilter);
+distMat = GiveMeDistanceMatrix(params);
 
-% Gene expression data:
+% Gene-expression data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 numGenes = height(geneInfo);
 fprintf(1,'%u x %u gene expression matrix\n',size(geneData,1),size(geneData,2));

@@ -20,7 +20,7 @@ end
 params = GiveMeDefaultParams(mouseOrHuman,structFilter);
 
 % Get all pairwise distances:
-distMat = GiveMeDistanceMatrix(mouseOrHuman,structFilter);
+distMat = GiveMeDistanceMatrix(params);
 numAreas = length(distMat);
 
 %-------------------------------------------------------------------------------

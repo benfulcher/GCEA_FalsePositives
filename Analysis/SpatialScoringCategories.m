@@ -22,7 +22,7 @@ numGenes = height(geneInfo);
 numGOCategories = height(GOTable);
 
 % Get pairwise distances:
-distMat = GiveMeDistanceMatrix(params.humanOrMouse,params.structFilter);
+distMat = GiveMeDistanceMatrix(params);
 getUpperDiag = @(x) x(triu(true(size(x)),+1));
 distUpper = getUpperDiag(distMat);
 

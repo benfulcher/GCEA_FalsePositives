@@ -1,12 +1,12 @@
-function distanceMat = GiveMeDistanceMatrix(whatSpecies,structFilter)
+function distanceMat = GiveMeDistanceMatrix(params)
 % Gives a pairwise distance matrix
 %-------------------------------------------------------------------------------
-if nargin < 2
-    structFilter = 'all';
+if nargin < 1
+    params = GiveMeDefaultParams();
 end
 
 %-------------------------------------------------------------------------------
-switch whatSpecies
+switch params.humanOrMouse
 case 'mouse'
     % Pairwise ipsilateral Euclidean distance data:
     % warning('Distances only work at the moment for whole-brain data')
@@ -21,13 +21,21 @@ case 'mouse'
 case 'human'
     % Latest data processed by Aurina
     % cust100: cortical and subcortical structures normalized separately:
-    dataFile = '100DS220scaledRobustSigmoidNSGDSQC1LcortexSubcortexSEPARATE_ROI_NOdistCorrSurfaceANDEuclidean.mat';
+    switch params.g.whatParcellation
+    case 'HCP'
+        dataFile = GiveMeFile('HumanGene_HCP');
+    case
+        if params.g.normalizeSeparately
+            dataFile = GiveMeFile('HumanGene_cust100_normSeparate');
+        else
+            dataFile = GiveMeFile('HumanGene_cust100_normTogether');
+        end
+    end
     load(dataFile,'averageDistance');
     distanceMat = (averageDistance + averageDistance')/2;
     ROIs_distance = 1:length(distanceMat);
 
     % Get gene-expression data to ensure a match:
-    params = GiveMeDefaultParams('human');
     [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 
     % Get gene-expression data to ensure a match:
@@ -36,11 +44,10 @@ case 'human'
     warning('Keeping %u/%u regions for distance information',sum(doKeep),length(doKeep));
     distanceMat = distanceMat(doKeep,doKeep);
     structFilter = 'all';
-    
+
     % Keep only cortex:
     % warning('Hard keeping first 100 cust100 cortical parcels (out of %u)',length(distanceMat));
     % distanceMat = distanceMat(1:100,1:100);
-
 
 case 'human2017'
     % Results using data provided by Aurina in 2017
@@ -69,7 +76,6 @@ end
 
 %-------------------------------------------------------------------------------
 
-fprintf(1,'%u x %u pairwise distance matrix\n',...
-                size(distanceMat,1),size(distanceMat,2));
+fprintf(1,'%u x %u pairwise distance matrix\n',size(distanceMat,1),size(distanceMat,2));
 
 end

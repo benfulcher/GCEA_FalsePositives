@@ -18,7 +18,7 @@ for s = 1:3
     numGenes = height(geneInfo);
 
     % Get pairwise distances:
-    distMat = GiveMeDistanceMatrix(params.humanOrMouse,params.c.structFilter);
+    distMat = GiveMeDistanceMatrix(params);
     getUpperDiag = @(x) x(triu(true(size(x)),+1));
     distUpper = getUpperDiag(distMat);
 

@@ -3,15 +3,18 @@
 %-------------------------------------------------------------------------------
 
 % Mouse brain:
-distMat = GiveMeDistanceMatrix('mouse','all');
+params = GiveMeDefaultParams('mouse','all');
+distMat = GiveMeDistanceMatrix(params);
 dlmwrite('mouseDistMat.csv',distMat)
 
 % Mouse cortex:
-distMat = GiveMeDistanceMatrix('mouse','cortex');
+params = GiveMeDefaultParams('mouse','cortex');
+distMat = GiveMeDistanceMatrix(params);
 dlmwrite('mouseCortexDistMat.csv',distMat)
 
 % Human cortex:
-distMat = GiveMeDistanceMatrix('human');
+params = GiveMeDefaultParams('human','cortex');
+distMat = GiveMeDistanceMatrix(params);
 numAreas = length(distMat);
 dlmwrite(sprintf('humanDistMat_%u.csv',numAreas),distMat)
 
@@ -39,8 +42,8 @@ dlmwrite(sprintf('humanDegree_%u.csv',numAreas),k)
 %-------------------------------------------------------------------------------
 % Some internal analyses
 %-------------------------------------------------------------------------------
-distMat = GiveMeDistanceMatrix('mouse','all');
 params = GiveMeDefaultParams('mouse','all');
+distMat = GiveMeDistanceMatrix(params);
 [k,structInfoConn] = ComputeDegree(params,doBinarize);
 %-------------------------------------------------------------------------------
 

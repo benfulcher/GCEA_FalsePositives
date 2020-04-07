@@ -9,10 +9,12 @@ end
 
 switch whatSpecies
 case 'human'
-    distMat = GiveMeDistanceMatrix('human');
+    params = GiveMeDefaultParams(whatSpecies);
+    distMat = GiveMeDistanceMatrix(params);
     fileName = 'humanSurrogate_rho8.csv';
 case 'mouse'
-    distMat = GiveMeDistanceMatrix('mouse');
+    params = GiveMeDefaultParams(whatSpecies);
+    distMat = GiveMeDistanceMatrix(params);
     fileName = 'mouseSurrogate_rho10.csv';
 end
 

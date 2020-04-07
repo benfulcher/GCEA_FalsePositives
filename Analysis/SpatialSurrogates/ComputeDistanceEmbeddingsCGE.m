@@ -4,8 +4,8 @@
 mouseOrHuman = 'mouse';
 structFilter = 'all';
 
-distMat = GiveMeDistanceMatrix(mouseOrHuman,structFilter);
 params = GiveMeDefaultParams(mouseOrHuman,structFilter);
+distMat = GiveMeDistanceMatrix(params);
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 G = corr(geneData','rows','pairwise');
 upperMask = triu(true(size(G)),+1);
