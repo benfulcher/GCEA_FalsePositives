@@ -10,7 +10,7 @@
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=18000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=112:00:00
+#SBATCH --time=120:00:00
 # Email user if job fails or ends
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -30,4 +30,7 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12); params = GiveMeDefaultParams('mouse','cortex'); params.e.whatEnsemble = 'customEnsemble'; NullComputation(params); exit"
+matlab -nodesktop -r "startup; parpool('local',10);\
+params = GiveMeDefaultParams('mouse','cortex');\
+params.e.whatEnsemble = 'customEnsemble';\
+NullComputation(params); exit"

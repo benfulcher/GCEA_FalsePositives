@@ -13,11 +13,13 @@ sbatch slurm_mouseCategoryNullCompute_randomMap_wholeBrain.sh
 sbatch slurm_mouseCategoryNullCompute_randomMap_cortex.sh
 
 # ------------------------------------------------------
-# Compute FPSR (under conventional GSEA):
+# Compute CFPRs (under conventional GSEA):
 # ------------------------------------------------------
 sbatch slurm_mouseUniformRandomShuffleUniformRandom.sh
 sbatch slurm_mouseUniformRandom.sh
 sbatch slurm_mouseSpatialLag.sh
 
-# Intra-category correlation nulls (randomized versions are no longer used):
+# ------------------------------------------------------
+# Intra-category correlation nulls (randomized versions no longer used):
+# ------------------------------------------------------
 sbatch slurm_mouseIntraCorr_raw.sh
