@@ -3,11 +3,21 @@ function dataFileSurrogate = FindNullFile(params)
 %-------------------------------------------------------------------------------
 
 if params.e.useAutoSpatial
-    dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u.mat',params.humanOrMouse,...
+    if strcmp(params.humanOrMouse,'human')
+        dataFileSurrogate = sprintf('%s_%s-%s_Surrogate_N%u.mat',params.humanOrMouse,...
+            params.g.whatParcellation,params.structFilter,params.e.numNullSamples);
+    else
+        dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u.mat',params.humanOrMouse,...
                             params.structFilter,params.e.numNullSamples);
+    end
 else
-    dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u_manual.mat',params.humanOrMouse,...
+    if strcmp(params.humanOrMouse,'human')
+        dataFileSurrogate = sprintf('%s_%s-%s_Surrogate_N%u_manual.mat',params.humanOrMouse,...
+                params.g.whatParcellation,params.structFilter,params.e.numNullSamples);
+    else
+        dataFileSurrogate = sprintf('%s_%s_Surrogate_N%u_manual.mat',params.humanOrMouse,...
                             params.structFilter,params.e.numNullSamples);
+    end
 end
 
 dataFileSurrogate = fullfile('SurrogateMaps',dataFileSurrogate);

@@ -41,7 +41,6 @@ case 'human'
     ROI_ID = parcelExpression(:,1); % ROI IDs (from cust100)
     switch gParam.whatParcellation
     case 'HCP'
-        keyboard
         isCortex = true(size(ROI_ID));
     case 'cust100'
         isCortex = (ROI_ID<=100);

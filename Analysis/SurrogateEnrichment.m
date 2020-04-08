@@ -1,6 +1,6 @@
 function SurrogateEnrichment(params)
 % Compute conventional enrichment results across surrogate spatial maps
-% (for FPSR results)
+% (for CFPR results)
 %-------------------------------------------------------------------------------
 if nargin < 1
     params = GiveMeDefaultParams('mouse');
@@ -16,6 +16,9 @@ numAreas = height(structInfoReal);
 
 %-------------------------------------------------------------------------------
 % Get surrogate data, geneDataNull (each column is a null spatial map)
+%-------------------------------------------------------------------------------
+% KEY HERE IS THE SETTING: params.g.whatSurrogate
+%-------------------------------------------------------------------------------
 params.g.humanOrMouse = sprintf('surrogate-%s',params.humanOrMouse);
 geneDataNull = LoadMeG(params.g);
 if numMaps > size(geneDataNull,2)
@@ -33,6 +36,9 @@ numGOCategories = height(GOTableGeneric);
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 % Enrichment of genes with a given null spatial map
+%-------------------------------------------------------------------------------
+% KEY HERE IS THE SETTING params.nulls.customShuffle
+%-------------------------------------------------------------------------------
 numGenesReal = height(geneInfoReal);
 surrogatePValsPerm = zeros(numGOCategories,numMaps);
 surrogatePValsZ = zeros(numGOCategories,numMaps);

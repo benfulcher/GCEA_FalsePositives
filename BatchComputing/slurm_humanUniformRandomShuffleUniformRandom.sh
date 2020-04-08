@@ -6,11 +6,11 @@
 # Request CPU resources
 #SBATCH --ntasks=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=16
 # Memory usage (MB)
 #SBATCH --mem-per-cpu=12000
 # Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=90:00:00
+#SBATCH --time=120:00:00
 # Email user if job fails or ends
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
@@ -30,4 +30,8 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12); SurrogateEnrichment('human',[],'randomUniform','independentSpatialShuffle'); exit"
+matlab -nodesktop -r "startup; parpool('local',16);
+                        params = GiveMeDefaultParams('human');
+                        params.g.whatSurrogate = 'randomUniform';
+                        params.nulls.customShuffle = 'independentSpatialShuffle';
+                        SurrogateEnrichment(params); exit"

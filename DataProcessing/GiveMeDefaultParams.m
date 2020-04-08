@@ -40,7 +40,7 @@ case 'mouse'
     params.c.whatHemispheres = 'right';
 case 'human'
     params.c.connectomeSource = 'human'; % 'human-HCP-APARC', 'human-HCP-HCP'
-    params.c.whatDensity = 15; % can be 15 or 25
+    params.c.whatDensity = 20; % percentage edge density
     params.c.whatWeightMeasure = 'density';
     params.c.whatHemispheres = 'left';
 end

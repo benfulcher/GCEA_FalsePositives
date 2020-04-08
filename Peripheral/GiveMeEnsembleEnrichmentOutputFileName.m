@@ -8,10 +8,15 @@ end
 %-------------------------------------------------------------------------------
 % Need to find precomputed null results (from running ComputeAllCategoryNulls):
 
-% Try new:
+if strcmp(params.humanOrMouse,'human')
+    speciesLabel = sprintf('%s-%s',params.humanOrMouse,params.g.whatParcellation);
+else
+    speciesLabel = sprintf('%s-%s',params.humanOrMouse,params.structFilter);
+end
+
+% New:
 fileNullEnsembleResults = sprintf('PhenotypeNulls_%u_%s-%s_%s_%s_%s.mat',...
-            params.e.numNullSamples,params.humanOrMouse,...
-            params.structFilter,params.e.whatEnsemble,...
+            params.e.numNullSamples,speciesLabel,params.e.whatEnsemble,...
             params.e.whatCorr,params.e.aggregateHow);
 
 % Put it in a separate directory of ensemble-based nulls:

@@ -24,7 +24,7 @@ case 'human'
     switch params.g.whatParcellation
     case 'HCP'
         dataFile = GiveMeFile('HumanGene_HCP');
-    case
+    case 'cust100'
         if params.g.normalizeSeparately
             dataFile = GiveMeFile('HumanGene_cust100_normSeparate');
         else
@@ -43,7 +43,7 @@ case 'human'
     doKeep = ismember(ROIs_distance,structInfo.ROI_ID);
     warning('Keeping %u/%u regions for distance information',sum(doKeep),length(doKeep));
     distanceMat = distanceMat(doKeep,doKeep);
-    structFilter = 'all';
+    params.structFilter = 'all';
 
     % Keep only cortex:
     % warning('Hard keeping first 100 cust100 cortical parcels (out of %u)',length(distanceMat));
@@ -69,8 +69,9 @@ end
 
 %-------------------------------------------------------------------------------
 % Filter structures:
-if ~strcmp(structFilter,'all')
-    [~,~,~,keepStruct] = filterStructures(structFilter,structInfo);
+if ~strcmp(params.structFilter,'all')
+    fprintf(1,'Filtering structures...?\n');
+    [~,~,~,keepStruct] = filterStructures(params.structFilter,structInfo);
     distanceMat = distanceMat(keepStruct,keepStruct);
 end
 
