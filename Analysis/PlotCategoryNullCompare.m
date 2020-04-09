@@ -68,18 +68,21 @@ fprintf(1,'Saved to %s\n',fileName);
 %===============================================================================
 
 % -------------------------------------------------------------------------------
-% FPSR of these categories?
-FPSR_random = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsCFPR,'randomUniform','');
-FPSR_spatial = SurrogateEnrichmentProcess(whatSpecies,params.nulls.numNullsCFPR,'spatialLag','');
-itsMeRand = find(ismember(FPSR_random.GOID,whatGOIDs));
-itsMeSpat = find(ismember(FPSR_spatial.GOID,whatGOIDs));
+% CFPR of these categories?
+params.nulls.customShuffle = 'none';
+params.g.whatSurrogate = 'randomMap';
+CFPR_random = SurrogateEnrichmentProcess(params);
+params.g.whatSurrogate = 'spatialLag';
+CFPR_spatial = SurrogateEnrichmentProcess(params);
+itsMeRand = find(ismember(CFPR_random.GOID,whatGOIDs));
+itsMeSpat = find(ismember(CFPR_spatial.GOID,whatGOIDs));
 for i = 1:length(itsMeRand)
     fprintf(1,'Category ''%s'' has SBP-random FPSR of %.3f%%\n',...
-                            FPSR_random.GOName{itsMeRand(i)},...
-                            FPSR_random.sumUnderSig(itsMeRand(i))/1e4*100);
+                            CFPR_random.GOName{itsMeRand(i)},...
+                            CFPR_random.sumUnderSig(itsMeRand(i))/1e4*100);
     fprintf(1,'Category ''%s'' has SBP-spatial FPSR of %.3f%%\n',...
-                            FPSR_spatial.GOName{itsMeSpat(i)},...
-                            FPSR_spatial.sumUnderSig(itsMeSpat(i))/1e4*100);
+                            CFPR_spatial.GOName{itsMeSpat(i)},...
+                            CFPR_spatial.sumUnderSig(itsMeSpat(i))/1e4*100);
 end
 %===============================================================================
 
@@ -97,7 +100,7 @@ nullDistributionSpatialLag = ComputeJointNull(params,40,numNullSamplesJoint);
 % histogram(nullDistributionSpatialLag)
 
 %===============================================================================
-% Plot FPSR distributions
+% Plot CFPR distributions
 %-------------------------------------------------------------------------------
 categoryScores = struct();
 categoryLabels = struct();

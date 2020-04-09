@@ -89,7 +89,8 @@ for i = 1:numMaps
     % List GO categories with significant (corrected) p-values:
     numSig = sum(GOTable_i.pValZCorr < params.e.sigThresh);
     fprintf(1,'Iteration %u/%u (%s-%s): %u GO categories have pZ_corr < %.2f\n',...
-                i,numMaps,whatSpecies,whatSurrogate,numSig,params.e.sigThresh);
+            i,numMaps,params.humanOrMouse,params.g.whatSurrogate,numSig,...
+            params.e.sigThresh);
     display(GOTable_i(1:numSig,:));
 end
 

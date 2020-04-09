@@ -36,3 +36,8 @@ f = figure('color','w');
 whatField = 'A_fitted'; %'d0_fitted';
 histogram(GOTable.(whatField))
 title(sprintf('%s-%f',whatField,GOTable.(whatField)(yoDawg)))
+
+%-------------------------------------------------------------------------------
+% Let's look at it:
+params.g.whatSurrogate = 'randomMap';
+[categoryScores,categoryLabels] = CompareNulls(18027,params,false);

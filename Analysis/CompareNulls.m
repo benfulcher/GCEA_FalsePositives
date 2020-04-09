@@ -1,4 +1,5 @@
-function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,whatSpecies,whatSurrogate,doRecompute)
+function [categoryScores,categoryLabels] = CompareNulls(whatGOIDs,params,doRecompute)
+% (whatSpecies,whatSurrogate)
 % Compares the coexpression of genes in a given GO category from different null spatial maps
 %-------------------------------------------------------------------------------
 
@@ -9,21 +10,21 @@ if nargin < 1
     whatGOIDs = [7215,32612]; % 6099, 2374,2693,
 end
 if nargin < 2
-    whatSpecies = 'mouse';
+    params = GiveMeDefaultParams('mouse','all');
 end
+% if nargin < 3
+%     whatSurrogate = 'randomMap'; % 'customEnsemble' (spatial lag)
+% end
 if nargin < 3
-    whatSurrogate = 'randomMap'; % 'customEnsemble' (spatial lag)
-end
-if nargin < 4
-    doRecompute = true;
+    doRecompute = false;
 end
 doPlot = false;
 
 %-------------------------------------------------------------------------------
 numGOIDs = length(whatGOIDs);
-params = GiveMeDefaultParams(whatSpecies);
-params.e.whatEnsemble = whatSurrogate;
-params.g.whatSurrogate = whatSurrogate;
+% params = GiveMeDefaultParams(whatSpecies);
+% params.e.whatEnsemble = whatSurrogate;
+% params.g.whatSurrogate = whatSurrogate;
 
 %-------------------------------------------------------------------------------
 % Loop over categories and compute null distributions:
@@ -32,7 +33,7 @@ categoryLabels = cell(numGOIDs,1);
 if doRecompute
     for i = 1:numGOIDs
         [categoryScores{i},categoryInfo] = GiveMeCategoryNullDist(whatGOIDs(i),...
-                                                    params,params.e.numNullSamples,params.e.whatCorr);
+                                params,params.e.numNullSamples,params.e.whatCorr);
         categoryLabels{i} = categoryInfo.GOName{1};
     end
 else
