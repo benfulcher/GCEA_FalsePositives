@@ -115,7 +115,7 @@ case {'surrogate-mouse','surrogate-human'}
         geneData = ShuffleMyMatrix(geneDataReal,'coordinatedColumnShuffle');
 
     otherwise
-        error('Unknown surrogate method: ''%s''',whatSurrogate);
+        error('Unknown surrogate method: ''%s''',gParam.whatSurrogate);
     end
 end
 

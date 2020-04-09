@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name humanUniformRandomIndependentShuffle
+#SBATCH --job-name humanRandomMapIndependentShuffle
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
@@ -32,6 +32,6 @@ env | grep SLURM
 # Launch the Matlab job
 matlab -nodesktop -r "startup; parpool('local',16);\
 params = GiveMeDefaultParams('human');\
-params.g.whatSurrogate = 'randomUniform';\
+params.g.whatSurrogate = 'randomMap';\
 params.nulls.customShuffle = 'independentSpatialShuffle';\
 SurrogateEnrichment(params); exit"
