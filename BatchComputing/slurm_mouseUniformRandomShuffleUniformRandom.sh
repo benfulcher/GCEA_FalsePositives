@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name CFPR_mouseUniformRandomIndependentShuffle
+#SBATCH --job-name CFPR_mouseRef
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
@@ -30,8 +30,8 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',16);
-                        params = GiveMeDefaultParams('mouse','all');
-                        params.g.whatSurrogate = 'randomUniform';
-                        params.nulls.customShuffle = 'independentSpatialShuffle';
-                        SurrogateEnrichment(params); exit"
+matlab -nodesktop -r "startup; parpool('local',16);\
+params = GiveMeDefaultParams('mouse','all');\
+params.g.whatSurrogate = 'randomMap';\
+params.nulls.customShuffle = 'independentSpatialShuffle';\
+SurrogateEnrichment(params); exit"

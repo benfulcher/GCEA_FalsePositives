@@ -20,9 +20,11 @@ cd(pathToToolbox)
 startup;
 cd(hereNow);
 
-fprintf(1,'mySQL for Matlab\n');
-try
-    addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabmySQL/')
-catch
-    fprintf(1,'Failed\n');
+if ismac
+    fprintf(1,'mySQL for Matlab\n');
+    try
+        addpath('/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabmySQL/')
+    catch
+        fprintf(1,'Failed\n');
+    end
 end

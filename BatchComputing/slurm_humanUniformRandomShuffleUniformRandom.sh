@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name humanRandomMapIndependentShuffle
+#SBATCH --job-name CFPR_humanRef
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources

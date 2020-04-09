@@ -32,6 +32,6 @@ env | grep SLURM
 # Launch the Matlab job
 matlab -nodesktop -r "startup; parpool('local',16);
                         params = GiveMeDefaultParams('mouse','all');
-                        params.g.whatSurrogate = 'randomUniform';
+                        params.g.whatSurrogate = 'randomMap';
                         params.nulls.customShuffle = 'none';
                         SurrogateEnrichment(params); exit"
