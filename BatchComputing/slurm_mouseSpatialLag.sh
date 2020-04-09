@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set name of job shown in squeue
-#SBATCH --job-name CFPR_mouseSpatialLag
+#SBATCH --job-name CFPR_mouseSBPspatial
 # Set project code account
 #SBATCH --account=rn29
 # Request CPU resources
