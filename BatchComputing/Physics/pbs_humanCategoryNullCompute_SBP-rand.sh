@@ -13,7 +13,7 @@
 #PBS -V
 
 cd $PBS_O_WORKDIR
-cd ../
+cd ../../
 
 # Fix time zone:
 TZ='Australia/Sydney'; export TZ
