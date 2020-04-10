@@ -14,6 +14,7 @@
 
 # Show the host on which the job ran and return to home repository directory
 hostname
+cd $PBS_O_WORKDIR
 cd ../../
 
 # Set environment variables to run Matlab
