@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/csh
 #PBS -N humanNullComputeSBPrand
 #PBS -o humanNull_SBPrand.txt
 #PBS -q physics
