@@ -21,8 +21,9 @@ cd ../../
 module load Matlab2018a
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12);\
+set jobText = "startup; parpool('local',12);\
 params = GiveMeDefaultParams('human');\
 params.g.whatSurrogate = 'randomMap';\
 params.nulls.customShuffle = 'coordinatedSpatialShuffle';\
 SurrogateEnrichment(params); exit"
+matlab -nodesktop -r "$jobText"

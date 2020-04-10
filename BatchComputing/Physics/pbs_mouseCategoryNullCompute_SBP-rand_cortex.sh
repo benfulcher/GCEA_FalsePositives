@@ -21,7 +21,8 @@ cd $PBS_O_WORKDIR
 cd ../../
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12);\
+set jobText = "startup; parpool('local',12);\
 params = GiveMeDefaultParams('mouse','cortex');\
 params.e.whatEnsemble = 'randomMap';\
 NullComputation(params); exit"
+matlab -nodesktop -r "$jobText"

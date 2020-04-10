@@ -20,11 +20,9 @@ module load Matlab2018a
 cd $PBS_O_WORKDIR
 cd ../../
 
-# Fix time zone:
-# TZ='Australia/Sydney'; export TZ
-
-# Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12);\
+# Launch the Matlab job:
+set jobText = "startup; parpool('local',12);\
 params = GiveMeDefaultParams('human');\
 params.e.whatEnsemble = 'randomMap';\
 NullComputation(params); exit"
+matlab -nodesktop -r "$jobText"
