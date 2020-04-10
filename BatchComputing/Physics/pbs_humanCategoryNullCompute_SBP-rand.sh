@@ -12,15 +12,16 @@
 #PBS -j oe
 #PBS -V
 
+# Show the host on which the job ran
+hostname
+module load Matlab2018a
+
+# Move
 cd $PBS_O_WORKDIR
 cd ../../
 
 # Fix time zone:
 TZ='Australia/Sydney'; export TZ
-
-# Show the host on which the job ran
-hostname
-module load Matlab2018a
 
 # Launch the Matlab job
 matlab -nodesktop -r "startup; parpool('local',16);\
