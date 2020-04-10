@@ -1,7 +1,7 @@
 #!/bin/csh
 #PBS -N humanNullComputeSBPrand
 #PBS -o humanNull_SBPrand.txt
-#PBS -q physics
+#PBS -q yossarian
 #PBS -l nodes=1:ppn=12
 #PBS -l mem=128GB
 # Minimum acceptable walltime: day-hours:minutes:seconds
@@ -21,7 +21,7 @@ cd $PBS_O_WORKDIR
 cd ../../
 
 # Fix time zone:
-TZ='Australia/Sydney'; export TZ
+# TZ='Australia/Sydney'; export TZ
 
 # Launch the Matlab job
 matlab -nodesktop -r "startup; parpool('local',12);\
