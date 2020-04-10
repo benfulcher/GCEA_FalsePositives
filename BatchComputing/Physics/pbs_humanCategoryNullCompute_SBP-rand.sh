@@ -2,7 +2,7 @@
 #PBS -N humanNullComputeSBPrand
 #PBS -o humanNull_SBPrand.txt
 #PBS -q physics
-#PBS -l nodes=1:ppn=12
+#PBS -l nodes=1:ppn=16
 #PBS -l mem=128GB
 # Minimum acceptable walltime: day-hours:minutes:seconds
 #PBS -l walltime=140:00:00
@@ -23,7 +23,7 @@ hostname
 module load Matlab2018a
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',12);\
+matlab -nodesktop -r "startup; parpool('local',16);\
 params = GiveMeDefaultParams('human');\
 params.e.whatEnsemble = 'randomMap';\
 NullComputation(params); exit"
