@@ -1,34 +1,27 @@
-#!/bin/bash
-# Set name of job shown in squeue
-#SBATCH --job-name humanCoordinatedShuffleUniformRandom
-# Set project code account
-#SBATCH --account=rn29
-# Request CPU resources
-#SBATCH --ntasks=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=12
-# Memory usage (MB)
-#SBATCH --mem-per-cpu=12000
-# Set your minimum acceptable walltime, format: day-hours:minutes:seconds
-#SBATCH --time=50:00:00
-# Email user if job fails or ends
-#SBATCH --mail-type=FAIL
-#SBATCH --mail-type=END
-#SBATCH --mail-user=ben.fulcher@sydney.edu.au
-# Specify a queue (called a partition on SLURM)
-# SBATCH --partition=m3a
-
-# Set environment variables to run Matlab
-module purge
-module load matlab/r2018a
+#!/bin/csh
+#PBS -N CFPR_humanRef
+#PBS -o CFPR_humanRef.txt
+#PBS -q physics
+#PBS -l nodes=1:ppn=12
+#PBS -l mem=96GB
+# Minimum acceptable walltime: day-hours:minutes:seconds
+#PBS -l walltime=100:00:00
+# Email user if job ends or aborts
+#PBS -m ea
+#PBS -M ben.fulcher@sydney.edu.au
+#PBS -j oe
+#PBS -V
 
 # Show the host on which the job ran and return to home repository directory
 hostname
-cd ../
+cd ../../
 
-# Show what SLURM ennvironment variables our environment has
-env | grep SLURM
+# Set environment variables to run Matlab
+module load Matlab2018a
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup;parpool('local',12); SurrogateEnrichment('human',[],'randomUniform','coordinatedSpatialShuffle');
-exit"
+matlab -nodesktop -r "startup; parpool('local',12);\
+params = GiveMeDefaultParams('human');\
+params.g.whatSurrogate = 'randomMap';\
+params.nulls.customShuffle = 'coordinatedSpatialShuffle';\
+SurrogateEnrichment(params); exit"
