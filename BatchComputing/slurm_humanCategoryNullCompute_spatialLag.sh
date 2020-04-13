@@ -30,7 +30,7 @@ cd ../
 env | grep SLURM
 
 # Launch the Matlab job
-matlab -nodesktop -r "startup; parpool('local',10);\
+matlab -nodesktop -r "startup; parpool('local',8);\
 params = GiveMeDefaultParams('human');\
 params.e.whatEnsemble = 'customEnsemble';\
 NullComputation(params); exit"
