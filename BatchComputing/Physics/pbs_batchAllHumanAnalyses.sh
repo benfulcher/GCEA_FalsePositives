@@ -9,8 +9,8 @@ qsub pbs_humanCategoryNullCompute_SBP-spatial.sh
 # ------------------------------------------------------
 # Compute CFPRs for ensembles (under conventional GO enrichment):
 # ------------------------------------------------------
-qsub pbs_humanUniformRandomShuffleUniformRandom.sh
-qsub pbs_humanUniformRandom.sh
+qsub pbs_humanCFPR-Ref.sh
+qsub pbs_humanCFPR_SBP-rand.sh
 qsub pbs_humanSpatialLag.sh
 
 # Intra-category correlation (but randomized versions are not used):

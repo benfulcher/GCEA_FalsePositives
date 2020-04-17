@@ -1,11 +1,11 @@
 #!/bin/csh
 #PBS -N CFPR_humanSBPRand
 #PBS -o CFPR_humanSBPRand.txt
-#PBS -q physics
-#PBS -l nodes=1:ppn=12
+#PBS -q yossarian
+#PBS -l nodes=1:ppn=32
 #PBS -l mem=96GB
 # Minimum acceptable walltime: day-hours:minutes:seconds
-#PBS -l walltime=140:00:00
+#PBS -l walltime=96:00:00
 # Email user if job ends or aborts
 #PBS -m ea
 #PBS -M ben.fulcher@sydney.edu.au
@@ -21,5 +21,5 @@ cd ../../
 module load Matlab2018a
 
 # Launch the Matlab job
-set jobText = "startup; parpool('local',12);params = GiveMeDefaultParams('human');params.g.whatSurrogate = 'randomMap';params.nulls.customShuffle = 'none';SurrogateEnrichment(params); exit"
+set jobText = "startup; parpool('local',32);params = GiveMeDefaultParams('human');params.g.whatSurrogate = 'randomMap';params.nulls.customShuffle = 'none';SurrogateEnrichment(params); exit"
 matlab -nodesktop -r "$jobText"

@@ -27,7 +27,7 @@ These files should be placed in the `HumanData` directory:
 * Gene-expression data: `100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat` (:link:).
 * Structural connectivity data (for case study): `HCP_200_15.mat` (:link:) should be placed in the `/HumanData` directory.
 
-For details on gene expression data, see [this repository](https://github.com/BMHLab/AHBAprocessing).
+For details on gene-expression data, see [this repository](https://github.com/BMHLab/AHBAprocessing).
 
 ### :mouse: ___Mouse___ :mouse:
 These files should be placed in the `MouseData` directory.
@@ -74,7 +74,7 @@ Saves into the `SurrogateMaps/` directory:
 * `mouse_all_Surrogate_N40000.mat` (:link:)
 * `mouse_cortex_Surrogate_N40000.mat` (:link:) (for case study)
 
-See also a more comprehensive method for generating spatially autocorrelated brain maps: [brainSMASH](https://github.com/murraylab/brainsmash).
+See also a more comprehensive method for generating spatially autocorrelated brain maps (and matching them to a given phenotype): [brainSMASH](https://github.com/murraylab/brainsmash).
 
 ### Category False-Positive Rates (CFPRs)
 
