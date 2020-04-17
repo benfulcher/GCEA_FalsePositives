@@ -1,8 +1,8 @@
 #!/bin/csh
 #PBS -N humanNullComputeSBPspat
 #PBS -o humanNull_SBPspat.txt
-#PBS -q physics
-#PBS -l nodes=1:ppn=16
+#PBS -q yossarian
+#PBS -l nodes=1:ppn=32
 #PBS -l mem=128GB
 # Minimum acceptable walltime: day-hours:minutes:seconds
 #PBS -l walltime=140:00:00
@@ -21,5 +21,5 @@ cd $PBS_O_WORKDIR
 cd ../../
 
 # Launch the Matlab job
-set jobText = "startup; parpool('local',10);params = GiveMeDefaultParams('human');params.e.whatEnsemble = 'customEnsemble';NullComputation(params); exit"
+set jobText = "startup; parpool('local',32);params = GiveMeDefaultParams('human');params.e.whatEnsemble = 'customEnsemble';NullComputation(params); exit"
 matlab -nodesktop -r "$jobText"

@@ -4,7 +4,7 @@
 # Compute null distributions under different phenotype ensembles:
 # ------------------------------------------------------
 qsub pbs_humanCategoryNullCompute_SBP-rand.sh
-qsub pbs_humanCategoryNullCompute_spatialLag.sh
+qsub pbs_humanCategoryNullCompute_SBP-spatial.sh
 
 # ------------------------------------------------------
 # Compute CFPRs for ensembles (under conventional GO enrichment):
