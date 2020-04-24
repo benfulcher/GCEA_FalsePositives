@@ -104,8 +104,10 @@ nullDistributionSpatialLag = ComputeJointNull(params,40,numNullSamplesJoint);
 %-------------------------------------------------------------------------------
 categoryScores = struct();
 categoryLabels = struct();
-[categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,whatSpecies,'customEnsemble',false);
-[categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,whatSpecies,'randomMap',false);
+params.e.whatEnsemble = 'customEnsemble';
+[categoryScores.spatialLag,categoryLabels.spatialLag] = CompareNulls(whatGOIDs,params,false);
+params.e.whatEnsemble = 'randomMap';
+[categoryScores.randomMap,categoryLabels.randomMap] = CompareNulls(whatGOIDs,params,false);
 
 %-------------------------------------------------------------------------------
 % Tests of variance just for fun:
@@ -147,3 +149,5 @@ ax.YLim = [-maxDev,maxDev];
 fileName = fullfile('OutputPlots','NullCompareDistributions.svg');
 saveas(f,fileName,'svg')
 fprintf(1,'Saved to %s\n',fileName);
+
+% end

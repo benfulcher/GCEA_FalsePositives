@@ -46,37 +46,43 @@ uniqueSizes = unique(resultsTable.size);
 numSizes = length(uniqueSizes);
 numGenes = height(geneInfo);
 
-nullDistributionRaw = zeros(numSizes,numSamples);
-nullDistributionAbs = zeros(numSizes,numSamples);
-nullDistributionVE1 = zeros(numSizes,numSamples);
-switch whatSurrogate
-case 'independentSpatialShuffle'
-    % Spatial shuffle case:
-    fprintf(1,'(INDEPENDENT) SPATIAL SHUFFLE!!\n');
-    params.g.humanOrMouse = sprintf('surrogate-%s',params.humanOrMouse);
-    parfor j = 1:numSamples
-        fprintf(1,'Sample %u/%u\n',j,numSamples);
-        % Get indpendently-shuffled data:
-        [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-        for i = 1:numSizes
-            shuffledData = geneData(:,1:uniqueSizes(i));
-            [nullDistributionRaw(i,j),nullDistributionAbs(i,j),nullDistributionVE1(i,j)] = IntraCorrelationScore(shuffledData);
+if isempty(numSamples)
+    nullDistributionRaw = nan(numSizes,numSamples);
+    nullDistributionAbs = nan(numSizes,numSamples);
+    nullDistributionVE1 = nan(numSizes,numSamples);
+else
+    nullDistributionRaw = zeros(numSizes,numSamples);
+    nullDistributionAbs = zeros(numSizes,numSamples);
+    nullDistributionVE1 = zeros(numSizes,numSamples);
+    switch whatSurrogate
+    case 'independentSpatialShuffle'
+        % Spatial shuffle case:
+        fprintf(1,'(INDEPENDENT) SPATIAL SHUFFLE!!\n');
+        params.g.humanOrMouse = sprintf('surrogate-%s',params.humanOrMouse);
+        parfor j = 1:numSamples
+            fprintf(1,'Sample %u/%u\n',j,numSamples);
+            % Get indpendently-shuffled data:
+            [geneData,geneInfo,structInfo] = LoadMeG(params.g);
+            for i = 1:numSizes
+                shuffledData = geneData(:,1:uniqueSizes(i));
+                [nullDistributionRaw(i,j),nullDistributionAbs(i,j),nullDistributionVE1(i,j)] = IntraCorrelationScore(shuffledData);
+            end
         end
-    end
-case 'geneShuffle'
-    % Shuffle genes randomly:
-    fprintf(1,'GENE SHUFFLE!!\n');
-    parfor j = 1:numSamples
-        fprintf(1,'Sample %u/%u\n',j,numSamples);
-        % Get indpendently shuffled data:
-        geneDataShuffle = geneData(:,randperm(numGenes));
-        for i = 1:numSizes
-            shuffledData = geneDataShuffle(:,1:uniqueSizes(i));
-            [nullDistributionRaw(i,j),nullDistributionAbs(i,j),nullDistributionVE1(i,j)] = IntraCorrelationScore(shuffledData);
+    case 'geneShuffle'
+        % Shuffle genes randomly:
+        fprintf(1,'GENE SHUFFLE with %u samples!!\n',numSamples);
+        parfor j = 1:numSamples
+            fprintf(1,'Sample %u/%u\n',j,numSamples);
+            % Get indpendently shuffled data:
+            geneDataShuffle = geneData(:,randperm(numGenes));
+            for i = 1:numSizes
+                shuffledData = geneDataShuffle(:,1:uniqueSizes(i));
+                [nullDistributionRaw(i,j),nullDistributionAbs(i,j),nullDistributionVE1(i,j)] = IntraCorrelationScore(shuffledData);
+            end
         end
+    otherwise
+        error('Unknown null model');
     end
-otherwise
-    error('Unknown null model');
 end
 
 %-------------------------------------------------------------------------------
@@ -107,13 +113,15 @@ end
 % Compute p-values (bigger scores are better):
 pVal = nan(numGOCategories,1);
 pValZ = nan(numGOCategories,1);
-parfor i = 1:numGOCategories
-    categoryScore = resultsTable.(theField)(i);
-    if ~isnan(categoryScore)
-        nullForSize = theNullDistribution(resultsTable.size(i)==uniqueSizes,:);
-        pVal(i) = mean(categoryScore < nullForSize);
-        % Gaussian approximation:
-        pValZ(i) = 1 - normcdf(categoryScore,mean(nullForSize),std(nullForSize));
+if ~isempty(numSamples)
+    parfor i = 1:numGOCategories
+        categoryScore = resultsTable.(theField)(i);
+        if ~isnan(categoryScore)
+            nullForSize = theNullDistribution(resultsTable.size(i)==uniqueSizes,:);
+            pVal(i) = mean(categoryScore < nullForSize);
+            % Gaussian approximation:
+            pValZ(i) = 1 - normcdf(categoryScore,mean(nullForSize),std(nullForSize));
+        end
     end
 end
 
@@ -123,8 +131,13 @@ resultsTable.pVal = pVal;
 resultsTable.pValZ = pValZ;
 
 % FDR-correct:
-resultsTable.pValCorr = mafdr(pVal,'BHFDR','true');
-resultsTable.pValZCorr = mafdr(pValZ,'BHFDR','true');
+if isempty(numSamples)
+    resultsTable.pValCorr = nan(numGOCategories,1);
+    resultsTable.pValZCorr = nan(numGOCategories,1);
+else
+    resultsTable.pValCorr = mafdr(pVal,'BHFDR','true');
+    resultsTable.pValZCorr = mafdr(pValZ,'BHFDR','true');
+end
 
 %-------------------------------------------------------------------------------
 % Sort:

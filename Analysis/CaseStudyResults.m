@@ -2,10 +2,10 @@ function CaseStudyResults(whatSpecies,structFilter)
 % Compute case study results: node degree enrichment
 %-------------------------------------------------------------------------------
 if nargin < 1
-    whatSpecies = 'human'; % 'mouse', 'human'
+    whatSpecies = 'mouse'; % 'mouse', 'human'
 end
 if nargin < 2
-    structFilter = 'cortex'; % 'cortex', 'all'
+    structFilter = 'all'; % 'cortex', 'all'
 end
 %-------------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ countMe = @(x)sum(resultTablesDegree.(x).(whatPField) < params.e.sigThresh);
 % Can get lost in all the outputs, so make it clear:
 fprintf(1,'\n-----------------------------\n');
 fprintf(1,'-----------------------------\n');
-fprintf(1,'%u categories significant (%s) for random gene null\n',countMe('randomGeneNull'),whatPField);
-fprintf(1,'%u categories significant (%s) for random phenotype null\n',countMe('randomMap'),whatPField);
+fprintf(1,'%u categories significant (%s) for random-gene null\n',countMe('randomGeneNull'),whatPField);
+fprintf(1,'%u categories significant (%s) for random-phenotype null\n',countMe('randomMap'),whatPField);
 fprintf(1,'%u categories significant (%s) for spatial-lag null\n',countMe('spatialLag'),whatPField);
 fprintf(1,'-----------------------------\n');
 fprintf(1,'-----------------------------\n\n');
@@ -90,7 +90,7 @@ T = table(CategoryName,IDLabel,ID,FDRpValue_randomGene,FDRpValue_SBPrandom,...
                     FDRpValue_SBPspatial);
 fileOut = fullfile('SupplementaryTables',sprintf('EnrichmentThreeWays_%s_%s.csv',whatSpecies,structFilter));
 writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
-fprintf(1,'Saved all FPSR results to %s\n',fileOut);
+fprintf(1,'Saved all CFPR results to %s\n',fileOut);
 
 %-------------------------------------------------------------------------------
 % Extra analysis-specific analyses

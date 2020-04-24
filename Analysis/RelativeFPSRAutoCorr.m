@@ -1,4 +1,4 @@
-function RelativeFPSRAutoCorr()
+% function RelativeFPSRAutoCorr()
 % Does adding spatial autocorrelation to phenotypes boost the correlations to
 % GO categories containing genes with high spatial autocorrelation?
 %-------------------------------------------------------------------------------
@@ -86,15 +86,12 @@ f = figure('color','w'); hold('on');
 ax = gca();
 numBins = 10;
 theColors = GiveMeColors('mouseHuman');
-keyboard
+whatSpatialScore = 'R2fit'; % 'negRho', 'R2fit', 'A_fitted', 'd0_fitted', 'meanACscore'
 for s = 1:2
     % isValid = (GOTableCombined.(whatSpecies{s}).R2fit > 0.25);
-    % xData = GOTableCombined.(whatSpecies{s}).negRho;
-    % xData = GOTableCombined.(whatSpecies{s}).R2fit;
+    xData = GOTableCombined.(whatSpecies{s}).(whatSpatialScore);
     % xData = GOTableCombined.(whatSpecies{s}).A_fitted; % WORKS WELL FOR MOUSE (NOT HUMAN)
     % xData = GOTableCombined.(whatSpecies{s}).A_fitted - GOTableCombined.(whatSpecies{s}).B_fitted;
-    % xData = GOTableCombined.(whatSpecies{s}).d0_fitted;
-    xData = GOTableCombined.(whatSpecies{s}).meanACscore;
 
     % yData = GOTableCombined.(whatSpecies{s}).relDiffFPSR;
     % yData = GOTableCombined.(whatSpecies{s}).relDiffFPSR_filt;
@@ -102,11 +99,11 @@ for s = 1:2
     % yData = GOTableCombined.(whatSpecies{s}).diffFPSR_filt;
     % yData = GOTableCombined.(whatSpecies{s}).ratFPSR_filt;
     yData = GOTableCombined.(whatSpecies{s}).didIncrease*100;
-    ylabel('Increase in CFPR (spatial) (%)')
+    ylabel('CFPR(rand) > CFPR(spatial) (%)')
 
     BF_PlotQuantiles(xData,yData,numBins,false,false,theColors(s,:),false);
     text(mean(ax.XLim),mean(ax.YLim)*1.1,whatSpecies{s},'Color',theColors(s,:))
-    xlabel('Spatial autocorrelation score')
+    xlabel(sprintf('Spatial autocorrelation score, %s',whatSpatialScore))
 
 end
 f.Position = [1000        1159         239         179];
@@ -118,45 +115,50 @@ fprintf(1,'Saved to %s\n',fileName);
 
 %-------------------------------------------------------------------------------
 
-return % no play for you!
+% return % no play for you!
 %-------------------------------------------------------------------------------
 % PLAYGROUND:
 %-------------------------------------------------------------------------------
-theSpecies = 'human';
-numBins = 10;
-isValid = (GOTableCombined.(whatSpecies{s}).R2fit > 0.00);
-% BF_PlotQuantiles(GOTableCombined.(theSpecies).d0_fitted(isValid),...
-%                     GOTableCombined.(theSpecies).didIncrease(isValid),...
-%                     numBins,false,false,theColors(1,:),false);
+for s = 1:2
+    theSpecies = whatSpecies{s};
+    numBins = 8;
+    % isValid = (GOTableCombined.(whatSpecies{s}).R2fit > 0.00);
+    % BF_PlotQuantiles(GOTableCombined.(theSpecies).d0_fitted(isValid),...
+    %                     GOTableCombined.(theSpecies).didIncrease(isValid),...
+    %                     numBins,false,false,theColors(1,:),false);
 
-% [Y,E] = discretize(GOTableCombined.(theSpecies).d0_fitted,numBins);
-numDBins = 5;
-numThresholds = numDBins+1;
-d0Data = GOTableCombined.(theSpecies).d0_fitted(isValid);
-xThresholds = arrayfun(@(x)quantile(d0Data,x),linspace(0,1,numThresholds));
-xThresholds(end) = xThresholds(end) + eps; % make sure all data included in final bin
+    numDBins = 5;
+    numThresholds = numDBins+1;
+    d0Data = GOTableCombined.(theSpecies).d0_fitted;
+    xThresholds = arrayfun(@(x)quantile(d0Data,x),linspace(0,1,numThresholds));
+    xThresholds(end) = xThresholds(end) + eps; % make sure all data included in final bin
 
-f = figure('color','w');
-xData = GOTableCombined.(theSpecies).meanACscore(isValid);
-yData = GOTableCombined.(theSpecies).didIncrease(isValid)*100;
-xLims = zeros(numDBins,2);
-yLims = zeros(numDBins,2);
-for i = 1:numDBins
-    ax = subplot(2,numDBins,i);
-    isInBin = (d0Data>=xThresholds(i) & d0Data<xThresholds(i+1));
-    BF_PlotQuantiles(xData(isInBin),yData(isInBin),numBins,false,false,theColors(s,:),false);
-    title(sprintf('%.1f<d<%.1f',xThresholds(i),xThresholds(i+1)))
-    xLims(i,:) = ax.XLim;
-    yLims(i,:) = ax.YLim;
+    f = figure('color','w');
+    % xData = GOTableCombined.(theSpecies).meanACscore;
+    % xData = GOTableCombined.(theSpecies).negRho;
+    xData = GOTableCombined.(theSpecies).R2fit;
+    yData = GOTableCombined.(theSpecies).didIncrease*100;
+    xLims = zeros(numDBins,2);
+    yLims = zeros(numDBins,2);
+    for i = 1:numDBins
+        ax = subplot(2,numDBins,i);
+        isInBin = (d0Data>=xThresholds(i) & d0Data<xThresholds(i+1));
+        BF_PlotQuantiles(xData(isInBin),yData(isInBin),numBins,false,false,theColors(s,:),false);
+        title(sprintf('%.1f<d<%.1f',xThresholds(i),xThresholds(i+1)))
+        xLims(i,:) = ax.XLim;
+        yLims(i,:) = ax.YLim;
+    end
+    for i = 1:numDBins
+        ax = subplot(2,numDBins,i);
+        ax.XLim = [min(xLims(:,1)),max(xLims(:,2))];
+        ax.YLim = [min(yLims(:,1)),max(yLims(:,2))];
+    end
+    subplot(2,numDBins,numDBins+1:2*numDBins)
+    histogram(d0Data); %,xThresholds)
+    title(theSpecies)
+    fileName = fullfile('OutputPlots',sprintf('DistDependence_%s_CFPR_SpatialAC.svg',whatSpecies{s}));
+    saveas(f,fileName,'svg')
 end
-for i = 1:numDBins
-    ax = subplot(2,numDBins,i);
-    ax.XLim = [min(xLims(:,1)),max(xLims(:,2))];
-    ax.YLim = [min(yLims(:,1)),max(yLims(:,2))];
-end
-subplot(2,numDBins,numDBins+1:2*numDBins)
-histogram(d0Data); %,xThresholds)
-title(theSpecies)
 
 % plot(GOTableCombined.(whatSpecies{s}).R2fit,GOTableCombined.(whatSpecies{s}).A_fitted)
 %
@@ -175,4 +177,4 @@ title(theSpecies)
 %                     GOTableCombined.mouse.relDiffFPSR(~isInRightDRange),...
 %                     numBins,false,false,theColors(2,:),false);
 
-end
+% end

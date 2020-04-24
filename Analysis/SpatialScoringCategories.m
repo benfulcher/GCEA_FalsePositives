@@ -79,9 +79,26 @@ GOTable.B_fitted = B;
 GOTable.d0_fitted = d0;
 GOTable.R2fit = R;
 GOTable.negRho = negRho
-fileName = sprintf('CategorySpatialScoring_%s-%s.mat',whatSpecies,whatStructFilt);
+fileName = sprintf('CategorySpatialScoring_%s.mat',whatSpecies);
 save(fullfile('DataOutputs',fileName),'GOTable');
 fprintf(1,'Saved results to %s\n',fileName);
+
+%-------------------------------------------------------------------------------
+% Sort by R2 of the exponential fit:
+[~,ix] = sort(GOTable.R2fit,'descend');
+GOTable = GOTable(ix,:);
+
+%-------------------------------------------------------------------------------
+% Save it to csv file:
+%-------------------------------------------------------------------------------
+newTable = table(GOTable.GOName,GOTable.GOIDlabel,GOTable.GOID,...
+                    GOTable.A_fitted,GOTable.B_fitted,GOTable.d0_fitted,...
+                    GOTable.R2fit,GOTable.negRho);
+fileOut = fullfile('SupplementaryTables',...
+        sprintf('CategorySpatialScoring_%s-%s.csv',whatSpecies,whatStructFilt));
+writetable(newTable,fileOut,'Delimiter',',','QuoteStrings',true);
+fprintf(1,'Saved category spatial embedding scores to %s\n',fileOut);
+
 
 % (now can load in other analysis functions to see whether these parameters
 % are informative of FPSR characteristics)...

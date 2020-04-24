@@ -153,13 +153,15 @@ This saves the results in the `DataOutputs/` directory:
 
 ### Compute spatial autocorrelation scores
 
-Computes spatial autocorrelation scores for each GO category and each species (ready for subsequent analysis):
+Compute gene-wise spatial autocorrelation scores for each GO category and each species (cortex/all) (ready for subsequent analysis):
 ```matlab
 ComputeSpatialEmbeddingScores();
 ```
-And for categories as a whole:
+
+Compute category-wise spatial autocorrelation scores:
 ```matlab
-SpatialScoringCategories();
+SpatialScoringCategories('mouse','all');
+SpatialScoringCategories('human','cortex');
 ```
 
 <!-- #### Python (old)
@@ -217,15 +219,17 @@ Some key statistics are displayed to the command-line, and outputs full annotate
 #### Investigate the overlap between literature annotations and FPSE as histograms:
 As always, the null phenotype ensemble is defined in the `GiveMeDefaultParams` file.
 
+
+`propLitCFPR` which looks at how literature-reported categories are distributed across computed levels of CFPR.
+Outputs figure to `OutputPlots/CFPR_Lit_Together.svg`.
+![](figs/propLitCFPR.png)
+
+There is also histograms across a linear scale, distinguishing the number of literature analyses flagged across CFPRs:
 ```matlab
 OverlapLitFPSR('mouse',true)
 OverlapLitFPSR('human',true)
 ```
 ![](figs/OverlapLitFPSR.png)
-
-There is also `propLitCFPR`, which looks at how literature-reported categories are distributed across computed levels of CFPR.
-Outputs figure to `OutputPlots/CFPR_Lit_Together.svg`.
-![](figs/propLitCFPR.png)
 
 
 ### Specific GO categories

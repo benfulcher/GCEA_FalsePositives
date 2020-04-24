@@ -98,13 +98,13 @@ case 'mouse-Ypma'
     adjPVals = [];
 
 case {'human','human-HCP'}
-     % Let's do 15% density by default:
-     fprintf(1,'Rand-100 parcellation at 15%% density\n');
-     C = load('HCP_200_15.mat','GrFA');
+     % Let's do 20% density by default:
+     fprintf(1,'HCP parcellation at 20%% density\n');
+     C = load('HCP_360_20.mat','GrFA');
      theAdjMat = C.GrFA;
 
      % Take just left hemisphere:
-     isLeftCortex = 1:100;
+     isLeftCortex = 1:180;
      theAdjMat = theAdjMat(isLeftCortex,isLeftCortex);
 
      % Just to fill this output (not used for human data):

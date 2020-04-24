@@ -57,6 +57,18 @@ fprintf(1,'Max CFPR (reference) of any mouse GO category is %g%%\n',...
                     maxRefMouse/numNullSamples*100);
 fprintf(1,'Max CFPR (reference) of any human GO category is %g%%\n',...
                     maxRefHuman/numNullSamples*100);
+maxRandomMouse = max(GOTableNullMouseRandom.sumUnderSig);
+maxRandomHuman = max(GOTableNullHumanRandom.sumUnderSig);
+fprintf(1,'Max CFPR (random) of any mouse GO category is %g%%\n',...
+                    maxRandomMouse/numNullSamples*100);
+fprintf(1,'Max CFPR (random) of any human GO category is %g%%\n',...
+                    maxRandomHuman/numNullSamples*100);
+maxACMouse = max(GOTableNullMouseAC.sumUnderSig);
+maxACHuman = max(GOTableNullHumanAC.sumUnderSig);
+fprintf(1,'Max CFPR (spatial) of any mouse GO category is %g%%\n',...
+                    maxACMouse/numNullSamples*100);
+fprintf(1,'Max CFPR (spatial) of any human GO category is %g%%\n',...
+                    maxACHuman/numNullSamples*100);
 
 % Changes in mean CFPR across all categories:
 meanRefMouse = mean(GOTableNullMouseRef.sumUnderSig);
@@ -123,7 +135,7 @@ display(GOTableCombined(1:100,:))
 % Estimate literature significance
 %-------------------------------------------------------------------------------
 % (inefficient: thousands of duplicate loading, but we can beef through)
-doAnnotateLiterature = false;
+doAnnotateLiterature = true;
 if doAnnotateLiterature
     numRows = height(GOTableCombined);
     mouseLiterature = zeros(numRows,1);
