@@ -5,6 +5,8 @@ The code below reproduces all statistical tests on GSEA in human and mouse.
 All data is available for download from an associated figshare repository.
 Downloadable files are labeled as :link:.
 
+You can download all data in the required directories using the `DownloadAllData` script.
+
 ## Setting up
 
 ### Data and code for running gene set enrichment analysis (GSEA)
@@ -25,7 +27,7 @@ Please follow the instructions from that repository to recompute (or download fr
 ### :bust_in_silhouette: ___Human___ :bust_in_silhouette:
 These files should be placed in the `HumanData` directory:
 * Gene-expression data: `100DS360scaledRobustSigmoidNSGDSQC1Lcortex_ROI_NOdistCorrSurface.mat` (:link:).
-* Structural connectivity data (for case study): `HCP_200_15.mat` (:link:) should be placed in the `/HumanData` directory.
+* Structural-connectivity data (for case study): `HCP_360_20.mat` (:link:).
 
 For details on gene-expression data, see [this repository](https://github.com/BMHLab/AHBAprocessing).
 
@@ -70,7 +72,7 @@ GenerateSpatialEnsemble('human','cortex',plotSummary)
 ```
 
 Saves into the `SurrogateMaps/` directory:
-* `human_Surrogate_N40000.mat` (:link:)
+* `human_HCP-cortex_Surrogate_N40000.mat` (:link:)
 * `mouse_all_Surrogate_N40000.mat` (:link:)
 * `mouse_cortex_Surrogate_N40000.mat` (:link:) (for case study)
 
@@ -126,18 +128,18 @@ These stored null distributions can then be used for ensemble-based GSEA.
 For the analyses presented in the manuscript, these are stored in the `EnsembleBasedNulls/` directory:
 
 ___Human Cortex___:
-* `PhenotypeNulls_40000_human-cortex_randomMap_Spearman_mean.mat` (:link:)
-* `PhenotypeNulls_40000_human-cortex_customEnsemble_Spearman_mean.mat` (:link:)
+* `PhenotypeNulls_40000_human-HCP-randomMap_Spearman_mean_.mat` ('SBP-random' :link:)
+* `PhenotypeNulls_40000_human-HCP-customEnsemble_Spearman_mean_.mat` ('SBP-spatial' :link:)
 
 ___Mouse Brain___:
-* `PhenotypeNulls_40000_mouse-all_randomMap_Spearman_mean.mat` (:link:)
-* `PhenotypeNulls_40000_mouse-all_customEnsemble_Spearman_mean.mat` (:link:)
+* `PhenotypeNulls_40000_mouse-all-randomMap_Spearman_mean_.mat` ('SBP-random' :link:)
+* `PhenotypeNulls_40000_mouse-all-customEnsemble_Spearman_mean_.mat` ('SBP-spatial' :link:)
 
 ___Mouse Cortex___ _(for case study)_:
-* `PhenotypeNulls_40000_mouse-cortex_randomMap_Spearman_mean.mat` (:link:)
-* `PhenotypeNulls_40000_mouse-cortex_customEnsemble_Spearman_mean.mat` (:link:)
+* `PhenotypeNulls_40000_mouse-cortex-randomMap_Spearman_mean_.mat` ('SBP-random' :link:)
+* `PhenotypeNulls_40000_mouse-cortex-customEnsemble_Spearman_mean_.mat` ('SBP-spatial' :link:)
 
-### Intra-category coexpression
+### Within-category coexpression
 
 The within-category coexpression metric is precomputed as:
 
@@ -163,6 +165,10 @@ Compute category-wise spatial autocorrelation scores:
 SpatialScoringCategories('mouse','all');
 SpatialScoringCategories('human','cortex');
 ```
+
+This saves to:
+* `CategorySpatialScoring_human.mat` (:link:)
+* `CategorySpatialScoring_mouse.mat` (:link:)
 
 <!-- #### Python (old)
 First generate pairwise distance matrices for the regions in human cortex and mouse brain:
