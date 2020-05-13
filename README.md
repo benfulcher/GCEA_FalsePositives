@@ -83,20 +83,35 @@ See also a more comprehensive method for generating spatially autocorrelated bra
 False-positive significance rates can be computed using `SurrogateEnrichment` (cf. in `batchAllHumanAnalyses` and `batchAllMouseAnalyses`).
 
 ```matlab
+% Start with default parameters for whole mouse brain:
+params = GiveMeDefaultParams('mouse','all');
+
 % Spatially random model (plus independent shuffling of space, separately per gene) [should be no signal---a real null of correlated noise with noise]:
-SurrogateEnrichment('mouse',[],'randomUniform','independentSpatialShuffle');
-% Spatially random model:
-SurrogateEnrichment('mouse',[],'randomUniform','');
-% Spatial lag model:
-SurrogateEnrichment('mouse',[],'spatialLag','');
-% (and similarly for 'human')
+% ('Ref')
+params.g.whatSurrogate = 'randomMap';
+params.nulls.customShuffle = 'independentSpatialShuffle';
+SurrogateEnrichment(params);
+
+% SBP-rand:
+params.g.whatSurrogate = 'randomMap';
+params.nulls.customShuffle = 'none';
+SurrogateEnrichment(params);
+
+% SBP-spatial:
+params.g.whatSurrogate = 'spatialLag';
+params.nulls.customShuffle = 'none';
+SurrogateEnrichment(params);
 ```
 
+Then can repeat for human by starting with human cortical parameters (`params = GiveMeDefaultParams('human','cortex');`)
+
 This saves the following files (to the `SurrogateEnrichment` directory):
+(___Mouse___):
 * `SurrogateGOTables_10000_mouse_randomMap_independentSpatialShuffle.mat` :link: ('reference').
 * `SurrogateGOTables_10000_mouse_randomMap_none.mat` :link: ('SBP-random').
 * `SurrogateGOTables_10000_mouse_spatialLag_none.mat` :link: ('SBP-spatial').
 
+(___Human___):
 * `SurrogateGOTables_10000_human_randomMap_independentSpatialShuffle.mat` :link: ('reference').
 * `SurrogateGOTables_10000_human_randomMap_none.mat` :link: ('SBP-random').
 * `SurrogateGOTables_10000_human_spatialLag_none.mat` :link: ('SBP-spatial').
