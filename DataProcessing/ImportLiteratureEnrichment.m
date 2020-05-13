@@ -40,8 +40,8 @@ numGOCategories = height(GOTerms);
 
 %-------------------------------------------------------------------------------
 % Try to match GO categories by name:
-fprintf(1,'Matching %u manually-compiled GO categories to the full list',...
-                        ' of GO BPs by name\n',numManual);
+fprintf(1,['Matching %u manually-compiled GO categories to the full list',...
+                    ' of GO BPs by name\n'],numManual);
 matchMe = nan(numManual,1);
 GOIDsMatches = nan(numManual,1);
 for i = 1:numManual
