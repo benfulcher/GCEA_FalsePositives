@@ -70,11 +70,11 @@ fprintf(1,'Saved spatial autocorrelation scores to %s\n',fileOut);
 
 %-------------------------------------------------------------------------------
 % Visualize any overlapping spatial signatures:
-thresholdSig = [0.05,2,2];
-PlotEnrichmentTables(results,thresholdSig);
+% thresholdSig = [0.05,2,2];
+% PlotEnrichmentTables(results,thresholdSig);
 
 %-------------------------------------------------------------------------------
 % Visualize specific categories:
-params = GiveMeDefaultParams('mouse');
-whatCategoryIndex = 1; % (NB: index not ID)
-VisualizeDistanceEnrichment(results.mouseBrain,whatCategoryIndex,params);
+% params = GiveMeDefaultParams('mouse');
+% whatCategoryIndex = 1; % (NB: index not ID)
+% VisualizeDistanceEnrichment(results.mouseBrain,whatCategoryIndex,params);
