@@ -2,7 +2,7 @@
 This is a repository to accompany the manuscript 'Appropriate statistical inference for gene-set enrichment analyses of brain-wide transcriptomic data'.
 The code below reproduces all statistical tests on GSEA in human and mouse.
 
-All data is available for download from an associated figshare repository.
+All data is available for download from an associated figshare repository (due to figshare being a bit :shit:, for now, data are available on [cloudstor](https://cloudstor.aarnet.edu.au/plus/s/KQ7YdMe0Y7uuhzo)).
 Downloadable files are labeled as :link:.
 
 You can download all data in the required directories using the `DownloadAllData` script.
