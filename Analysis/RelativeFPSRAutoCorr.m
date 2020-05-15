@@ -19,7 +19,7 @@ for s = 1:2
     clear('GOTable')
 
     % Get category-level CGE exponential decay parameters
-    categoryFileName = sprintf('CategorySpatialScoring_%s-%s.mat',whatSpecies{s},whatStructFilt{s});
+    categoryFileName = fullfile('DataOutputs',sprintf('CategorySpatialScoring_%s-%s.mat',whatSpecies{s},whatStructFilt{s}));
     load(categoryFileName,'GOTable')
     GOTable_CategoryLevelScores = GOTable;
     clear('GOTable')

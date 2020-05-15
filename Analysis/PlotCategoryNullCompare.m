@@ -1,7 +1,7 @@
-% function PlotCategoryNullCompare(whatSpecies)
-% if nargin < 1
-whatSpecies = 'mouse';
-% end
+function PlotCategoryNullCompare(whatSpecies)
+if nargin < 1
+    whatSpecies = 'mouse';
+end
 %-------------------------------------------------------------------------------
 
 % Set the GOIDs of the categories you want to look into:
@@ -150,4 +150,4 @@ fileName = fullfile('OutputPlots','NullCompareDistributions.svg');
 saveas(f,fileName,'svg')
 fprintf(1,'Saved to %s\n',fileName);
 
-% end
+end

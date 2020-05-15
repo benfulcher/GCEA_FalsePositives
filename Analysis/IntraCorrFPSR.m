@@ -1,5 +1,5 @@
 function IntraCorrFPSR()
-% Investigate whether FPSR/CFPR relates to intra-category coexpression
+% Investigate whether FPSR/CFPR relates to within-category coexpression
 %-------------------------------------------------------------------------------
 
 whatSpecies = {'mouse','human'};
@@ -8,7 +8,7 @@ whatSpecies = {'mouse','human'};
 whatIntraStat = 'raw';
 % (these bits about the nulls aren't actually used):
 whatShuffle = 'geneShuffle'; % 'geneShuffle', 'independentSpatialShuffle'
-numNullSamples_intraCorr = 20000; % (Intra_*_*_20000.mat)
+numNullSamples_intraCorr = []; % (Intra_*_*_20000.mat)
 
 %===============================================================================
 % Import (or compute) intra-category correlation data and surrogate random data

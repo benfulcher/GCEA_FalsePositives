@@ -79,7 +79,7 @@ GOTable.B_fitted = B;
 GOTable.d0_fitted = d0;
 GOTable.R2fit = R;
 GOTable.negRho = negRho
-fileName = sprintf('CategorySpatialScoring_%s.mat',whatSpecies);
+fileName = sprintf('CategorySpatialScoring_%s-%s.mat',whatSpecies,whatStructFilt);
 save(fullfile('DataOutputs',fileName),'GOTable');
 fprintf(1,'Saved results to %s\n',fileName);
 
