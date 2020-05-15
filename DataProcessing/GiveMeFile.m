@@ -4,16 +4,12 @@ function dataFile = GiveMeFile(fileLabel)
 
 switch fileLabel
 case 'AllenMouseGene'
-    dataFile = 'MouseData/AllenGeneDataset_19419.mat';
-    % if ismac
-        % dataFile = '/Users/benfulcher/DropboxSydneyUni/CompletedProjects/CellTypesMouse/Code/Data/AllenGeneDataset_19419.mat';
-    % else
-    % end
+    dataFile = fullfile('MouseData','AllenGeneDataset_19419.mat');
 case 'EnrichmentToolbox'
     if ismac
-        dataFile = '/Users/benfulcher/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/';
+        dataFile = '~/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/';
     else
-        % Can install by git clone git@github.com:benfulcher/GeneEnrichment.git
+        % Can install by git clone git@GeneSetEnrichmentAnalysis.git
         dataFile = '~/GeneEnrichment/';
     end
 case 'HumanGene_cust100_normSeparate'
