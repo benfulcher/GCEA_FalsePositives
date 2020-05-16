@@ -12,3 +12,4 @@ MGI_IDs.csv
 *.xlsx
 HumanData/Icon*
 *.svg
+LiteratureEnrichmentData/*
