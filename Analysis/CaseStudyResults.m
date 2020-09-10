@@ -1,4 +1,4 @@
-function CaseStudyResults(whatSpecies,structFilter)
+function T = CaseStudyResults(whatSpecies,structFilter,enrichWhat)
 % Compute case study results: node degree enrichment
 %-------------------------------------------------------------------------------
 if nargin < 1
@@ -7,49 +7,60 @@ end
 if nargin < 2
     structFilter = 'all'; % 'cortex', 'all'
 end
+if nargin < 3
+    enrichWhat = 'degree';
+end
 %-------------------------------------------------------------------------------
 
 % Set general parameters common to all analyses:
 params = GiveMeDefaultParams(whatSpecies,structFilter);
 
-% Get the phenotype of interest:
-enrichWhat = 'degree';
-doBinarize = true;
-phenotypeVector = ComputeDegree(params,doBinarize);
-
 % Set up the gene-expression data of interest:
-[geneData,geneInfo] = LoadMeG(params.g);
+[geneData,geneInfo,structInfo] = LoadMeG(params.g);
 geneDataStruct = struct();
 geneDataStruct.expressionMatrix = geneData;
 geneDataStruct.entrezIDs = geneInfo.entrez_id;
 
 %-------------------------------------------------------------------------------
+% Get the phenotype of interest and match:
+switch enrichWhat
+    case 'degree'
+        doBinarize = true;
+        phenotypeVector = ComputeDegree(params,doBinarize);
+    otherwise
+        % Some cell density map
+        [phenotypeVector,ia] = MatchMeCellDensity(structInfo,enrichWhat);
+        structInfo = structInfo(ia,:);
+        geneDataStruct.expressionMatrix = geneData(ia,:);
+end
+
+%-------------------------------------------------------------------------------
 % Compute results:
 %-------------------------------------------------------------------------------
-resultTablesDegree = struct();
+resultTables = struct();
 
 % (i) Load results of conventional null (precomputed using gene-score resampling):
-% resultTablesDegree.randomGeneNull = NodeSimpleEnrichment(params,'degree',true);
+% resultTables.randomGeneNull = NodeSimpleEnrichment(params,'degree',true);
 load(GiveMeSimpleEnrichmentOutputFile(params,enrichWhat),'GOTable');
-resultTablesDegree.randomGeneNull = GOTable;
+resultTables.randomGeneNull = GOTable;
 clear('GOTable')
 
 % (ii) Random phenotype null:
 params.e.whatEnsemble = 'randomMap';
 fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params);
-resultTablesDegree.randomMap = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
+resultTables.randomMap = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
 % [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 % ListCategories(geneInfo,GOTablePhenotype,20,'pValZ');
 
 % (iii) Spatial-lag null:
 params.e.whatEnsemble = 'customEnsemble';
 fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params);
-resultTablesDegree.spatialLag = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
+resultTables.spatialLag = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
 
 %-------------------------------------------------------------------------------
 % List significant categories under each null:
 whatPField = 'pValZCorr';
-countMe = @(x)sum(resultTablesDegree.(x).(whatPField) < params.e.sigThresh);
+countMe = @(x)sum(resultTables.(x).(whatPField) < params.e.sigThresh);
 % Can get lost in all the outputs, so make it clear:
 fprintf(1,'\n-----------------------------\n');
 fprintf(1,'-----------------------------\n');
@@ -62,14 +73,14 @@ fprintf(1,'-----------------------------\n\n');
 %-------------------------------------------------------------------------------
 % Assemble a joint table:
 %-------------------------------------------------------------------------------
-[commonGOIDs,ia,ib] = intersect(resultTablesDegree.randomGeneNull.GOID,resultTablesDegree.randomMap.GOID);
+[commonGOIDs,ia,ib] = intersect(resultTables.randomGeneNull.GOID,resultTables.randomMap.GOID);
 
-GOName = resultTablesDegree.randomGeneNull.GOName(ia);
-GOIDlabel = resultTablesDegree.randomGeneNull.GOIDlabel(ia);
+GOName = resultTables.randomGeneNull.GOName(ia);
+GOIDlabel = resultTables.randomGeneNull.GOIDlabel(ia);
 GOID = commonGOIDs;
-pValZCorrRandomGene = resultTablesDegree.randomGeneNull.pValZCorr(ia);
-pValZCorrRandomMap = resultTablesDegree.randomMap.pValZCorr(ib);
-pValZCorrSpatialLag = resultTablesDegree.spatialLag.pValZCorr(ib);
+pValZCorrRandomGene = resultTables.randomGeneNull.pValZCorr(ia);
+pValZCorrRandomMap = resultTables.randomMap.pValZCorr(ib);
+pValZCorrSpatialLag = resultTables.spatialLag.pValZCorr(ib);
 
 newTable = table(GOName,GOIDlabel,GOID,...
                 pValZCorrRandomGene,pValZCorrRandomMap,pValZCorrSpatialLag);
@@ -102,7 +113,7 @@ case 'all'
     %-------------------------------------------------------------------------------
     % Obtain the GOTable for ranksum expression differences in isocortex:
     GOTable_isocortex = NodeSimpleEnrichment(params,'isocortex',true);
-    PlotGOScoreScatter(resultTablesDegree.randomGeneNull,GOTable_isocortex,{'meanScore','meanScore'});
+    PlotGOScoreScatter(resultTables.randomGeneNull,GOTable_isocortex,{'meanScore','meanScore'});
     xlabel('GO category score (mean Spearman correlation with degree)')
     ylabel('GO category score (-log10 p-value ranksum test isocortex)')
 
@@ -118,12 +129,12 @@ case 'cortex'
     % Rearrange to look at p-values for each of the top categories
     topWhat = 20;
     for i = 1:topWhat
-        fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultTablesDegree.randomGeneNull.GOName{i});
-        fprintf(1,'Random-gene: %s = %.2g\n',whatPField,resultTablesDegree.randomGeneNull.(whatPField)(i));
-        isHere = find(resultTablesDegree.randomMap.GOID==resultTablesDegree.randomGeneNull.GOID(i));
-        fprintf(1,'Random phenotype: %s = %.2g\n',whatPField,resultTablesDegree.randomMap.(whatPField)(isHere));
-        isHere = find(resultTablesDegree.randomMap.GOID==resultTablesDegree.spatialLag.GOID(i));
-        fprintf(1,'spatialLag: %s = %.2g\n',whatPField,resultTablesDegree.spatialLag.(whatPField)(isHere));
+        fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultTables.randomGeneNull.GOName{i});
+        fprintf(1,'Random-gene: %s = %.2g\n',whatPField,resultTables.randomGeneNull.(whatPField)(i));
+        isHere = find(resultTables.randomMap.GOID==resultTables.randomGeneNull.GOID(i));
+        fprintf(1,'Random phenotype: %s = %.2g\n',whatPField,resultTables.randomMap.(whatPField)(isHere));
+        isHere = find(resultTables.randomMap.GOID==resultTables.spatialLag.GOID(i));
+        fprintf(1,'spatialLag: %s = %.2g\n',whatPField,resultTables.spatialLag.(whatPField)(isHere));
     end
 end
 
@@ -134,7 +145,7 @@ end
 %
 % % (ii) spatial null:
 % shuffleWhat = 'all'; % will be just cortex by definition; given inclusion criterion
-% resultTablesDegree.mouse_ctx_spatialNull = NodeShuffleEnrichment('degree',...
+% resultTables.mouse_ctx_spatialNull = NodeShuffleEnrichment('degree',...
 %                         shuffleWhat,numNulls,params.c.structFilter,params);
 %
 % %===============================================================================
@@ -143,8 +154,8 @@ end
 % %-------------------------------------------------------------------------------
 % % How correlated are whole-brain category scores between random gene and spatial nulls?
 % %-------------------------------------------------------------------------------
-% PlotGOScoreScatter(resultTablesDegree.mouse_all_randomGeneNull,...
-%                     resultTablesDegree.mouse_all_spatialNullAll,{'pValCorr','pValZCorr'});
+% PlotGOScoreScatter(resultTables.mouse_all_randomGeneNull,...
+%                     resultTables.mouse_all_spatialNullAll,{'pValCorr','pValZCorr'});
 % xlabel('degree-corr-randomGeneNull')
 % ylabel('degree-corr-spatial-null')
 %
@@ -152,7 +163,7 @@ end
 % %-------------------------------------------------------------------------------
 % % Results when permuting separately within and between cortical areas
 % %-------------------------------------------------------------------------------
-% pVals = resultTablesDegree.mouse_all_spatialNull_twoIsocortex.pValZCorr;
+% pVals = resultTables.mouse_all_spatialNull_twoIsocortex.pValZCorr;
 % fprintf(1,'p-vals for two-part isocortex constrained null are all > %.3f [%u-nulls]\n',...
 %                 min(pVals),numNulls);
 end

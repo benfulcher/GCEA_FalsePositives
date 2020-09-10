@@ -7,7 +7,7 @@ case 'AllenMouseGene'
     dataFile = fullfile('MouseData','AllenGeneDataset_19419.mat');
 case 'EnrichmentToolbox'
     if ismac
-        dataFile = '~/DropboxSydneyUni/CodeToolboxes/MatlabEnrichment/';
+        dataFile = '~/DropboxSydneyUni/CodeToolboxes/GeneCategoryEnrichment/CodeRepo/';
     else
         % Can install by git clone git@GeneSetEnrichmentAnalysis.git
         dataFile = '~/GeneEnrichment/';

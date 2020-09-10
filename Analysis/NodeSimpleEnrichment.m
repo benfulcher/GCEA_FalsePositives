@@ -8,6 +8,7 @@ function [GOTable,gScore] = NodeSimpleEnrichment(params,enrichWhat,doSaveMat)
 % enrichWhat = 'cortex'; % difference in expression between cerebral cortex/others
 % enrichWhat = 'genePC'; % correlation with a PC of gene expression
 % enrichWhat = 'degree'; % correlation with structural connectivity degree across regions
+% enrichWhat = 'excitatory'; % correlation with excitatory cell density across regions
 %-------------------------------------------------------------------------------
 %-------------------------------------------------------------------------------
 
@@ -43,13 +44,25 @@ end
 %-------------------------------------------------------------------------------
 % Gene data:
 [geneData,geneInfo,structInfo] = LoadMeG(params.g);
-numStructs = height(structInfo);
 numGenes = height(geneInfo);
 
 %===============================================================================
 %% -------------------------------SCORE THE GENES-------------------------------
 %===============================================================================
 switch enrichWhat
+case {'excitatory','oligodendrocytes','neurons','inhibitory','PV','SST','VIP'}
+    %-------------------------------------------------------------------------------
+    % Genes scored for correlation to excitatory cell density
+    %-------------------------------------------------------------------------------
+    [phenotypeVector,ia] = MatchMeCellDensity(structInfo,enrichWhat);
+    structInfo = structInfo(ia,:);
+    geneData = geneData(ia,:);
+
+    gScore = zeros(numGenes,1);
+    for i = 1:numGenes
+        gScore(i) = corr(phenotypeVector,geneData(:,i),'type',corrType,'rows','pairwise');
+    end
+
 case 'meanExpression'
     %-------------------------------------------------------------------------------
     % Mean expression enrichment: genes scored for mean expression across the brain
