@@ -50,7 +50,7 @@ numGenes = height(geneInfo);
 %% -------------------------------SCORE THE GENES-------------------------------
 %===============================================================================
 switch enrichWhat
-case {'excitatory','oligodendrocytes','neurons','inhibitory','PV','SST','VIP'}
+case {'excitatory','inhibitory','oligodendrocytes','glia','astrocytes','microglia','neurons','PV','SST','VIP'}
     %-------------------------------------------------------------------------------
     % Genes scored for correlation to excitatory cell density
     %-------------------------------------------------------------------------------
@@ -173,6 +173,8 @@ case 'genePC'
     for i = 1:numGenes
         gScore(i) = abs(corr(pcScore(:,1),geneData(:,i),'type',corrType,'rows','pairwise'));
     end
+otherwise
+    error('I don''t know how to enrich for %s!',enrichWhat)
 end
 
 if doRandomize
@@ -186,13 +188,15 @@ end
 GOTable = SingleEnrichment(gScore,geneInfo.entrez_id,params.e);
 
 %-------------------------------------------------------------------------------
-% Count significant under corrected permutation testing:
-numSig = sum(GOTable.pValPermCorr < params.e.sigThresh);
-fprintf(1,'%u significant categories at pPerm_corr < %.2f\n',numSig,params.e.sigThresh);
-display(GOTable(1:numSig,:));
+% Count number of significant categories, under corrected permutation testing:
+numSigPerm = sum(GOTable.pValPermCorr < params.e.sigThresh);
+fprintf(1,'%u significant categories (permutation) at p_corr < %.2f\n',numSigPerm,params.e.sigThresh);
+numSigZ = sum(GOTable.pValZCorr < params.e.sigThresh);
+fprintf(1,'%u significant categories (gaussian-null) at p_corr < %.2f\n',numSigZ,params.e.sigThresh);
+display(GOTable(1:numSigZ,:));
 
 %-------------------------------------------------------------------------------
-% Save .mat file for later
+% Save .mat file for further analysis later
 if doSaveMat
     fileSaveTo = GiveMeSimpleEnrichmentOutputFile(params,enrichWhat);
     save(fileSaveTo,'params','GOTable','gScore');

@@ -1,11 +1,6 @@
 function fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params)
 % Get the filename of interest
 %-------------------------------------------------------------------------------
-% Don't use the old results by default!
-if nargin < 2
-    doOld = false;
-end
-%-------------------------------------------------------------------------------
 % Need to find precomputed null results (from running ComputeAllCategoryNulls):
 
 if strcmp(params.humanOrMouse,'human')
@@ -14,7 +9,6 @@ else
     speciesLabel = sprintf('%s-%s',params.humanOrMouse,params.structFilter);
 end
 
-% New:
 fileNullEnsembleResults = sprintf('PhenotypeNulls_%u_%s-%s_%s_%s_%s.mat',...
             params.e.numNullSamples,speciesLabel,params.e.whatEnsemble,...
             params.e.whatCorr,params.e.aggregateHow);

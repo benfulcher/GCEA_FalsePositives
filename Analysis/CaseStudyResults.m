@@ -1,5 +1,5 @@
-function T = CaseStudyResults(whatSpecies,structFilter,enrichWhat)
-% Compute case study results: node degree enrichment
+function newTable = CaseStudyResults(whatSpecies,structFilter,enrichWhat)
+% Compute case study results: e.g., node degree enrichment
 %-------------------------------------------------------------------------------
 if nargin < 1
     whatSpecies = 'mouse'; % 'mouse', 'human'
@@ -28,7 +28,7 @@ switch enrichWhat
         doBinarize = true;
         phenotypeVector = ComputeDegree(params,doBinarize);
     otherwise
-        % Some cell density map
+        % A cell density map
         [phenotypeVector,ia] = MatchMeCellDensity(structInfo,enrichWhat);
         structInfo = structInfo(ia,:);
         geneDataStruct.expressionMatrix = geneData(ia,:);
@@ -39,22 +39,35 @@ end
 %-------------------------------------------------------------------------------
 resultTables = struct();
 
+% -------
 % (i) Load results of conventional null (precomputed using gene-score resampling):
+% -------
 % resultTables.randomGeneNull = NodeSimpleEnrichment(params,'degree',true);
+fprintf(1,'Random gene null\n');
 load(GiveMeSimpleEnrichmentOutputFile(params,enrichWhat),'GOTable');
 resultTables.randomGeneNull = GOTable;
 clear('GOTable')
 
+% -------
 % (ii) Random phenotype null:
+% -------
+fprintf(1,'Random phenotype null\n');
+% Load the null-phenotype enrichment results (from ComputeAllCategoryNulls):
 params.e.whatEnsemble = 'randomMap';
 fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params);
+% Compute enrichment relative to the null phenotypes:
 resultTables.randomMap = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
 % [geneData,geneInfo,structInfo] = LoadMeG(params.g);
 % ListCategories(geneInfo,GOTablePhenotype,20,'pValZ');
 
+% -------
 % (iii) Spatial-lag null:
+% -------
+fprintf(1,'Spatially autocorrelated phenotype null\n');
+% Load the null-phenotype enrichment results (from ComputeAllCategoryNulls):
 params.e.whatEnsemble = 'customEnsemble';
 fileNullEnsembleResults = GiveMeEnsembleEnrichmentOutputFileName(params);
+% Compute enrichment relative to the phenotype-based nulls:
 resultTables.spatialLag = EnsembleEnrichment(geneDataStruct,fileNullEnsembleResults,phenotypeVector);
 
 %-------------------------------------------------------------------------------
@@ -63,6 +76,8 @@ whatPField = 'pValZCorr';
 countMe = @(x)sum(resultTables.(x).(whatPField) < params.e.sigThresh);
 % Can get lost in all the outputs, so make it clear:
 fprintf(1,'\n-----------------------------\n');
+fprintf(1,'-----------------------------\n');
+fprintf(1,'%s-%s-%s\n',whatSpecies,structFilter,enrichWhat);
 fprintf(1,'-----------------------------\n');
 fprintf(1,'%u categories significant (%s) for random-gene null\n',countMe('randomGeneNull'),whatPField);
 fprintf(1,'%u categories significant (%s) for random-phenotype null\n',countMe('randomMap'),whatPField);
@@ -78,13 +93,19 @@ fprintf(1,'-----------------------------\n\n');
 GOName = resultTables.randomGeneNull.GOName(ia);
 GOIDlabel = resultTables.randomGeneNull.GOIDlabel(ia);
 GOID = commonGOIDs;
+% Raw p-values:
+pValZRandomGene = resultTables.randomGeneNull.pValZ(ia);
+pValZRandomMap = resultTables.randomMap.pValZ(ib);
+pValZSpatialLag = resultTables.spatialLag.pValZ(ib);
+% Corrected p-values:
 pValZCorrRandomGene = resultTables.randomGeneNull.pValZCorr(ia);
 pValZCorrRandomMap = resultTables.randomMap.pValZCorr(ib);
 pValZCorrSpatialLag = resultTables.spatialLag.pValZCorr(ib);
 
 newTable = table(GOName,GOIDlabel,GOID,...
+                pValZRandomGene,pValZRandomMap,pValZSpatialLag,...
                 pValZCorrRandomGene,pValZCorrRandomMap,pValZCorrSpatialLag);
-meanScoreSum = newTable.pValZCorrRandomGene + newTable.pValZCorrRandomMap;
+meanScoreSum = newTable.pValZRandomGene + newTable.pValZRandomMap;
 [~,ix] = sort(meanScoreSum,'ascend');
 newTable = newTable(ix,:);
 
@@ -99,7 +120,7 @@ FDRpValue_SBPspatial = newTable.pValZCorrSpatialLag;
 
 T = table(CategoryName,IDLabel,ID,FDRpValue_randomGene,FDRpValue_SBPrandom,...
                     FDRpValue_SBPspatial);
-fileOut = fullfile('SupplementaryTables',sprintf('EnrichmentThreeWays_%s_%s.csv',whatSpecies,structFilter));
+fileOut = fullfile('SupplementaryTables',sprintf('EnrichmentThreeWays_%s_%s_%s.csv',whatSpecies,structFilter,enrichWhat));
 writetable(T,fileOut,'Delimiter',',','QuoteStrings',true);
 fprintf(1,'Saved all CFPR results to %s\n',fileOut);
 
@@ -127,15 +148,15 @@ case 'all'
 
 case 'cortex'
     % Rearrange to look at p-values for each of the top categories
-    topWhat = 20;
-    for i = 1:topWhat
-        fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultTables.randomGeneNull.GOName{i});
-        fprintf(1,'Random-gene: %s = %.2g\n',whatPField,resultTables.randomGeneNull.(whatPField)(i));
-        isHere = find(resultTables.randomMap.GOID==resultTables.randomGeneNull.GOID(i));
-        fprintf(1,'Random phenotype: %s = %.2g\n',whatPField,resultTables.randomMap.(whatPField)(isHere));
-        isHere = find(resultTables.randomMap.GOID==resultTables.spatialLag.GOID(i));
-        fprintf(1,'spatialLag: %s = %.2g\n',whatPField,resultTables.spatialLag.(whatPField)(isHere));
-    end
+    % topWhat = 20;
+    % for i = 1:topWhat
+    %     fprintf(1,'\n%u/%u: %s\n',i,topWhat,resultTables.randomGeneNull.GOName{i});
+    %     fprintf(1,'Random-gene: %s = %.2g\n',whatPField,resultTables.randomGeneNull.(whatPField)(i));
+    %     isHere = find(resultTables.randomMap.GOID==resultTables.randomGeneNull.GOID(i));
+    %     fprintf(1,'Random phenotype: %s = %.2g\n',whatPField,resultTables.randomMap.(whatPField)(isHere));
+    %     isHere = find(resultTables.randomMap.GOID==resultTables.spatialLag.GOID(i));
+    %     fprintf(1,'spatialLag: %s = %.2g\n',whatPField,resultTables.spatialLag.(whatPField)(isHere));
+    % end
 end
 
 
@@ -166,4 +187,5 @@ end
 % pVals = resultTables.mouse_all_spatialNull_twoIsocortex.pValZCorr;
 % fprintf(1,'p-vals for two-part isocortex constrained null are all > %.3f [%u-nulls]\n',...
 %                 min(pVals),numNulls);
+
 end
