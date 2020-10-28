@@ -25,17 +25,17 @@ doBinarize = true;
 
 % Mouse brain:
 params = GiveMeDefaultParams('mouse','all');
-[k,structInfoConn] = ComputeDegree(params,doBinarize);
+[k,structInfoConn] = ComputeNodeMetric(params,doBinarize,'degree');
 dlmwrite('mouseDegree.csv',k)
 
 % Mouse cortex:
 params = GiveMeDefaultParams('mouse','cortex');
-[k,structInfoConn] = ComputeDegree(params,doBinarize);
+[k,structInfoConn] = ComputeNodeMetric(params,doBinarize,'degree');
 dlmwrite('mouseCortexDegree.csv',k)
 
 % Human cortex:
 params = GiveMeDefaultParams('human','cortex');
-[k,structInfoConn] = ComputeDegree(params,doBinarize);
+[k,structInfoConn] = ComputeNodeMetric(params,doBinarize,'degree');
 numAreas = length(k);
 dlmwrite(sprintf('humanDegree_%u.csv',numAreas),k)
 
@@ -44,7 +44,7 @@ dlmwrite(sprintf('humanDegree_%u.csv',numAreas),k)
 %-------------------------------------------------------------------------------
 params = GiveMeDefaultParams('mouse','all');
 distMat = GiveMeDistanceMatrix(params);
-[k,structInfoConn] = ComputeDegree(params,doBinarize);
+[k,structInfoConn] = ComputeNodeMetric(params,doBinarize,'degree');
 %-------------------------------------------------------------------------------
 
 

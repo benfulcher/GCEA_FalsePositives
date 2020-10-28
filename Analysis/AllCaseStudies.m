@@ -2,71 +2,73 @@
 %===============================================================================
 % DEGREE
 %===============================================================================
+nodeMetrics = {'degree','betweenness'};
+numNodeMetrics = length(nodeMetrics);
 
 % Precomputing conventional results:
-params = GiveMeDefaultParams('mouse','cortex');
-[GOTable,gScore] = NodeSimpleEnrichment(params,'degree',true);
+for n = 1:numNodeMetrics
+    params = GiveMeDefaultParams('mouse','cortex');
+    NodeSimpleEnrichment(params,nodeMetrics{n},true);
 
-params = GiveMeDefaultParams('mouse','all');
-[GOTable,gScore] = NodeSimpleEnrichment(params,'degree',true);
+    params = GiveMeDefaultParams('mouse','all');
+    NodeSimpleEnrichment(params,nodeMetrics{n},true);
 
-params = GiveMeDefaultParams('human','cortex');
-[GOTable,gScore] = NodeSimpleEnrichment(params,'degree',true);
-
-%-------------------------------------------------------------------------------
-% Degree: whole mouse brain
-T = CaseStudyResults('mouse','all','degree');
-T = sortrows(T,'pValZRandomGene');
-resultsTables.mouseBrainDegree = T;
-T(1:20,:)
+    params = GiveMeDefaultParams('human','cortex');
+    NodeSimpleEnrichment(params,nodeMetrics{n},true);
+end
 
 %-------------------------------------------------------------------------------
-% Degree: mouse cortex
-T = CaseStudyResults('mouse','cortex','degree');
-T = sortrows(T,'pValZRandomGene');
-resultsTables.mouseCortexDegree = T;
-T(1:20,:)
+% Degree/Betweenness:
+for n = 1:numNodeMetrics
+    % Mouse brain
+    T = CaseStudyResults('mouse','all',nodeMetrics{n});
+    T = sortrows(T,'pValZRandomGene');
+    resultsTables.(sprintf('mouseBrain%s',nodeMetrics{n})) = T;
+    T(1:20,:)
 
-%-------------------------------------------------------------------------------
-% Degree: human cortex brain
-T = CaseStudyResults('human','cortex','degree');
-T = sortrows(T,'pValZRandomGene');
-resultsTables.humanCortexDegree = T;
-T(1:20,:)
+    % Mouse cortex
+    T = CaseStudyResults('mouse','cortex',nodeMetrics{n});
+    T = sortrows(T,'pValZRandomGene');
+    resultsTables.(sprintf('mouseCortex%s',nodeMetrics{n})) = T;
+    T(1:20,:)
+
+    % Human cortex
+    T = CaseStudyResults('human','cortex',nodeMetrics{n});
+    T = sortrows(T,'pValZRandomGene');
+    resultsTables.(sprintf('humanCortex%s',nodeMetrics{n})) = T;
+    T(1:20,:)
+end
 
 %===============================================================================
-% CELL DENSITIES: mouse cortex
+% CELL DENSITIES: mouse cortex/brain
 %===============================================================================
-
-%-------------------------------------------------------------------------------
-% Precomputing conventional results (mouse cortex):
-params = GiveMeDefaultParams('mouse','cortex');
 cellTypes = {'excitatory','inhibitory','oligodendrocytes','glia','astrocytes',...
                         'microglia','neurons','PV','SST','VIP'};
 numCellTypes = length(cellTypes);
-for i = 1:numCellTypes
-    fprintf(1,'Precomputing random-gene results for %s\n',cellTypes{i});
-    [GOTable,gScore] = NodeSimpleEnrichment(params,cellTypes{i},true);
-end
+
 %-------------------------------------------------------------------------------
-% Precomputing conventional results (mouse brain):
-params = GiveMeDefaultParams('mouse','all');
-cellTypes = {'excitatory','inhibitory','oligodendrocytes','glia','astrocytes',...
-                        'microglia','neurons','PV','SST','VIP'};
-numCellTypes = length(cellTypes);
-for i = 1:numCellTypes
-    fprintf(1,'Precomputing random-gene results for %s\n',cellTypes{i});
-    [GOTable,gScore] = NodeSimpleEnrichment(params,cellTypes{i},true);
+% Precomputing conventional results (mouse cortex/brain):
+params_cortex = GiveMeDefaultParams('mouse','cortex');
+params_brain = GiveMeDefaultParams('mouse','all');
+for c = 1:numCellTypes
+    fprintf(1,'Precomputing random-gene results for %s\n',cellTypes{c});
+    % NodeSimpleEnrichment(params_cortex,cellTypes{c},true);
+    NodeSimpleEnrichment(params_brain,cellTypes{c},true);
 end
-%-------------------------------------------------------------------------------
 
 %-------------------------------------------------------------------------------
 % Now compare the different null models:
-for i = 1:numCellTypes
-    T = CaseStudyResults('mouse','cortex',cellTypes{i});
+for c = 1:numCellTypes
+    % ---Mouse cortex---
+    % T = CaseStudyResults('mouse','cortex',cellTypes{i});
+    % T = sortrows(T,'pValZRandomGene');
+    % T(1:20,:)
+    % resultsTables.(sprintf('mouseCortex_%s',cellTypes{i})) = T;
+    % ---Mouse brain---
+    T = CaseStudyResults('mouse','all',cellTypes{c});
     T = sortrows(T,'pValZRandomGene');
     T(1:20,:)
-    resultsTables.(sprintf('mouseCortex_%s',cellTypes{i})) = T;
+    resultsTables.(sprintf('mouseBrain_%s',cellTypes{c})) = T;
 end
 
 %-------------------------------------------------------------------------------
@@ -84,15 +86,16 @@ nullNames = {'Random Gene','SBP-Random','SBP-Spatial'};
 nullsRaw = {'pValZRandomGene','pValZRandomMap','pValZSpatialLag'};
 nullsCorr = {'pValZCorrRandomGene','pValZCorrRandomMap','pValZCorrSpatialLag'};
 numNulls = length(nullsRaw);
+numSig = nan(numAnalyses,numNulls);
 for i = 1:numAnalyses
     fprintf(1,'\n\n----------%s------------\n\n',theAnalyses{i});
 
     for k = 1:numNulls
         isSignificant = (resultsTables.(theAnalyses{i}).(nullsCorr{k}) < sigThresh);
-        numSig = sum(isSignificant);
+        numSig(i,k) = sum(isSignificant);
         fprintf(1,'%s null: %u significant (Gaussian-approx).\n\n',nullNames{k},numSig);
         [~,ix] = sort(resultsTables.(theAnalyses{i}).(nullsRaw{k}),'ascend');
-        for j = 1:min(numSig,maxShow)
+        for j = 1:min(numSig(i,k),maxShow)
             fprintf(1,'%s (%g)\n',resultsTables.(theAnalyses{i}).GOName{ix(j)},...
                             resultsTables.(theAnalyses{i}).(nullsCorr{k})(ix(j)));
         end
@@ -178,3 +181,32 @@ end
 legend(enrichWhat)
 xlabel('Correlation')
 ylabel('Count density')
+
+%===============================================================================
+% Now, how can we nicely show the results?
+%===============================================================================
+justCortex = true;
+showZero = false;
+if justCortex
+    isMouseBrain = ~cellfun(@isempty,regexp(theAnalyses,'mouseBrain'));
+    theAnalysesShow = theAnalyses(~isMouseBrain);
+    numSigShow = numSig(~isMouseBrain,:);
+else
+    theAnalysesShow = theAnalyses;
+    numSigShow = numSig;
+end
+if ~showZero
+    myFilter = sum(numSigShow,2)>0;
+    numSigShow = numSigShow(myFilter,:);
+    theAnalysesShow = theAnalysesShow(myFilter);
+end
+f = figure('color','w');
+ax = gca();
+bar(numSigShow)
+ax.XTick = 1:size(numSigShow,1);
+ax.XTickLabel = theAnalysesShow;
+ax.XTickLabelRotation = 30;
+ax.TickLabelInterpreter = 'None';
+legend('random-Gene','SBP-rand','SBP-spatial')
+title('Significant enrichment across phenotypes')
+

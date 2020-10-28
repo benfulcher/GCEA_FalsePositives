@@ -10,7 +10,7 @@ params = GiveMeDefaultParams('mouse');
 numGenes = height(geneInfo);
 
 % Degree data:
-[k,structInfo_k] = ComputeDegree(params,true);
+[k,structInfo_k] = ComputeNodeMetric(params,true,'degree');
 
 % Check for structure match:
 [~,ia,ib] = intersect(structInfo_gene.acronym,structInfo_k.acronym,'stable');

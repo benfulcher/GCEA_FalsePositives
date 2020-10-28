@@ -75,14 +75,14 @@ case 'varExpression'
     %-------------------------------------------------------------------------------
     gScore = nanstd(geneData,1);
 
-case 'degree'
+case {'degree','betweenness'}
     %-------------------------------------------------------------------------------
     % Degree enrichment: genes scored for the correlation of their expression to
     % the number of connections each region makes to other regions
     %-------------------------------------------------------------------------------
     % Binary connectome data:
     doBinarize = true;
-    [k,structInfoConn] = ComputeDegree(params,doBinarize);
+    [k,structInfoConn] = ComputeNodeMetric(params,doBinarize,enrichWhat);
     switch params.humanOrMouse
     case 'human'
         if ~all(structInfoConn.ROI_ID==structInfo.ROI_ID)

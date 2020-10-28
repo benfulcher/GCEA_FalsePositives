@@ -24,9 +24,9 @@ geneDataStruct.entrezIDs = geneInfo.entrez_id;
 %-------------------------------------------------------------------------------
 % Get the phenotype of interest and match:
 switch enrichWhat
-    case 'degree'
+    case {'degree','betweenness'}
         doBinarize = true;
-        phenotypeVector = ComputeDegree(params,doBinarize);
+        phenotypeVector = ComputeNodeMetric(params,doBinarize,enrichWhat);
     otherwise
         % A cell density map
         [phenotypeVector,ia] = MatchMeCellDensity(structInfo,enrichWhat);
@@ -139,7 +139,7 @@ case 'all'
     ylabel('GO category score (-log10 p-value ranksum test isocortex)')
 
     % Does degree differ cortical/non-cortical?
-    [k,structInfo] = ComputeDegree(params,true);
+    [k,structInfo] = ComputeNodeMetric(params,true,'degree');
     kCortex = k(strcmp(structInfo.divisionLabel,'Isocortex'));
     kNotCotex = k(~strcmp(structInfo.divisionLabel,'Isocortex'));
     fprintf(1,'Cortex: <k> = %.2f, s_k = %.2f\n',mean(kCortex),std(kCortex));

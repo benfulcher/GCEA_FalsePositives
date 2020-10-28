@@ -1,4 +1,4 @@
-function [k,structInfo] = ComputeDegree(params,doBinarize)
+function [k,structInfo] = ComputeNodeMetric(params,doBinarize,nodeMetric)
 % Compute the degree across areas of a given brain parcellation
 %-------------------------------------------------------------------------------
 if nargin < 1
@@ -6,6 +6,9 @@ if nargin < 1
 end
 if nargin < 2
     doBinarize = true;
+end
+if nargin < 3
+    nodeMetric = 'degree';
 end
 
 %-------------------------------------------------------------------------------
@@ -16,7 +19,14 @@ end
                                             params.c.whatWeightMeasure,...
                                             params.c.whatHemispheres,...
                                             params.c.structFilter);
-k = sum(A_bin,1)' + sum(A_bin,2);
+
+
+switch nodeMetric
+case 'degree' % (in + out)
+    k = sum(A_bin,1)' + sum(A_bin,2);
+case 'betweenness'
+    k = betweenness_bin(A_bin)';
+end
 
 %-------------------------------------------------------------------------------
 % Match to gene expression data:
