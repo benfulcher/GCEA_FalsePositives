@@ -1,4 +1,4 @@
-function [phenotypeVector,ia] = MatchMeCellDensity(structInfo,theCellType)
+function [phenotypeVector,ia,regionNamesOrdered] = MatchMeCellDensity(structInfo,theCellType)
 
 switch theCellType
 case {'VIP','SST','PV'}
@@ -15,10 +15,12 @@ otherwise
 end
 
 % Match names to acronyms:
-[~,ia,ib] = intersect(lower(regionNames_ref),lower(regionNames_cell));
+[regionNamesOrdered,ia,ib] = intersect(lower(regionNames_ref),lower(regionNames_cell));
 dataOutput = dataOutput(ib,:);
+phenotypeVector = dataOutput.(theCellType);
+
+% Output to commandline:
 fprintf(1,'%u names match to set of %u acronyms\n',...
                 height(dataOutput),height(structInfo));
-phenotypeVector = dataOutput.(theCellType);
 
 end
