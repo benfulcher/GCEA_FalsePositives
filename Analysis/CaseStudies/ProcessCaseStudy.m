@@ -1,5 +1,6 @@
 function [resultsTables,numSig] = ProcessCaseStudy(resultsTables,justCortex,sigThresh,displayToScreen)
-% Output a summary of all results to text file:
+% Process case study results from AllCaseStudies.mat
+% (and optionally output a summary of all results to text file)
 
 %-------------------------------------------------------------------------------
 if nargin < 2

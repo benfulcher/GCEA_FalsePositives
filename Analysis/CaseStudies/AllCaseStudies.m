@@ -61,15 +61,15 @@ end
 % Now compare the different null models:
 for c = 1:numCellTypes
     % ---Mouse cortex---
-    % T = CaseStudyResults('mouse','cortex',cellTypes{i});
-    % T = sortrows(T,'pValZRandomGene');
-    % T(1:20,:)
-    % resultsTables.(sprintf('mouseCortex_%s',cellTypes{i})) = T;
-    % ---Mouse brain---
-    T = CaseStudyResults('mouse','all',cellTypes{c});
+    T = CaseStudyResults('mouse','cortex',cellTypes{c});
     T = sortrows(T,'pValZRandomGene');
     T(1:20,:)
-    resultsTables.(sprintf('mouseBrain_%s',cellTypes{c})) = T;
+    resultsTables.(sprintf('mouseCortex_%s',cellTypes{c})) = T;
+    % ---Mouse brain---
+    % T = CaseStudyResults('mouse','all',cellTypes{c});
+    % T = sortrows(T,'pValZRandomGene');
+    % T(1:20,:)
+    % resultsTables.(sprintf('mouseBrain_%s',cellTypes{c})) = T;
 end
 
 %-------------------------------------------------------------------------------
