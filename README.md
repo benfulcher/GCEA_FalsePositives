@@ -1,6 +1,6 @@
-# Appropriate statistical inference for gene-set enrichment analyses (GSEA) of brain-wide transcriptomic data
+# Appropriate statistical inference for gene category enrichment analyses (GCEA) of brain-wide transcriptomic data
 This is a repository to accompany the manuscript 'Appropriate statistical inference for gene-set enrichment analyses of brain-wide transcriptomic data'.
-The code below reproduces all statistical tests on GSEA in human and mouse.
+The code below reproduces all statistical tests on GCEA in human and mouse.
 
 All data is available for download from an associated figshare repository (due to figshare being a bit :shit:, for now, data are available on [cloudstor](https://cloudstor.aarnet.edu.au/plus/s/KQ7YdMe0Y7uuhzo)).
 Downloadable files are labeled as :link:.
@@ -9,15 +9,15 @@ You can download all data in the required directories using `DownloadAllData`.
 
 ## Setting up
 
-### Data and code for running gene set enrichment analysis (GSEA)
+### Data and code for running gene category enrichment analysis (GCEA)
 
-This relies on a [Matlab toolbox for GSEA](https://github.com/benfulcher/GeneSetEnrichmentAnalysis), which can be installed by cloning:
+This relies on a [Matlab toolbox for GCEA](https://github.com/benfulcher/GeneCategoryEnrichmentAnalysis), which can be installed by cloning:
 ```bash
-git clone git@github.com:benfulcher/GeneSetEnrichmentAnalysis.git
+git clone git@github.com:benfulcher/GeneCategoryEnrichmentAnalysis.git
 ```
 Analyses here require it to be accessible in the path, which can be set by modifying `GiveMeFile` (`'EnrichmentToolbox'`).
 
-Please follow the instructions from that repository to recompute (or download from the figshare repository for this Matlab-GSEA toolbox) the following required data files:
+Please follow the instructions from that repository to recompute (or download from the figshare repository for this Matlab-GCEA toolbox) the following required data files:
 * Direct biological process annotations: `GOTerms_BP.mat`.
 * Hierarchically propagated annotations (mouse): `GOAnnotationDirect-mouse-biological_process-Prop.mat`.
 * Hierarchically propagated annotations (human): `GOAnnotationDirect-human-biological_process-Prop.mat`.
@@ -138,7 +138,7 @@ NullComputation(params);
 ```
 
 The null distribution for all GO categories is stored in a table that is saved to a `.mat` file, in this case: `PhenotypeNulls_40000_mouse_randomMap_Spearman_mean.mat`.
-These stored null distributions can then be used for ensemble-based GSEA.
+These stored null distributions can then be used for ensemble-based GCEA.
 
 For the analyses presented in the manuscript, these are stored in the `EnsembleBasedNulls/` directory:
 
@@ -297,7 +297,7 @@ This produces `SupplementaryTables/SpatialAutocorrelationScores.csv`.
 
 ### Case Study: Degree
 
-First compute and save all results of conventional GSEA.
+First compute and save all results of conventional GCEA.
 This will loop through human, mouse-all, and mouse-cortex:
 ```matlab
 RunConventionalEnrichment();
