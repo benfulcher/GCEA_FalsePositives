@@ -1,11 +1,12 @@
 # Overcoming Bias in Gene Category Enrichment Analyses of Brain-Wide Transcriptomic Data
+
+[![DOI](https://zenodo.org/badge/74440318.svg)](https://zenodo.org/badge/latestdoi/74440318)
+
 This is a repository to accompany the manuscript 'Appropriate statistical inference for gene-set enrichment analyses of brain-wide transcriptomic data'.
 The code below reproduces all statistical tests on GCEA in human and mouse.
 
 All data is available for download from [this Zenodo repository](http://doi.org/10.5281/zenodo.3777553).
 Downloadable files are labeled in this README using the following symbol: :link:.
-
-You can download all data in the required directories using `DownloadAllData`.
 
 ## Setting up
 
