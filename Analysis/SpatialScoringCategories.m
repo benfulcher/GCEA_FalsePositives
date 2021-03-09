@@ -85,15 +85,21 @@ fprintf(1,'Saved results to %s\n',fileName);
 
 %-------------------------------------------------------------------------------
 % Sort by R2 of the exponential fit:
-[~,ix] = sort(GOTable.R2fit,'descend');
+[~,ix] = sort(GOTable.R2fit,'descend','MissingPlacement','last');
 GOTable = GOTable(ix,:);
 
 %-------------------------------------------------------------------------------
 % Save it to csv file:
 %-------------------------------------------------------------------------------
-newTable = table(GOTable.GOName,GOTable.GOIDlabel,GOTable.GOID,...
-                    GOTable.A_fitted,GOTable.B_fitted,GOTable.d0_fitted,...
-                    GOTable.R2fit,GOTable.negRho);
+GOName = GOTable.GOName;
+GOIDlabel = GOTable.GOIDlabel;
+GOID = GOTable.GOID;
+A_fitted = GOTable.A_fitted;
+B_fitted = GOTable.B_fitted;
+lambda_fitted = GOTable.d0_fitted; % we call this \lambda in the manuscript.
+R2fit = GOTable.R2fit;
+negRho = GOTable.negRho;
+newTable = table(GOName,GOIDlabel,GOID,A_fitted,B_fitted,lambda_fitted,R2fit,negRho);
 fileOut = fullfile('SupplementaryTables',...
         sprintf('CategorySpatialScoring_%s-%s.csv',whatSpecies,whatStructFilt));
 writetable(newTable,fileOut,'Delimiter',',','QuoteStrings',true);
