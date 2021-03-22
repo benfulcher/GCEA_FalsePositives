@@ -1,7 +1,5 @@
 function LiteratureGOTable = MakeLiteratureTable(whatSpecies,pValCorrThreshold)
 %-------------------------------------------------------------------------------
-% TOPLITERATURE
-%-------------------------------------------------------------------------------
 % Information about the most implicated GO categories in the literature
 %-------------------------------------------------------------------------------
 
