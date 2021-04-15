@@ -8,7 +8,7 @@ This is a repository to accompany the manuscript:
 
 The code below reproduces all statistical tests on gene category enrichment analysis (GCEA) using data from human and mouse.
 
-All data is available for download from the associated [Zenodo repository](http://doi.org/10.5281/zenodo.3777553) that accompanies this repository.
+All data is available for download from the associated [Zenodo repository](https://doi.org/10.5281/zenodo.3777552) that accompanies this repository.
 Files that can be downloaded from this repository are labeled in this README using the symbol: :link:.
 
 ## Setting up
