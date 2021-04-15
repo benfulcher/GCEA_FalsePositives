@@ -1,12 +1,15 @@
-# Overcoming Bias in Gene Category Enrichment Analyses of Brain-Wide Transcriptomic Data
+# Overcoming false-positive gene-category enrichment in the analysis of spatially resolved transcriptomic brain atlas data
 
 [![DOI](https://zenodo.org/badge/74440318.svg)](https://zenodo.org/badge/latestdoi/74440318)
 
-This is a repository to accompany the manuscript ['Appropriate statistical inference for gene category enrichment analyses of brain-wide transcriptomic data'](https://doi.org/10.1101/2020.04.24.058958).
+This is a repository to accompany the manuscript:
+
+- Fulcher et al. (2021) [:green_book: 'Overcoming false-positive gene-category enrichment in the analysis of spatially resolved transcriptomic brain atlas data'](https://doi.org/10.1101/2020.04.24.058958).
+
 The code below reproduces all statistical tests on gene category enrichment analysis (GCEA) using data from human and mouse.
 
 All data is available for download from the associated [Zenodo repository](http://doi.org/10.5281/zenodo.3777553) that accompanies this repository.
-Files that can be downloaded from this respoitory are labeled in this README using the symbol: :link:.
+Files that can be downloaded from this repository are labeled in this README using the symbol: :link:.
 
 ## Setting up
 
