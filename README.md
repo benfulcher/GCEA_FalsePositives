@@ -21,7 +21,7 @@ git clone git@github.com:benfulcher/GeneCategoryEnrichmentAnalysis.git
 ```
 Analyses here require it to be accessible in the path, which can be set by modifying `GiveMeFile` (`'EnrichmentToolbox'`).
 
-Please follow the instructions from that repository to recompute (or download from the figshare repository for this Matlab-GCEA toolbox) the following required data files:
+Please follow the instructions from that repository to recompute (or download from the Zenodo repository for this Matlab-GCEA toolbox) the following required data files:
 * Direct biological process annotations: `GOTerms_BP.mat`.
 * Hierarchically propagated annotations (mouse): `GOAnnotationDirect-mouse-biological_process-Prop.mat`.
 * Hierarchically propagated annotations (human): `GOAnnotationDirect-human-biological_process-Prop.mat`.
