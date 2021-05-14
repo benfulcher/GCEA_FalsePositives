@@ -4,7 +4,7 @@
 
 This is a repository to accompany the manuscript:
 
-- Fulcher et al. (2021) [:green_book: 'Overcoming false-positive gene-category enrichment in the analysis of spatially resolved transcriptomic brain atlas data'](https://doi.org/10.1101/2020.04.24.058958).
+- Fulcher et al. _Nature Communications_ (2021) [:green_book: 'Overcoming false-positive gene-category enrichment in the analysis of spatially resolved transcriptomic brain atlas data'](https://doi.org/10.1038/s41467-021-22862-1).
 
 The code below reproduces all statistical tests on gene category enrichment analysis (GCEA) using data from human and mouse.
 
