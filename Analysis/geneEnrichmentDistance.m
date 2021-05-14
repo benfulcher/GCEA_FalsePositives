@@ -48,10 +48,6 @@ else
 end
 
 %-------------------------------------------------------------------------------
-% Filter structures:
-numStructs = height(structInfo);
-
-%-------------------------------------------------------------------------------
 % Construct vector of pairwise separation distances:
 dData = distMat;
 if params.gcc.onlyConnections
@@ -113,8 +109,10 @@ display(GOTable(1:numSig,:));
 %-------------------------------------------------------------------------------
 % Save result to .mat file
 %-------------------------------------------------------------------------------
-fileNameMat = fullfile('DataOutputs',textLabel);
-save(fileNameMat,'GOTable','params'); % ,'geneEntrez','geneDistanceScores'
-fprintf(1,'Saved distance enrichment scores to %s\n',fileNameMat);
+if doSave
+    fileNameMat = fullfile('DataOutputs',textLabel);
+    save(fileNameMat,'GOTable','params'); % ,'geneEntrez','geneDistanceScores'
+    fprintf(1,'Saved distance enrichment scores to %s\n',fileNameMat);
+end
 
 end

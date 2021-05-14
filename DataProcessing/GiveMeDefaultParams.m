@@ -101,6 +101,7 @@ params.e.sigThresh = 0.05; % display categories with corrected p-value below thi
 % Parameters specific to ensemble enrichment:
 params.e.whatCorr = 'Spearman';
 params.e.aggregateHow = 'mean';
+params.e.whatTail = 'right';
 params.e.whatEnsemble = 'randomMap'; % 'randomMap', 'customEnsemble'
 % *For custom ensemble:
 params.e.useAutoSpatial = true;
